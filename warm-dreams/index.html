@@ -225,7 +225,7 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
 <div id="toast"></div>
 
 <div id="start"><div class="box">
-  <div class="tag">Demo de pruebas · versión 1.1</div>
+  <div class="tag">Demo de pruebas · versión 1.4</div>
   <h1>Warm Dreams</h1>
   <div class="go">Toca para empezar</div>
   <div class="keys">◀ ▶ caminar · ▲ saltar · ▼ agacharse · botón naranja para interactuar<br>
@@ -244,12 +244,13 @@ const out=document.getElementById('game'),octx=out.getContext('2d');
 const H=180,Z=2,VH=120,OH=VH*Z;let W=320,OW=640,camY=52,camYf=52;
 const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
 const bloomB=mk(96,34),bctx=bloomB.getContext('2d');
+const shadB=mk(OW,OH),shctx=shadB.getContext('2d');
 const frameA=mk(W,H),frameB=mk(W,H),worldB=mk(W,H),actorB=mk(W,H),lightB=mk(W,H),tmpB=mk(W,H),skyB=mk(W,H),frontB=mk(W,H),hiB=mk(OW,OH),fullA=mk(OW,OH),fullB=mk(OW,OH),layB=mk(OW,OH);
 const skyCtx=skyB.getContext('2d'),frontCtx=frontB.getContext('2d'),hctx=hiB.getContext('2d'),layCtx=layB.getContext('2d'),fullActx=fullA.getContext('2d'),fullBctx=fullB.getContext('2d');
 const fA=frameA.getContext('2d'),fB=frameB.getContext('2d'),wctx=worldB.getContext('2d'),actx=actorB.getContext('2d'),lctx=lightB.getContext('2d'),tctx=tmpB.getContext('2d');
 let ctx=fA,vignette=mk(W,H);
 function resize(){const a=innerWidth/Math.max(1,innerHeight);OW=Math.max(360,Math.min(680,Math.round(OH*a)));W=Math.ceil(OW/Z);
-  for(const c of [out,worldB,actorB,lightB,tmpB,fullA,fullB,layB]){c.width=OW;c.height=OH}tctx.imageSmoothingEnabled=false;
+  for(const c of [out,worldB,actorB,lightB,tmpB,fullA,fullB,layB,shadB]){c.width=OW;c.height=OH}tctx.imageSmoothingEnabled=false;
   vignette=mk(OW,OH);const g=vignette.getContext('2d');const gr=g.createRadialGradient(OW/2,OH*.55,OH*.4,OW/2,OH*.55,OW*.72);
   gr.addColorStop(0,'rgba(12,6,30,0)');gr.addColorStop(1,'rgba(12,6,30,.42)');g.fillStyle=gr;g.fillRect(0,0,OW,OH)}
 const XF=c=>c.setTransform(Z,0,0,Z,0,-camY*Z),ID=c=>c.setTransform(1,0,0,1,0,0);
@@ -353,7 +354,7 @@ let A=null;const IMG={};const useSpr=()=>!!A;
   const id=g.getImageData(0,0,atlas.width,atlas.height),d=id.data,w=atlas.width,h=atlas.height,src=new Uint8ClampedArray(d);
   for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){const i=(y*w+x)*4;if(src[i+3])continue;if(src[i-1]||src[i+7]||src[i+3-w*4]||src[i+3+w*4]){d[i]=36;d[i+1]=28;d[i+2]=46;d[i+3]=255}}
   g.putImageData(id,0,0);
-  IMG.spr=atlas;A={meta:{cw:CW,ch:CH,ox:OX,oy:OY,rows:Object.fromEntries(names.map((n,i)=>[n,i])),frames:F,heads}}})();
+  IMG.spr=atlas;{const b=mk(atlas.width,atlas.height),g=b.getContext('2d');g.drawImage(atlas,0,0);g.globalCompositeOperation='source-in';g.fillStyle='#0c0a18';g.fillRect(0,0,b.width,b.height);IMG.sil=b}A={meta:{cw:CW,ch:CH,ox:OX,oy:OY,rows:Object.fromEntries(names.map((n,i)=>[n,i])),frames:F,heads}}})();
 // ============================================================ escenas
 let B=null,L=null,E=null;
 function newScene(name,LW,o){const s={name,LW,levelC:mk(LW*Z,H*Z),emisC:mk(LW*Z,H*Z),treeSpr:[],flags:[],solids:[],oneways:[],ground:[],lights:[],lamps:[],puddles:[],drips:[],trees:[],
@@ -1135,7 +1136,7 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
     if(sc===OUT&&fox.a>.05){lctx.globalAlpha=fox.a*.8;lctx.drawImage(GL.hole,fox.x+5-camX-24,fox.y-30,48,48)}
     if(sc.interior)for(const w of sc.windows){lctx.globalAlpha=(1-N)*.7;lctx.drawImage(GL.hole,w.x-camX-40,w.y-30,w.w+80,w.h+120)}
     lctx.globalAlpha=1;lctx.globalCompositeOperation='source-over';bl(wctx,lightB);bl(actx,lightB)}
-  wctx.globalCompositeOperation='source-over';actx.globalCompositeOperation='source-over';bl(ctx,worldB);
+  wctx.globalCompositeOperation='source-over';actx.globalCompositeOperation='source-over';if(Q>=1)drawShadows(sc,sc===saveScene,lo);bl(ctx,worldB);
   // luz del sol por la ventana
   if(sc.interior&&(1-N)*(1-st.rain)>.05)for(const w of sc.windows){const a=(1-N)*(1-st.rain)*.13;ctx.globalCompositeOperation='lighter';ctx.fillStyle=css(mix([255,230,180],[255,170,110],sky.sunset),a);
     ctx.beginPath();const x=w.x-camX;ctx.moveTo(x,w.y);ctx.lineTo(x+w.w,w.y);ctx.lineTo(x+w.w-50,150);ctx.lineTo(x-70,150);ctx.closePath();ctx.fill();for(let i=0;i<(Q>=1?26:0);i++){const h=hash(i*97+3),u=((h%1000)/1000+st.time*.0006*(1+(h%3)))%1,v=((h>>10)%1000)/1000;const mx=x+v*w.w-u*60+Math.sin(st.time*.01+i)*3,my=w.y+u*(150-w.y);ctx.fillStyle=`rgba(255,244,214,${a*3.2*(.4+.6*Math.sin(st.time*.03+i))})`;ctx.fillRect(mx,my,.5,.5)}ctx.globalCompositeOperation='source-over'}
@@ -1194,6 +1195,28 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   ID(ctx);ctx.drawImage(vignette,0,0);
   ctx=fA;scene=saveScene;camX=saveCam}
 // ---------------------------------------------------------------- personajes en alta resolución
+// ---------------------------------------------------------------- sombras: sol de día, faroles de noche
+function npcFrame(n){const F=A.meta.frames;return n.walking?(n.kind==='jogger'?F.run[Math.floor((n.ph||0)*.2)%8]:F.walk[Math.floor((n.ph||0)*(n.kind==='granny'?.1:.16))%8]):F.idle[Math.floor((st.time+(n.var||0)*90)/26)%4]}
+function treeSil(t){if(!t.sil){const c=mk(t.GW,t.GH),g=c.getContext('2d');g.drawImage(t.c,0,0);g.globalCompositeOperation='source-in';g.fillStyle='#0c0a18';g.fillRect(0,0,t.GW,t.GH);t.sil=c}return t.sil}
+function drawShadows(sc,cur,lo){if(!A)return;const g=shctx,M=A.meta;g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,OW,OH);g.imageSmoothingEnabled=false;
+  const N=sky.night,t=st.dayT,f=clamp((t-.2)/.62,0,1),el=Math.sin(f*Math.PI),hd=Math.cos(f*Math.PI),sunA=sc.interior?0:(1-N)*(1-st.cloud*.75)*(1-st.rain)*clamp(el*3,0,1);
+  const casters=[];if(cur&&player.alpha>.5&&!player.back)casters.push({x:player.x+player.w/2,y:player.y+player.h,row:'haru',fi:playerFrame(player),flip:player.facing<0});
+  for(const n of sc.npcs)if(HUM[n.kind]&&n.a>.5&&!n.walking===false||HUM[n.kind]&&n.a>.5)casters.push({x:n.x,y:n.y,row:npcVariant(n),fi:npcFrame(n),flip:(n.dir||1)<0});
+  const one=(cx,cy,row,fi,flip,shear,sq,alpha)=>{const r=M.rows[row];if(r==null)return;g.globalAlpha=alpha;g.setTransform(flip?-1:1,0,shear*(flip?-1:1),sq,Math.round((cx-camX)*Z),Math.round((cy-camY)*Z));
+    g.drawImage(IMG.sil,fi*M.cw,r*M.ch,M.cw,M.ch,-M.ox,-M.oy,M.cw,M.ch)};
+  // sol
+  if(sunA>.04){const L=clamp(.35/Math.max(el,.12),.4,3.2),sh=-hd*L;
+    for(const c of casters){if(c.x<camX-40||c.x>camX+W+40)continue;one(c.x,c.y,c.row,c.fi,c.flip,c.flip?-sh:sh,.16,sunA*.32)}
+    for(const tr of sc.treeSpr){if(tr.ox>camX+W+60||tr.ox+tr.GW<camX-60)continue;const base=tr.oy+tr.GH,cx=tr.ox+tr.GW/2;g.globalAlpha=sunA*.22;
+      g.setTransform(Z,0,sh*Z,.16*Z,Math.round((cx-camX)*Z),Math.round((base-camY)*Z));g.drawImage(treeSil(tr),-tr.GW/2,-tr.GH)}}
+  // faroles y luces grandes
+  const lamps=sc.lights.filter(l=>(l.lamp||l.r>=30)&&l.x>camX-80&&l.x<camX+W+80);const la=sc.interior?.8:lo;
+  if(la>.05)for(const c of casters){if(c.x<camX-40||c.x>camX+W+40)continue;let k=0;for(const l of lamps){const dx=c.x-l.x,d=Math.abs(dx);if(d>l.r*1.4||k>=2)continue;k++;
+      const fall=clamp(1-d/(l.r*1.4),0,1),hgt=Math.max(6,c.y-l.y),sh=clamp(dx/hgt,-3,3);
+      one(c.x,c.y,c.row,c.fi,c.flip,c.flip?-sh:sh,.2,la*l.s*fall*.5);
+      if(!sc.interior||true){g.globalAlpha=la*l.s*fall*.18;const sx=c.x+dx*.35;one(sx,c.y-1,c.row,c.fi,c.flip,0,1.12,la*l.s*fall*.16)}}}
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;
+  wctx.setTransform(1,0,0,1,0,0);wctx.globalCompositeOperation='source-atop';wctx.drawImage(shadB,0,0);wctx.globalCompositeOperation='source-over';XF(wctx)}
 function sprFrame(row,fi,ox,oy,flip,c,alpha){const M=A.meta,im=IMG.spr;const r=M.rows[row];if(r==null)return;c.globalAlpha=alpha;
   if(flip){c.save();c.translate(ox,0);c.scale(-1,1);c.drawImage(im,fi*M.cw,r*M.ch,M.cw,M.ch,-M.ox,oy-M.oy,M.cw,M.ch);c.restore()}
   else c.drawImage(im,fi*M.cw,r*M.ch,M.cw,M.ch,ox-M.ox,oy-M.oy,M.cw,M.ch);c.globalAlpha=1}
