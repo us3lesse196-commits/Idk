@@ -1253,10 +1253,10 @@ function drawShadows(sc,cur,lo){if(!A)return;const g=shctx,M=A.meta;if((st.time&
   const one=(cx,cy,row,fi,flip,shear,sq,alpha)=>{const r=M.rows[row];if(r==null)return;g.globalAlpha=alpha;g.setTransform((flip?-1:1)*RS,0,shear*(flip?-1:1)*RS,sq*RS,Math.round((cx-camX)*Z)*RS,Math.round((cy-camY)*Z)*RS);
     g.drawImage(IMG.sil,fi*M.cw,r*M.ch,M.cw,M.ch,-M.ox,-M.oy,M.cw,M.ch)};
   // sol
-  if(sunA>.04){const L=clamp(.35/Math.max(el,.12),.4,3.2),sh=-hd*L;
-    for(const c of casters){if(c.x<camX-40||c.x>camX+W+40)continue;one(c.x,c.y,c.row,c.fi,c.flip,c.flip?-sh:sh,.16,sunA*.32)}
-    for(const tr of sc.treeSpr){if(tr.ox>camX+W+60||tr.ox+tr.GW<camX-60)continue;const base=tr.oy+tr.GH,cx=tr.ox+tr.GW/2;g.globalAlpha=sunA*.22;
-      g.setTransform(Z*RS,0,sh*Z*RS,.16*Z*RS,Math.round((cx-camX)*Z)*RS,Math.round((base-camY)*Z)*RS);g.drawImage(treeSil(tr),-tr.GW/2,-tr.GH)}}
+  if(sunA>.04){const L=clamp(.35/Math.max(el,.12),.4,1.5),sh=-hd*L,fadeL=1.15-L*.3;
+    for(const c of casters){if(c.x<camX-40||c.x>camX+W+40)continue;one(c.x,c.y,c.row,c.fi,c.flip,c.flip?-sh:sh,.09,sunA*.32*fadeL)}
+    for(const tr of sc.treeSpr){if(tr.ox>camX+W+60||tr.ox+tr.GW<camX-60)continue;const base=tr.oy+tr.GH,cx=tr.ox+tr.GW/2;g.globalAlpha=sunA*.22*fadeL;
+      g.setTransform(Z*RS,0,sh*Z*RS,.1*Z*RS,Math.round((cx-camX)*Z)*RS,Math.round((base-camY)*Z)*RS);g.drawImage(treeSil(tr),-tr.GW/2,-tr.GH)}}
   // faroles y luces grandes
   const lamps=sc.lights.filter(l=>(l.lamp||l.r>=30)&&l.x>camX-80&&l.x<camX+W+80);const la=sc.interior?.8:lo;
   if(la>.05)for(const c of casters){if(c.x<camX-40||c.x>camX+W+40)continue;let k=0;for(const l of lamps){const dx=c.x-l.x,d=Math.abs(dx);if(d>l.r*1.4||k>=2)continue;k++;
@@ -1482,7 +1482,7 @@ async function prologue(){
   goScene('out',1616,-1);player.state='cine';player.alpha=0;cine.aoi={x:1700,a:0};{const n=OUT.npcs.find(n=>n.kind==='aoi');n.x=1700;n.a=0}camXf=0;camX=0;
   await wait(20);cine.fadeK=.012;cine.fadeT=0;
   setTimeout(()=>$('#title').classList.add('show'),900);
-  await panTo(1616-W/2,640);
+  await panTo(1616-W/2,640);cine.pan=null;cine.camX=1490-W/2;
   $('#title').classList.remove('show');bell();await wait(150);
   for(let i=0;i<30;i++){player.alpha=i/29;await wait(1)}
   await walkTo(1474,.8);await wait(30);
