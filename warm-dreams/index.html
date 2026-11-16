@@ -397,33 +397,49 @@ const PALS={sakura:[['#c7637f','#e58aa8','#f4aec3','#fcd3df','#fff0f4'],['#c25a8
 function tree(x,base,top,r,cols,kind,trunk){E.globalCompositeOperation='destination-out';const Lsave=L;L=E;treeBody(x,base,top,r,kind,trunk);L=Lsave;E.globalCompositeOperation='source-over';
   treeBody(x,base,top,r,kind,trunk);B.trees.push({x,y:top-r*.4,r,kind})}
 function treeBody(x0,base,top,r,kind,trunkC){const tr=rng(x0*13+top*7),pk=kind==='sakura'?'sakura':'leaf',P=PALS[pk][Math.floor(tr()*PALS[pk].length)];
-  const shape=['round','wide','tall',pk==='sakura'?'weep':'round'][Math.floor(tr()*4)],lean=(tr()-.5)*.35,rw=r*(shape==='wide'?1.75:shape==='tall'?1.1:1.4),rh=r*(shape==='tall'?1.3:shape==='wide'?.85:1.05);
-  const q=(x,y,w,h,c)=>{L.fillStyle=c;L.fillRect(Math.round(x*2)/2,Math.round(y*2)/2,w,h)};
-  const fd=(cx,cy,rr,c)=>{L.fillStyle=c;for(let dy=-rr;dy<=rr;dy+=.5){const w=Math.sqrt(Math.max(0,rr*rr-dy*dy));L.fillRect(Math.round((cx-w)*2)/2,Math.round((cy+dy)*2)/2,Math.round(w*4)/2,.5)}};
-  const TK=trunkC?[trunkC,'#6a4f40','#3a2a24']:['#5a3f3a','#74524a','#3b2830'];
-  // tronco con inclinación y raíces
-  const th=base-top;for(let y=0;y<=th;y+=.5){const u=y/th,w=4.6-u*2.4+(u<.12?(.12-u)*14:0),cx=x0+lean*y*.9+Math.sin(u*3+x0)*.6;q(cx-w/2,base-y,w,.5,TK[0]);q(cx-w/2,base-y,Math.max(.5,w*.28),.5,TK[1]);q(cx+w/2-.5,base-y,.5,.5,TK[2])}
-  const topX=x0+lean*th*.9;
-  // ramas
-  const nb=3+Math.floor(tr()*3),tips=[];for(let i=0;i<nb;i++){const ang=-Math.PI/2+(i/(nb-1)-.5)*(shape==='wide'?2.3:shape==='tall'?1.2:1.8)+(tr()-.5)*.3,len=r*(.55+tr()*.35);let bx=topX,by=top+2,w=2.2;
-    for(let k=0;k<len;k+=.5){const u=k/len;bx+=Math.cos(ang+Math.sin(k*.3)*.15)*.5;by+=Math.sin(ang)*.5*(shape==='weep'?.7:1);w=2.2-u*1.5;q(bx-w/2,by,w,w*.8,TK[0])}tips.push([bx,by])}
-  // racimos
-  const cl=[];for(const [bx,by] of tips)cl.push([bx,by,r*(.36+tr()*.16)]);const extra=14+Math.floor(tr()*8);
-  for(let i=0;i<extra;i++){const a=tr()*Math.PI*2,d=Math.sqrt(tr());cl.push([topX+Math.cos(a)*rw*d*.85,top-rh*.25+Math.sin(a)*rh*d*.75,r*(.24+tr()*.22)])}
-  cl.sort((a,b)=>a[1]-b[1]);
-  for(const [cx,cy,cr] of cl)fd(cx,cy+cr*.22,cr+.5,P[0]);
-  for(const [cx,cy,cr] of cl)fd(cx,cy,cr,P[1]);
-  for(const [cx,cy,cr] of cl)fd(cx-cr*.22,cy-cr*.28,cr*.62,P[2]);
-  for(const [cx,cy,cr] of cl)if(cy<top-rh*.3||tr()<.4)fd(cx-cr*.35,cy-cr*.45,cr*.3,P[3]);
-  // ramitas asomando
-  for(let i=0;i<4;i++){const [cx,cy,cr]=cl[Math.floor(tr()*cl.length)];if(cy<top-rh*.6)continue;const ang=(tr()-.5)*1.4+(cx<topX?Math.PI:0);for(let k=0;k<cr*.7;k+=.5)q(cx+Math.cos(ang)*k*.6,cy+cr*.5-k*.8,.5,.5,TK[2])}
-  // textura de flores/hojas
-  const nTex=Math.round(rw*rh*3.2);for(let i=0;i<nTex;i++){const [cx,cy,cr]=cl[Math.floor(tr()*cl.length)],a=tr()*Math.PI*2,d=tr()*cr*.95,px=cx+Math.cos(a)*d,py=cy+Math.sin(a)*d,up=py<cy-cr*.2;
-    const c=tr()<.5?(up?P[3]:P[0]):(up?P[4]:P[2]);q(px,py,tr()<.3?1:.5,.5,c);if(pk==='sakura'&&tr()<.15){q(px+.5,py,.5,.5,P[4]);q(px,py+.5,.5,.5,P[0])}}
-  // llorón: hilos colgantes
-  if(shape==='weep')for(let i=0;i<14;i++){const [cx,cy,cr]=cl[Math.floor(tr()*cl.length)],sx=cx+(tr()-.5)*cr*1.6,len=r*(.35+tr()*.4);for(let k=0;k<len;k+=.5){q(sx+Math.sin(k*.4)*.5,cy+cr*.6+k,.5,.5,k>len*.7?P[3]:P[1])}}
-  // pétalos u hojas en el suelo
-  for(let i=0;i<(pk==='sakura'?34:12);i++){const px=x0+(tr()-.5)*rw*2.4;q(px,base-.5+(tr()<.3?-.5:0),tr()<.5?1:.5,.5,pk==='sakura'?P[tr()<.5?2:3]:P[tr()<.5?1:0])}}
+  const TK=trunkC?[trunkC,'#6a4f40','#3a2a24','#2a1e1e']:['#5a3a3a','#7a5450','#40282c','#2c1a20'];
+  const th=base-top,GW=Math.ceil(r*4.4)+16,GH=Math.ceil(th+r*2.6)+10,ox=Math.round(x0-GW/2),oy=Math.round(base-GH);
+  const wood=new Uint8Array(GW*GH),can=new Float32Array(GW*GH).fill(-1),dep=new Float32Array(GW*GH);
+  const inb=(x,y)=>x>=0&&y>=0&&x<GW&&y<GH;
+  const stroke=(x1,y1,x2,y2,w1,w2,tone)=>{const n=Math.ceil(Math.hypot(x2-x1,y2-y1)*2)+1;for(let i=0;i<=n;i++){const u=i/n,x=x1+(x2-x1)*u,y=y1+(y2-y1)*u,w=w1+(w2-w1)*u;
+      for(let dy=-w/2;dy<=w/2;dy+=.5)for(let dx=-w/2;dx<=w/2;dx+=.5){const gx=Math.round(x+dx),gy=Math.round(y+dy);if(inb(gx,gy)){const k=gy*GW+gx,t=dx<-w/4?2:dx>w/4?3:1;if(!wood[k]||t<wood[k])wood[k]=t}}}};
+  // tronco y ramas (coordenadas locales: x a la derecha, y hacia abajo)
+  const bx=x0-ox,by=GH-1,lean=(tr()-.5)*.5,tipY=by-th,tipX=bx+lean*th;
+  const spread=kind==='sakura'?1.1:.8,wide=.85+tr()*.6;
+  stroke(bx-3,by,bx-1,by-3,2.5,1.5);stroke(bx+3,by,bx+1,by-3,2.5,1.5);
+  stroke(bx,by,bx+lean*th*.5+(tr()-.5)*2,by-th*.55,4.6,3.6);stroke(bx+lean*th*.5,by-th*.55,tipX,tipY,3.6,2.8);
+  const tips=[],blobs=[];
+  const grow=(x,y,ang,len,w,d)=>{const nx=x+Math.cos(ang)*len,ny=y+Math.sin(ang)*len;const mx=(x+nx)/2+(tr()-.5)*len*.25,my=(y+ny)/2+(tr()-.5)*len*.2;
+    stroke(x,y,mx,my,w,w*.8);stroke(mx,my,nx,ny,w*.8,w*.55);
+    if(d>0){const k=2+(tr()<.45?1:0);for(let i=0;i<k;i++)grow(nx,ny,ang+(i/(k-1||1)-.5)*spread*1.3+(tr()-.5)*.35,len*(.55+tr()*.2),w*.6,d-1)}else tips.push([nx,ny]);
+    if(d<=1)blobs.push([mx,my,r*(.3+tr()*.12),d])};
+  const nMain=2+(tr()<.6?1:0);for(let i=0;i<nMain;i++){const ang=-Math.PI/2+(i/(nMain-1||1)-.5)*spread*1.6*wide+(tr()-.5)*.25;grow(tipX,tipY,ang,r*(.55+tr()*.2),2.6,2)}
+  for(const [x,y] of tips){const n=3+Math.floor(tr()*3);for(let i=0;i<n;i++)blobs.push([x+(tr()-.5)*r*.55,y+(tr()-.5)*r*.4+r*.05,r*(.26+tr()*.16),0])}
+  // llorón
+  const weep=kind==='sakura'&&tr()<.3;
+  // pintar racimos en el campo (con borde irregular)
+  blobs.sort((a,b)=>a[1]-b[1]);blobs.forEach((bl,bi)=>{const [cx,cy,cr]=bl,depth=bi/blobs.length;
+    for(let y=Math.floor(cy-cr-2);y<=cy+cr+2;y++)for(let x=Math.floor(cx-cr-2);x<=cx+cr+2;x++){if(!inb(x,y))continue;const dx=x-cx,dy=y-cy,d=Math.hypot(dx,dy*1.08),edge=cr*(.82+((hash(x*31+y*17+x0)%100)/100)*.32);
+      if(d>edge)continue;const k=y*GW+x;const lit=clamp(.55-(dx+dy*1.3)/(cr*2.6)+(1-d/edge)*.15-(cy-(tipY-r*.4))/(r*3),0,1);can[k]=Math.max(can[k],lit*.72+.12+depth*.1);dep[k]=depth}});
+  if(weep)for(let i=0;i<18;i++){const bl=blobs[Math.floor(tr()*blobs.length)],sx=Math.round(bl[0]+(tr()-.5)*bl[2]*1.6),sy=Math.round(bl[1]+bl[2]*.6),len=Math.round(r*(.3+tr()*.45));
+    for(let k=0;k<len;k++){const x=sx+Math.round(Math.sin(k*.35)*.6),y=sy+k;if(inb(x,y)){const q=y*GW+x;can[q]=Math.max(can[q],.45-k/len*.25)}}}
+  // huecos: quitar algunas celdas interiores para que se vea el cielo
+  for(let i=0;i<Math.round(r*.35);i++){const x=Math.round(tipX+(tr()-.5)*r*1.8),y=Math.round(tipY-r*.3+(tr()-.5)*r*1.1);for(const [dx,dy] of [[0,0],[1,0],[0,1],[1,1],[-1,0]])if(inb(x+dx,y+dy)&&tr()<.8)can[(y+dy)*GW+x+dx]=-1}
+  // pintar
+  const put=(x,y,c)=>{L.fillStyle=c;L.fillRect(ox+x,oy+y,1,1)};
+  for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const k=y*GW+x;if(wood[k]&&can[k]<0)put(x,y,TK[wood[k]===1?0:wood[k]===2?1:2])}
+  for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const k=y*GW+x,v=can[k];if(v<0)continue;
+    const below=y+1<GH&&can[k+GW]<0,above=y>0&&can[k-GW]<0,side=(x>0&&can[k-1]<0)||(x<GW-1&&can[k+1]<0);
+    const dz=((hash(x*7+y*13+x0)%100)/100-.5)*.16;let t=v+dz;let c=t>.9?P[4]:t>.72?P[3]:t>.52?P[2]:t>.34?P[1]:P[0];
+    if(below)c=P[0];else if(above&&t>.35)c=t>.7?P[3]:P[2];else if(side&&t<.45)c=P[0];
+    // racimos de flores (grupos 2x2)
+    const h=hash((x>>1)*97+(y>>1)*57+x0);if(!below&&h%9===0)c=t>.5?P[4]:P[2];if(!below&&h%13===0&&t<.5)c=P[0];
+    // ramas asomando en la parte baja
+    if(wood[k]&&t<.42&&h%3===0)c=TK[2];
+    put(x,y,c)}
+  // pétalos/hojas sueltos alrededor y en el suelo
+  for(let i=0;i<(pk==='sakura'?26:8);i++){const a=tr()*Math.PI*2,d=r*(1+tr()*.6);const x=Math.round(tipX+Math.cos(a)*d),y=Math.round(tipY-r*.3+Math.sin(a)*d*.6);if(inb(x,y)&&can[y*GW+x]<0)put(x,y,P[tr()<.5?2:3])}
+  for(let i=0;i<(pk==='sakura'?30:10);i++){const x=Math.round(bx+(tr()-.5)*r*2.6);put(x,GH-1-(tr()<.3?1:0),pk==='sakura'?P[tr()<.5?2:3]:P[tr()<.5?1:0])}}
 function bush(x,y,w,cols){const br=rng(x*3);for(let i=0;i<w/5;i++)disc(L,x+i*5+br()*3,y,4+Math.round(br()*2),cols[0]);for(let i=0;i<w/7;i++)disc(L,x+i*7+3,y-2,2+Math.round(br()*2),cols[1])}
 function bench(x,y,label){const q=(a,b,w,h,c)=>{L.fillStyle=c;L.fillRect(a,b,w,h)};
   q(x+1.5,y-3.5,1.5,3.5,'#34323f');q(x+23,y-3.5,1.5,3.5,'#34323f');q(x+1,y-.5,2.5,.5,'#24222c');q(x+22.5,y-.5,2.5,.5,'#24222c');q(x+1.5,y-10,1,6,'#34323f');q(x+23.5,y-10,1,6,'#34323f');
