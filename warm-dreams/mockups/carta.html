@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Carta: maqueta</title>
+<style>
+html,body{margin:0;height:100%;background:#2a2240;color:#f4ead6;font-family:Georgia,serif;overflow:hidden}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;gap:16px;padding:10px;box-sizing:border-box}
+#page{position:relative;height:min(94vh,150vw);aspect-ratio:180/260}
+#page canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+#ui{display:flex;flex-direction:column;gap:8px;max-width:38vw}
+#ui button{font:14px Georgia,serif;padding:10px 12px;border:2px solid #8a7ab0;background:#3a3058;color:#f4ead6;border-radius:4px}
+#ui p{font-size:12px;opacity:.8;margin:0}
+</style></head><body>
+<div id="wrap"><div id="page"><canvas id="c" width="180" height="260"></canvas></div>
+<div id="ui"><p>Maqueta de la página de la carta</p>
+<button data-n="0">0 pedazos</button><button data-n="2">2 pedazos</button><button data-n="4">4 pedazos</button><button data-n="5">Carta completa ✦</button>
+<p>Toca un botón para ver cada estado.</p></div></div>
+<script>
+const c=document.getElementById('c'),g=c.getContext('2d'),Wd=180,Ht=260;
+const TXT=['No sé bien cuándo empezó;','solo sé que desde entonces','todo tiene un poco más de luz.',
+ 'Cuando llueve pienso en ti,','y cuando sale el sol, también.','',
+ 'Llevo dentro una llamita','que encendiste sin darte cuenta.','',
+ 'Ha pasado vientos y tormentas','y nunca ha dejado de arder.','',
+ 'Pase lo que pase, seguirá','encendida. Siempre, por ti.',''];
+// 5 franjas de la carta (y0,y1) dentro del papel
+const STR=[[40,82],[82,114],[114,146],[146,180],[180,222]];
+let have=2,t=0,doneT=0;
+function hash(n){n=(n^61)^(n>>>16);n=n+(n<<3);n=n^(n>>>4);n=Math.imul(n,0x27d4eb2d);return (n^(n>>>15))>>>0}
+const BAY=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+// --- marco de nubes (precalculado)
+const frame=document.createElement('canvas');frame.width=Wd;frame.height=Ht;
+(()=>{const f=frame.getContext('2d'),d=f.createImageData(Wd,Ht),q=d.data;
+  // nubes: círculos a lo largo del borde
+  const blobs=[];const inset=14;
+  for(let x=inset;x<=Wd-inset;x+=11){blobs.push([x,inset+(hash(x)%5)-2,9+hash(x*3)%4]);blobs.push([x,Ht-inset-(hash(x+7)%5)+2,9+hash(x*5)%4])}
+  for(let y=inset;y<=Ht-inset;y+=11){blobs.push([inset+(hash(y*7)%5)-2,y,9+hash(y)%4]);blobs.push([Wd-inset-(hash(y*11)%5)+2,y,9+hash(y*13)%4])}
+  for(const [cx,cy] of [[18,18],[Wd-18,18],[18,Ht-18],[Wd-18,Ht-18]])blobs.push([cx,cy,16]);
+  for(let y=0;y<Ht;y++)for(let x=0;x<Wd;x++){
+    // distancia al papel interior (rectángulo con nubes)
+    let cl=0;for(const [cx,cy,r] of blobs){const dd=Math.hypot(x-cx,y-cy)/r;if(dd<1)cl=Math.max(cl,1-dd)}
+    const inner=x>24&&x<Wd-24&&y>24&&y<Ht-24;const i=(y*Wd+x)*4;
+    if(!cl&&!inner)continue;
+    // papel crema con grano
+    let col=[244,236,218];const gr=(hash(x*977+y*131)%9)-4;col=col.map(v=>v+gr);
+    // borde de nube azul tipo acuarela: más oscuro hacia afuera
+    const ex=Math.min(x,Wd-1-x,y,Ht-1-y);let blue=cl>0?Math.max(0,1-(ex-4)/26):0;blue=Math.min(1,blue*1.15);
+    const th=BAY[(y&3)*4+(x&3)]/16;const k=Math.floor(blue*5+th)/5;
+    const B1=[176,190,214],B2=[110,128,170],B3=[70,86,132];
+    let bc=k>.8?B3:k>.5?B2:B1;if(k>.05)col=col.map((v,j)=>v+(bc[j]-v)*Math.min(1,k*1.1));
+    // contorno de la nube
+    if(cl>0&&cl<.12&&!inner)col=[58,66,104];
+    q[i]=col[0];q[i+1]=col[1];q[i+2]=col[2];q[i+3]=255}
+  f.putImageData(d,0,0);
+  // espirales
+  f.strokeStyle='#3a4268';f.lineWidth=1;
+  const swirl=(x,y,r,dir)=>{f.beginPath();for(let a=0;a<Math.PI*3.2;a+=.25){const rr=r*(1-a/(Math.PI*3.6));const px=x+Math.cos(a*dir)*rr,py=y+Math.sin(a*dir)*rr;a?f.lineTo(Math.round(px)+.5,Math.round(py)+.5):f.moveTo(Math.round(px)+.5,Math.round(py)+.5)}f.stroke()};
+  for(const [x,y,r,dd] of [[30,12,5,1],[Wd-34,13,5,-1],[9,60,4,1],[Wd-9,110,4,-1],[9,170,4,-1],[Wd-10,200,4,1],[60,Ht-11,5,-1],[Wd-62,Ht-12,5,1],[100,10,4,1],[8,230,4,1]])swirl(x,y,r,dd);
+  // estrellas
+  const star=(x,y,r)=>{f.fillStyle='#f2d45a';f.strokeStyle='#8a6a2a';f.beginPath();for(let k2=0;k2<10;k2++){const a=-Math.PI/2+k2*Math.PI/5,rr=k2%2?r*.45:r;const px=x+Math.cos(a)*rr,py=y+Math.sin(a)*rr;k2?f.lineTo(px,py):f.moveTo(px,py)}f.closePath();f.fill();f.stroke()};
+  for(const [x,y,r] of [[20,20,6],[36,12,4],[Wd-22,18,6],[Wd-38,26,4],[18,Ht-24,6],[34,Ht-14,4],[Wd-20,Ht-20,5]])star(x,y,r);
+})();
+// bordes rasgados entre franjas
+const tear=y=>{const pts=[];for(let x=26;x<=Wd-26;x+=3)pts.push([x,y+((hash(x*31+y)%5)-2)*.6]);return pts};
+const TEARS=STR.map(s=>tear(s[0]));
+function strip(i,present){const [y0,y1]=STR[i];g.save();g.beginPath();const top=tear(y0),bot=tear(y1);
+  g.moveTo(top[0][0],top[0][1]);for(const p of top)g.lineTo(p[0],p[1]);for(const p of bot.slice().reverse())g.lineTo(p[0],p[1]);g.closePath();
+  if(present){g.clip();g.fillStyle='#f6eedb';g.fillRect(0,y0-3,Wd,y1-y0+6);for(let k=0;k<40;k++){const h=hash(i*999+k);g.fillStyle='rgba(180,160,120,.12)';g.fillRect(26+h%128,y0+(h>>8)%(y1-y0),2,1)}
+    g.fillStyle='#3a3058';g.font='italic 7.4px Georgia';g.textAlign='center';const lines=TXT.slice(i*3,i*3+3).filter(Boolean);
+    lines.forEach((l,k)=>g.fillText(l,Wd/2,y0+12+k*9+(lines.length<3?4:0)));g.restore();
+    g.strokeStyle='rgba(120,100,70,.55)';g.lineWidth=.6;g.beginPath();top.forEach((p,k)=>k?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke()}
+  else{g.setLineDash([2,2]);g.strokeStyle='rgba(110,128,170,.7)';g.lineWidth=.7;g.stroke();g.setLineDash([]);g.restore();
+    g.fillStyle='rgba(110,128,170,.8)';g.font='9px Georgia';g.textAlign='center';g.fillText('?',Wd/2,(y0+y1)/2+3)}}
+// llama pixelada animada
+function flame(cx,by,tt){const s=1;g.save();
+  const glow=g.createRadialGradient(cx,by-8,1,cx,by-8,26);glow.addColorStop(0,'rgba(255,190,90,.45)');glow.addColorStop(1,'rgba(255,190,90,0)');g.fillStyle=glow;g.fillRect(cx-30,by-38,60,50);
+  const L=[[7,'#d9473a'],[5,'#f08a3a'],[3.4,'#f6c24a'],[1.8,'#fff4c8']];
+  for(let li=0;li<L.length;li++){const [w,col]=L[li];g.fillStyle=col;const hgt=16-li*3.2;
+    for(let y=0;y<hgt;y++){const u=y/hgt;const sway=Math.sin(tt*.18+y*.45+li)*u*1.6+Math.sin(tt*.07)*u*.8;const ww=Math.max(0,w*(1-u*u)*(1+.15*Math.sin(tt*.3+y)));
+      if(ww<.4)continue;g.fillRect(Math.round(cx-ww/2+sway),by-y-li*.6,Math.max(1,Math.round(ww)),1)}}
+  // chispas
+  for(let k=0;k<3;k++){const p=((tt*.6+k*37)%60)/60;g.fillStyle=`rgba(255,220,140,${1-p})`;g.fillRect(Math.round(cx+Math.sin(k*2+tt*.05)*4),Math.round(by-14-p*18),1,1)}
+  // velita
+  g.fillStyle='#e8e0d0';g.fillRect(cx-3,by+1,6,7);g.fillStyle='#c8bca8';g.fillRect(cx+1,by+1,2,7);g.fillStyle='#3a3058';g.fillRect(cx,by-1,1,2);g.restore()}
+function draw(){t++;g.imageSmoothingEnabled=false;g.clearRect(0,0,Wd,Ht);g.drawImage(frame,0,0);
+  g.fillStyle='#6a5a8a';g.font='italic 8px Georgia';g.textAlign='center';g.fillText('Para ti',Wd/2,34);
+  for(let i=0;i<5;i++)strip(i,i<have);
+  g.fillStyle='#8a7aa0';g.font='7px Georgia';g.fillText(have+' / 5',Wd/2,232);
+  if(have===5){doneT++;const a=Math.min(1,doneT/40);g.globalAlpha=a;flame(Wd/2,240,t);g.globalAlpha=1}
+  requestAnimationFrame(draw)}
+document.querySelectorAll('#ui button').forEach(b=>b.onclick=()=>{have=+b.dataset.n;doneT=0});
+draw();
+</script></body></html>
