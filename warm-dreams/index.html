@@ -415,6 +415,9 @@ function treeBody(x0,base,top,r,kind,trunkC){const tr=rng(x0*13+top*7),pk=kind==
     if(d<=1)blobs.push([mx,my,r*(.3+tr()*.12),d])};
   const nMain=2+(tr()<.6?1:0);for(let i=0;i<nMain;i++){const ang=-Math.PI/2+(i/(nMain-1||1)-.5)*spread*1.6*wide+(tr()-.5)*.25;grow(tipX,tipY,ang,r*(.55+tr()*.2),2.6,2)}
   for(const [x,y] of tips){const n=3+Math.floor(tr()*3);for(let i=0;i<n;i++)blobs.push([x+(tr()-.5)*r*.55,y+(tr()-.5)*r*.4+r*.05,r*(.26+tr()*.16),0])}
+  // núcleo de la copa: siempre llena
+  {const cx=(tips.reduce((a,t)=>a+t[0],0)/tips.length+tipX)/2,cy=tips.reduce((a,t)=>a+t[1],0)/tips.length+r*.1,rx=Math.max(r*.7,Math.abs(Math.max(...tips.map(t=>t[0]))-Math.min(...tips.map(t=>t[0])))*.5),ry=r*.45;
+    const n=7+Math.floor(tr()*4);for(let i=0;i<n;i++){const a=tr()*Math.PI*2,d=Math.sqrt(tr())*.85;blobs.push([cx+Math.cos(a)*rx*d,cy+Math.sin(a)*ry*d,r*(.3+tr()*.14),1])}}
   // llorón
   const weep=kind==='sakura'&&tr()<.3;
   // pintar racimos en el campo (con borde irregular)
