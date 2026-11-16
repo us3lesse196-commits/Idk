@@ -110,6 +110,9 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
 #draw .pg{display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:12px}
 #draw .x{color:var(--paper-ink);border-color:#cdb998}
 #reset{margin-top:14px;font-size:11px;padding:5px 10px;background:transparent;border:1px solid var(--edge);color:var(--ink-dim);cursor:pointer}
+.vr{display:grid;grid-template-columns:130px 1fr 34px;align-items:center;gap:10px;font-size:13px;margin:10px 0}
+.vr input{width:100%;height:28px;accent-color:var(--accent);touch-action:pan-x}
+.vr b{font-weight:400;text-align:right;color:var(--accent);font-variant-numeric:tabular-nums}
 #toast{position:fixed;z-index:9;left:50%;top:calc(env(safe-area-inset-top,0px) + 64px);transform:translateX(-50%);background:var(--panel-solid);border:2px solid var(--accent);
   padding:8px 14px;font-size:14px;border-radius:3px;opacity:0;transition:opacity .6s ease;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1}
@@ -132,7 +135,7 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
   <div class="chip" id="clock"><small>Hora · <i id="fps" style="font-style:normal">60</i> fps</small><span>17:10</span></div>
   <button class="chip" id="btnFS" type="button" aria-label="Pantalla completa"><small>Pantalla</small><span>⛶</span></button>
   <button class="chip" id="btnBook" type="button"><small>Cuaderno</small><span>0 / 3</span></button>
-  <button class="chip" id="btnSound" type="button"><small>Sonido</small><span>Sí</span></button>
+  <button class="chip" id="btnSet" type="button" aria-label="Ajustes"><small>Ajustes</small><span>⚙</span></button>
 </div>
 <div id="sitbar" hidden>
   <button class="chip" id="btnPhones" type="button">🎧</button>
@@ -164,6 +167,14 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
   </div>
 </div>
 
+<div class="sheet" id="settings" hidden role="dialog" aria-label="Ajustes">
+  <h2>⚙ Ajustes <button class="x" id="setClose" type="button">Cerrar</button></h2>
+  <div class="lbl">Volumen</div>
+  <label class="vr" for="vMaster"><span>General</span><input id="vMaster" type="range" min="0" max="100" step="5"><b id="vMasterN">80</b></label>
+  <label class="vr" for="vMusic"><span>Música del juego</span><input id="vMusic" type="range" min="0" max="100" step="5"><b id="vMusicN">80</b></label>
+  <label class="vr" for="vSfx"><span>Ambiente y efectos</span><input id="vSfx" type="range" min="0" max="100" step="5"><b id="vSfxN">80</b></label>
+  <div class="row" style="justify-content:space-between;align-items:center"><span class="note" style="font-size:11px;color:var(--ink-dim)">El volumen de Spotify se ajusta en su reproductor.</span><button class="chip" id="btnMute" type="button">Silenciar</button></div>
+</div>
 <div id="talk" hidden><canvas class="face" width="32" height="32"></canvas><div class="tx"><div class="who"></div><div class="say"></div><div class="more">Toca para seguir ▸</div></div></div>
 
 <div class="sheet" id="music" hidden role="dialog" aria-label="Música">
@@ -206,7 +217,7 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
 <div id="toast"></div>
 
 <div id="start"><div class="box">
-  <div class="tag">Demo de pruebas · versión 0.5</div>
+  <div class="tag">Demo de pruebas · versión 0.6</div>
   <h1>Warm Dreams</h1>
   <div class="go">Toca para empezar</div>
   <div class="keys">◀ ▶ caminar · ▲ saltar · ▼ agacharse · botón naranja para interactuar<br>
@@ -510,8 +521,12 @@ function computeSky(){const t=st.dayT;let i=0;while(i<KEYS.length-2&&KEYS[i+1].t
 const lampsOn=()=>clamp((sky.night+st.rain*.45-.25)*2.5,0,1);
 
 // ============================================================ audio
-let musicOut=null,gameMusicOn=true;
-let AC=null,master=null,rainGain=null,rainLP=null,conv=null,soundOn=true,lastBlip=0,noiseBuf=null;
+let soundOn=true;
+let musicOut=null,sfxOut=null,gameMusicOn=true;
+let vol={master:80,music:80,sfx:80};try{const v=JSON.parse(localStorage.getItem('warm-dreams-vol')||'null');if(v)vol={...vol,...v}}catch(e){}
+const masterLvl=()=>soundOn?vol.master/100*2.4:0,musicLvl=()=>gameMusicOn?vol.music/100*2.2:0,sfxLvl=()=>vol.sfx/100*1.6;
+function applyVol(){try{localStorage.setItem('warm-dreams-vol',JSON.stringify(vol))}catch(e){}if(!AC)return;const t=AC.currentTime;master.gain.setTargetAtTime(masterLvl(),t,.08);musicOut.gain.setTargetAtTime(musicLvl(),t,.08);sfxOut.gain.setTargetAtTime(sfxLvl(),t,.08)}
+let AC=null,master=null,rainGain=null,rainLP=null,conv=null,lastBlip=0,noiseBuf=null;
 const mf=m=>440*Math.pow(2,(m-69)/12);
 const SONGS={
   tarde:{name:'Tarde tibia',desc:'Atardecer cálido',chords:[[53,57,60,64],[52,55,59,62],[50,53,57,60],[48,52,55,59]],dur:6.4,mel:[67,69,72,74,76,79,81,84],p:.42,v:.05},
@@ -520,12 +535,13 @@ const SONGS={
   noche:{name:'Noche de estrellas',desc:'Calma nocturna',chords:[[50,54,57,61],[47,50,54,57],[43,50,54,59],[45,49,52,57]],dur:7,mel:[74,76,78,81,83,86],p:.34,v:.04}};
 let songs=[],curSong=null,userSong=null,ambCheck=0;
 function initAudio(){if(AC)return;try{const ACx=window.AudioContext||window.webkitAudioContext;try{AC=new ACx({latencyHint:'playback'})}catch(e){AC=new ACx()}}catch(e){return}
-  master=AC.createGain();master.gain.value=.7;master.connect(AC.destination);musicOut=AC.createGain();musicOut.gain.value=gameMusicOn?1:0;
+  master=AC.createGain();master.gain.value=masterLvl();const comp=AC.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=5;comp.attack.value=.01;comp.release.value=.3;master.connect(comp);comp.connect(AC.destination);
+  sfxOut=AC.createGain();sfxOut.gain.value=sfxLvl();sfxOut.connect(master);musicOut=AC.createGain();musicOut.gain.value=musicLvl();
   conv=AC.createConvolver();const len=AC.sampleRate*1.8|0,buf=AC.createBuffer(2,len,AC.sampleRate);for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
   conv.buffer=buf;const rv=AC.createGain();rv.gain.value=.55;conv.connect(rv);rv.connect(master);musicOut.connect(master);musicOut.connect(conv);
   noiseBuf=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const nd=noiseBuf.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
   const src=AC.createBufferSource();src.buffer=noiseBuf;src.loop=true;rainLP=AC.createBiquadFilter();rainLP.type='lowpass';rainLP.frequency.value=1500;
-  const hp=AC.createBiquadFilter();hp.type='highpass';hp.frequency.value=280;rainGain=AC.createGain();rainGain.gain.value=0;src.connect(rainLP);rainLP.connect(hp);hp.connect(rainGain);rainGain.connect(master);src.start();
+  const hp=AC.createBiquadFilter();hp.type='highpass';hp.frequency.value=280;rainGain=AC.createGain();rainGain.gain.value=0;src.connect(rainLP);rainLP.connect(hp);hp.connect(rainGain);rainGain.connect(sfxOut);src.start();
   playSong(ambientSong(),.5)}
 function playSong(id,fade=3){if(!AC||curSong&&curSong.id===id)return;const now=AC.currentTime;
   if(curSong){curSong.bus.gain.cancelScheduledValues(now);curSong.bus.gain.setValueAtTime(curSong.bus.gain.value,now);curSong.bus.gain.linearRampToValueAtTime(0,now+fade);curSong.dying=now+fade+3}
@@ -545,15 +561,15 @@ function audioTick(){if(!AC)return;const now=AC.currentTime;
   const inside=scene.interior;rainGain.gain.setTargetAtTime(st.rain*(inside?.12:.32),now,.4);rainLP.frequency.setTargetAtTime(inside?420:1500,now,.3);
   // campana del paso del tren
   if(st.train&&scene===OUT&&st.time%26===0){const d=Math.abs(player.x-910);const v=clamp(1-d/500,0,1)*.05;if(v>.004){const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=(st.time/26)%2?740:880;
-    g.gain.setValueAtTime(v,now);g.gain.exponentialRampToValueAtTime(.0001,now+.25);const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=1800;o.connect(f);f.connect(g);g.connect(master);o.start(now);o.stop(now+.26)}}}
+    g.gain.setValueAtTime(v,now);g.gain.exponentialRampToValueAtTime(.0001,now+.25);const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=1800;o.connect(f);f.connect(g);g.connect(sfxOut);o.start(now);o.stop(now+.26)}}}
 function thunder(delay){if(!AC)return;const t=AC.currentTime+delay,s=AC.createBufferSource();s.buffer=noiseBuf;const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=220+Math.random()*200;
-  const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(scene.interior?.4:.9,t+.08);g.gain.exponentialRampToValueAtTime(.001,t+3.5);s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+3.6)}
+  const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(scene.interior?.4:.9,t+.08);g.gain.exponentialRampToValueAtTime(.001,t+3.5);s.connect(f);f.connect(g);g.connect(sfxOut);s.start(t);s.stop(t+3.6)}
 function blip(){if(!AC)return;const now=AC.currentTime;if(now-lastBlip<.09)return;lastBlip=now;const o=AC.createOscillator(),g=AC.createGain();o.type='sine';const f0=1300+Math.random()*900;
-  o.frequency.setValueAtTime(f0,now);o.frequency.exponentialRampToValueAtTime(f0*.45,now+.07);g.gain.setValueAtTime(.035,now);g.gain.exponentialRampToValueAtTime(.0001,now+.12);o.connect(g);g.connect(master);o.start(now);o.stop(now+.13)}
+  o.frequency.setValueAtTime(f0,now);o.frequency.exponentialRampToValueAtTime(f0*.45,now+.07);g.gain.setValueAtTime(.035,now);g.gain.exponentialRampToValueAtTime(.0001,now+.12);o.connect(g);g.connect(sfxOut);o.start(now);o.stop(now+.13)}
 function chime(){if(!AC)return;const now=AC.currentTime;[76,81,88].forEach((m,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=mf(m);g.gain.setValueAtTime(0,now+i*.12);
-  g.gain.linearRampToValueAtTime(.08,now+i*.12+.01);g.gain.exponentialRampToValueAtTime(.0001,now+i*.12+2);o.connect(g);g.connect(master);g.connect(conv);o.start(now+i*.12);o.stop(now+i*.12+2.1)})}
+  g.gain.linearRampToValueAtTime(.08,now+i*.12+.01);g.gain.exponentialRampToValueAtTime(.0001,now+i*.12+2);o.connect(g);g.connect(sfxOut);g.connect(conv);o.start(now+i*.12);o.stop(now+i*.12+2.1)})}
 function doorSfx(){if(!AC)return;const now=AC.currentTime,s=AC.createBufferSource();s.buffer=noiseBuf;const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=600;f.Q.value=2;const g=AC.createGain();
-  g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.12,now+.05);g.gain.linearRampToValueAtTime(0,now+.4);s.connect(f);f.connect(g);g.connect(master);s.start(now);s.stop(now+.45)}
+  g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.12,now+.05);g.gain.linearRampToValueAtTime(0,now+.4);s.connect(f);f.connect(g);g.connect(sfxOut);s.start(now);s.stop(now+.45)}
 
 // ============================================================ física
 const hitSolid=(x,y,w,h)=>{for(const r of scene.solids)if(x<r.x+r.w&&x+w>r.x&&y<r.y+r.h&&y+h>r.y)return r;return null};
@@ -955,7 +971,7 @@ function showLine(){typed=0;clearInterval(typeTimer);const L=lines[li],s=talkEl.
 talkEl.addEventListener('click',advanceTalk);
 function advanceTalk(){if(!talkOpen||!lines[li])return;const L=lines[li];if(typed<L.text.length){typed=L.text.length;clearInterval(typeTimer);talkEl.querySelector('.say').textContent=L.text;return}li++;if(li>=lines.length){talkEl.hidden=true;talkOpen=false;const d=talkDone;talkDone=null;if(d)d();return}showLine()}
 function talkBlip(who){if(!AC||!soundOn)return;const now=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=who==='Aoi'?620+Math.random()*60:who==='Haru'?420+Math.random()*40:900;
-  g.gain.setValueAtTime(.025,now);g.gain.exponentialRampToValueAtTime(.0001,now+.05);o.connect(g);g.connect(master);o.start(now);o.stop(now+.06)}
+  g.gain.setValueAtTime(.025,now);g.gain.exponentialRampToValueAtTime(.0001,now+.05);o.connect(g);g.connect(sfxOut);o.start(now);o.stop(now+.06)}
 function drawPortrait(c,who){const g=c.getContext('2d');g.clearRect(0,0,32,32);const P=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h)};
   const bg=g.createLinearGradient(0,0,0,32);bg.addColorStop(0,who==='Aoi'?'#5a3a5a':who==='Haru'?'#3a3a5e':'#1d3a4a');bg.addColorStop(1,'#1d1733');g.fillStyle=bg;g.fillRect(0,0,32,32);
   if(who==='Kitsune'){P(8,14,16,10,'#9ffff0');P(10,8,4,7,'#9ffff0');P(18,8,4,7,'#9ffff0');P(11,10,2,4,'#4fc8d8');P(19,10,2,4,'#4fc8d8');P(12,17,2,2,'#1d4a5a');P(18,17,2,2,'#1d4a5a');P(15,21,2,1,'#4fc8d8');P(6,22,20,10,'#c8fff6');return}
@@ -966,7 +982,11 @@ function drawPortrait(c,who){const g=c.getContext('2d');g.clearRect(0,0,32,32);c
   else{P(9,8,14,16,SK);P(9,22,14,2,SKs);P(7,5,18,6,'#2a2135');P(7,9,3,10,'#2a2135');P(22,9,2,6,'#2a2135');P(13,9,4,3,'#2a2135');P(19,9,2,2,'#2a2135');
     P(12,15,3,3,'#1e1726');P(18,15,3,3,'#1e1726');P(13,15,1,1,'#fff');P(19,15,1,1,'#fff');P(15,20,3,1,'#b06a5a');P(7,25,18,7,'#f6f3ec');P(15,25,2,6,'#3a6db0');P(6,24,20,3,'#d8414c');P(4,26,4,5,'#d4553f')}}
 // sonido
-$('#btnSound').addEventListener('click',()=>{soundOn=!soundOn;$('#btnSound span').textContent=soundOn?'Sí':'No';if(master)master.gain.setTargetAtTime(soundOn?.7:0,AC.currentTime,.1)});
+const setEl=$('#settings');
+function syncSet(){for(const [id,k] of [['vMaster','master'],['vMusic','music'],['vSfx','sfx']]){$('#'+id).value=vol[k];$('#'+id+'N').textContent=vol[k]}$('#btnMute').textContent=soundOn?'Silenciar':'Activar sonido'}
+for(const [id,k] of [['vMaster','master'],['vMusic','music'],['vSfx','sfx']])$('#'+id).addEventListener('input',e=>{vol[k]=+e.target.value;$('#'+id+'N').textContent=vol[k];applyVol();if(k==='sfx')blip()});
+$('#btnSet').addEventListener('click',()=>{syncSet();setEl.hidden=false});$('#setClose').addEventListener('click',()=>setEl.hidden=true);
+$('#btnMute').addEventListener('click',()=>{soundOn=!soundOn;applyVol();syncSet()});
 
 
 // ============================================================ guardado
@@ -981,7 +1001,7 @@ if(save.ending)found.gate=1;
 const musicEl=$('#music'),spWrap=$('#spWrap');
 function parseSpotify(u){u=(u||'').trim();let m=u.match(/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(?:embed\/)?(playlist|album|track|artist|episode|show)\/([A-Za-z0-9]+)/)||u.match(/spotify:(playlist|album|track|artist|episode|show):([A-Za-z0-9]+)/);
   return m?{type:m[1],id:m[2]}:null}
-function setGameMusic(on){gameMusicOn=on;if(musicOut)musicOut.gain.setTargetAtTime(on?1:0,AC.currentTime,.4)}
+function setGameMusic(on){gameMusicOn=on;if(musicOut)musicOut.gain.setTargetAtTime(musicLvl(),AC.currentTime,.4)}
 function loadSpotify(link,quiet){const sp=parseSpotify(link);if(!sp){if(!quiet)$('#spNote').textContent='Ese link no parece de Spotify. Copia el link desde "Compartir" en la app de Spotify.';return false}
   spWrap.innerHTML='';const f=document.createElement('iframe');f.src=`https://open.spotify.com/embed/${sp.type}/${sp.id}?utm_source=generator&theme=0`;f.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';f.loading='lazy';f.title='Reproductor de Spotify';
   spWrap.appendChild(f);$('#walk').classList.remove('idle');$('#deckTxt').textContent='Cinta de Spotify cargada · dale play';$('#spNote').textContent='Con la sesión de Spotify abierta en este navegador suenan las canciones completas; si no, fragmentos de 30 s. La música del juego se silencia mientras usas Spotify.';
@@ -1031,7 +1051,7 @@ function panTo(to,dur){cine.pan={from:camXf,to:clamp(to,0,scene.LW-W),t:0,dur};r
 function cineStart(){cine.on=true;document.body.classList.add('cine');player.state='cine';player.vx=0;closePhones();closeMusic();closeDraw();$('#book').hidden=true;showSit(false);st.mode='normal';updateSitbar();cine.lbT=1}
 function cineEnd(){cine.lbT=0;cine.pan=null;cine.camX=null;cine.aoi=null;cine.fox=null;cine.book=null;cine.aur=1;player.pose=null;player.alpha=1;player.state='play';document.body.classList.remove('cine');cine.on=false}
 function bell(){if(!AC)return;const now=AC.currentTime;[64,60,62,55,55,62,64,60].forEach((m,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=mf(m+12);const t=now+i*.55;
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+1.6);o.connect(g);g.connect(master);g.connect(conv);o.start(t);o.stop(t+1.7)})}
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+1.6);o.connect(g);g.connect(sfxOut);g.connect(conv);o.start(t);o.stop(t+1.7)})}
 const T=(who,text)=>({who,text});
 async function prologue(){
   cineStart();cine.fade=1;cine.fadeT=1;st.dayT=.70;st.weather=0;st.rain=0;st.cloud=.15;st.wet=0;st.wxTimer=60*150;computeSky();
@@ -1078,10 +1098,10 @@ function checkEnding(){if(!cine.on&&!endingRun&&!save.ending&&foundCount>=3&&sce
 
 // ============================================================ controles
 const keymap={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowDown:'down',KeyS:'down',ArrowUp:'jump',KeyW:'jump',Space:'jump',KeyZ:'jump'};
-addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(!$('#draw').hidden&&e.code!=='Escape')return;if(cine.on&&!talkOpen)return;if(!started){begin();return}const k=keymap[e.code];
+addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT'&&e.target.type!=='range')return;if(!$('#draw').hidden&&e.code!=='Escape')return;if(cine.on&&!talkOpen)return;if(!started){begin();return}const k=keymap[e.code];
   if(talkOpen&&(e.code==='KeyE'||e.code==='Enter'||e.code==='Space')){advanceTalk();e.preventDefault();return}
   if(e.code==='KeyE'||e.code==='Enter'){interact();e.preventDefault();return}if(e.code==='KeyC'){$('#book').hidden?($('#book').hidden=false,renderBook()):($('#book').hidden=true);return}
-  if(e.code==='Escape'){closePhones();$('#book').hidden=true;closeMusic();closeDraw()}
+  if(e.code==='Escape'){closePhones();$('#book').hidden=true;closeMusic();closeDraw();setEl.hidden=true}
   if(st.mode==='fast'){finishFast()}if(k){input[k]=1;e.preventDefault()}});
 addEventListener('keyup',e=>{const k=keymap[e.code];if(k)input[k]=0});
 const touch=('ontouchstart' in window)||matchMedia('(pointer:coarse)').matches;if(!touch)document.body.classList.add('touch-hide');
