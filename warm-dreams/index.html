@@ -957,8 +957,7 @@ function drawSky(){skyBands();ID(ctx);const pat=ctx.createPattern(skyC,'repeat-x
     ctx.globalCompositeOperation='lighter';ctx.drawImage(GL.moon,mx-30,my-30,60,60);ctx.globalCompositeOperation='source-over';disc(ctx,mx,my,6,'#f3efe0');R(ctx,mx-2,my-2,2,2,'#d6d1c0');R(ctx,mx+2,my+1,2,1,'#d6d1c0');ctx.globalAlpha=1}
   if(st.bolt&&st.flash>.45){ctx.strokeStyle=`rgba(235,240,255,${st.flash})`;ctx.lineWidth=1;ctx.beginPath();st.bolt.forEach(([x,y],i)=>{const sx=x-camX;i?ctx.lineTo(sx,y):ctx.moveTo(sx,y)});ctx.stroke()}
   {const P=cloudPal(),key=P.map(c=>c.map(v=>v>>3).join()).join('|');ID(ctx);const vis=Math.round(clouds.length*(.35+st.cloud*.65));
-    for(let i=0;i<Math.min(vis,clouds.length);i++){const c=clouds[i];const spd=st.time*c.sp*(1+Math.abs(WE)*2.5)*(WE<0?-1:1)*(st.mode==='normal'?1:6);
-      const x=((c.x*Z+spd*Z-camX*Z*.12)%(1900)+1900)%1900-300,y=Math.round((c.y-camY*.15)*Z);if(x>OW||x+c.w<0)continue;paintCloud(c,P,key);
+    for(let i=0;i<Math.min(vis,clouds.length);i++){const c=clouds[i];const x=(((c.x+(c.off||0)-camX*(c.big?.06:.035))*Z)%1900+1900)%1900-300,y=Math.round((c.y-camY*.15)*Z);if(x>OW||x+c.w<0)continue;paintCloud(c,P,key);
       ctx.globalAlpha=c.big?(st.weather?1:.92):.75;ctx.drawImage(c.c,Math.round(x),y)}ctx.globalAlpha=1;XF(ctx)}}
 const birds=[];
 function updateBirds(){const t=st.dayT;if(scene.interior)return;if(birds.length<12&&t>.24&&t<.8&&st.rain<.3&&Math.random()<.004){const dir=Math.random()<.5?1:-1,n=3+Math.floor(Math.random()*4),y=26+Math.random()*44,x=dir>0?-20:W+20,sp=.45+Math.random()*.3;
@@ -966,7 +965,8 @@ function updateBirds(){const t=st.dayT;if(scene.interior)return;if(birds.length<
   for(let i=birds.length-1;i>=0;i--){const b=birds[i];b.x+=b.dir*b.sp*Math.min(st.ts,3);b.ph+=.25;b.y+=Math.sin(b.ph*.2)*.05;if(b.x<-40||b.x>W+40)birds.splice(i,1)}}
 const LIFE={bf:[],cat:{x:110,dir:1,sit:0,t:0},puffs:[],plane:null};
 for(let i=0;i<7;i++)LIFE.bf.push({x:1250+Math.random()*900,y:120+Math.random()*25,ph:Math.random()*6,c:['#fff6e0','#f6e070','#ffd0e0','#cfe8ff'][i%4],hx:0});
-function updateLife(){const t=st.dayT,day=t>.27&&t<.75&&st.rain<.2;
+function updateLife(){const tl=st.mode==='normal'?1:6;for(const c of clouds)c.off=(c.off||0)+c.sp*(-.5+WE*.6)*tl*(c.big?1:1.4);
+const t=st.dayT,day=t>.27&&t<.75&&st.rain<.2;
   for(const b of LIFE.bf){b.ph+=.35;b.hx+=(Math.random()-.5)*.08;b.hx=clamp(b.hx,-.6,.6);b.x+=b.hx+WE*.3;b.y+=Math.sin(b.ph*.13)*.25+(Math.random()-.5)*.2;b.y=clamp(b.y,100,146);if(b.x<1150||b.x>2600)b.hx*=-1,b.x=clamp(b.x,1150,2600);b.a=(b.a||0)+((day?1:0)-(b.a||0))*.02}
   const c=LIFE.cat;c.t++;if(c.sit>0){c.sit--}else{c.x+=c.dir*.18;if(c.x<102||c.x>176){c.dir*=-1;c.x=clamp(c.x,102,176)}if(Math.random()<.004)c.sit=200+Math.random()*300}c.a=(c.a||0)+(((st.rain<.25&&sky.night<.85)?1:0)-(c.a||0))*.02;
   const steam=(t<.4||t>.7)&&scene===OUT;if(steam&&Math.random()<.12)LIFE.puffs.push({x:22+Math.random()*3,y:84,vy:-.12-Math.random()*.08,r:1.5+Math.random(),life:160});
