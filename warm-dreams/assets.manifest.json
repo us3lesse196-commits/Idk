@@ -1,0 +1,6 @@
+{
+  "nota": "Imágenes generadas con SpriteCook en la cuenta del usuario. Los PNG viven en assets.local/ (no se suben). Para recuperarlas, descargar el raw del asset y reducir con tools.",
+  "assets": {
+    "shop": {"spritecook_asset_id": "376e603e-78d2-4767-b0ee-3ffa6d316665", "uso": "fachada de tienda en el barrio", "proceso": "raw 1024 -> BOX 160x160, alfa > 140"}
+  }
+}
