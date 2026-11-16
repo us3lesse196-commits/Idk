@@ -78,9 +78,27 @@ Tres formas, según el lugar:
 ## Siguiente paso: prototipo 0.2 (prueba de sistemas, desechable)
 3 mapas + lo básico de timelapse, hora, clima, NPC, sentarse con audífonos, entrar a un lugar.
 
+## Audífonos v2 (aprobado)
+1. **Timelapse libre:** sin elegir clima; empieza desde la hora y el clima actuales y el mundo sigue su
+   curso más rápido. Aparecen 2 botones:
+   - **Música:** reproductor de Spotify incrustado (pegar link de playlist/canción). Sin Premium ni login
+     dentro del juego; canciones completas si hay sesión de Spotify en ese navegador, si no fragmentos de
+     30 s. Alternativa: música propia del juego. (El SDK oficial de Spotify no funciona en navegadores de
+     celular ni desde un archivo local.)
+   - **Libro de dibujo:** cuaderno para dibujar en pixel art (paleta del juego, borrador, relleno,
+     deshacer, varias páginas guardadas en el dispositivo).
+2. **Clima y hora:** igual que antes.
+
+## Demo de historia (0.4, solo prueba)
+- Prólogo con franjas de cine: paneo por el barrio al atardecer, título, Haru sale de la prepa, cae un
+  cuaderno brillante del cerezo, diálogo con Aoi con retratos.
+- Juego libre buscando los 3 momentos.
+- Final: con los 3 momentos, de noche en el santuario, el kitsune guía a Haru al torii bajo la aurora,
+  se revela una página nueva y aparece "Continuará...".
+- Climas todos disponibles; guardado del cuaderno, historia y dibujos en el dispositivo.
+
 ## Pendientes para recordar
-- [ ] **Recordarle al usuario:** qué más se puede hacer en el modo música/timelapse además de escuchar
-      (lo pensará después de terminar lo más importante).
+- [x] Qué hacer en el modo timelapse: música (Spotify) y libro de dibujo.
 
 ## En discusión
 - El cuaderno en pantalla; progreso y guardado; tamaño de la primera versión.
