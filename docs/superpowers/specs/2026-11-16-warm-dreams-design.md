@@ -1,4 +1,4 @@
-# Ruta de Prepa: notas de diseño (borrador en discusión)
+# Warm Dreams: notas de diseño (borrador en discusión)
 
 > Documento vivo. Se irá completando mientras discutimos gameplay, mapas, ambientación y visuales.
 > Todavía no está aprobado para construir.
@@ -39,12 +39,12 @@ místicos. Todo debe sentirse relajado: la música, lo visual y el ritmo.
 
 ## Entrar a lugares (aprobado)
 Tres formas, según el lugar:
-1. **Corte de fachada** (casas, tienda, lugares chicos): al cruzar la puerta la fachada se desvanece y se
-   ve el interior en el mismo sitio, sin carga. La lluvia se ve por las ventanas y se oye apagada.
-2. **Escena aparte** (prepa, departamentos): fundido a negro y mapa interior propio
-   (pasillos, escaleras, salones, azotea).
-3. **Capas de profundidad** (callejones): en ciertos huecos entre edificios el personaje camina hacia el
-   fondo, a una calle trasera.
+1. **Casas y edificios:** el personaje hace la animación de abrir la puerta y entrar, la pantalla se
+   oscurece y vuelve a aparecer ya dentro (escena interior propia). La lluvia se ve por las ventanas
+   y se oye apagada.
+2. **Callejones:** el personaje hace la animación de entrar al callejón, la cámara hace zoom y se
+   desvanece lo que tapa, mostrando el callejón (capa de fondo propia).
+- Esto implica varias capas de fondos/escenas: exterior, callejones, interiores.
 - Solo algunos lugares se pueden visitar, y cada uno tiene algo especial (personaje, momento o vista).
 - Algunos abren solo a ciertas horas (tienda de día, biblioteca por la tarde).
 - Botón táctil extra de **entrar** que aparece solo junto a puertas o callejones.
