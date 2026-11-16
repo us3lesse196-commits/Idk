@@ -129,7 +129,8 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
 <canvas id="game" aria-label="Warm Dreams"></canvas>
 <div id="zone"><small></small><span></span></div>
 <div class="hud-top">
-  <div class="chip" id="clock"><small>Hora</small><span>17:10</span></div>
+  <div class="chip" id="clock"><small>Hora · <i id="fps" style="font-style:normal">60</i> fps</small><span>17:10</span></div>
+  <button class="chip" id="btnFS" type="button" aria-label="Pantalla completa"><small>Pantalla</small><span>⛶</span></button>
   <button class="chip" id="btnBook" type="button"><small>Cuaderno</small><span>0 / 3</span></button>
   <button class="chip" id="btnSound" type="button"><small>Sonido</small><span>Sí</span></button>
 </div>
@@ -205,7 +206,7 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
 <div id="toast"></div>
 
 <div id="start"><div class="box">
-  <div class="tag">Demo de pruebas · versión 0.4</div>
+  <div class="tag">Demo de pruebas · versión 0.5</div>
   <h1>Warm Dreams</h1>
   <div class="go">Toca para empezar</div>
   <div class="keys">◀ ▶ caminar · ▲ saltar · ▼ agacharse · botón naranja para interactuar<br>
@@ -258,7 +259,7 @@ function finalize(s){s.hmap=new Int16Array(s.LW).fill(H);s.gmap=new Int16Array(s
 // ------------------------------------------------------------ piezas de arte
 let lr=rng(7);
 function win(x,y,w,h,frame,glass,lit,litCol,kind){R(L,x-1,y-1,w+2,h+2,frame);R(L,x,y,w,h,glass);R(L,x+2,y,2,h,'rgba(255,255,255,.22)');R(L,x+6,y,1,h,'rgba(255,255,255,.12)');
-  if(lr()<lit){R(E,x,y,w,h,litCol);R(E,x+1,y+h-3,w-2,3,'rgba(255,240,210,.5)');LT(x+w/2,y+h/2,Math.max(14,w*.9),kind||'warm',.55)}}
+  if(lr()<lit){const hc=kind==='tv'?'150,170,255':'255,214,150';R(E,x-4,y-4,w+8,h+8,`rgba(${hc},.05)`);R(E,x-2,y-2,w+4,h+4,`rgba(${hc},.09)`);R(E,x,y,w,h,litCol);R(E,x+1,y+h-3,w-2,3,'rgba(255,240,210,.5)')}}
 function roofJ(x,w,y,rows,col,col2){ // techo de tejas japonés con aleros
   for(let i=0;i<rows;i++){const inset=(rows-1-i)*2;const rx=x-6+inset,rw=w+12-inset*2;R(L,rx,y+i,rw,1,i%2?col:col2);
     for(let k=rx+(i%2);k<rx+rw;k+=3)R(L,k,y+i,1,1,'rgba(0,0,0,.18)')}
@@ -447,7 +448,7 @@ const HOUSE=newScene('house',440,{zones:[[0,440,'Casa de la familia Mori','Inter
   door(414,98,20,52,'#d8cfb8',{scene:'out'},'Salir');
   R(L,0,150,LW,30,'#6a4e3a');R(L,0,150,LW,2,'#8a6a4e');S(0,150,LW,30,1);S(-10,0,10,H);S(LW,0,10,H);
   B.npcs.push({kind:'cat',x:300,y:148,dir:1,sp:0,fixed:1,a:1,house:1});
-  bench(160,150,'cojín');B.inter[B.inter.length-1].label='Sentarse';
+  B.inter.push({type:'bench',x:158,y:150,label:'Sentarse',name:'cojín',low:1});
   B.parallax=true;finalize(HOUSE);
 })();
 const SCENES={out:OUT,alley:ALLEY,house:HOUSE};
@@ -518,9 +519,9 @@ const SONGS={
   lluvia:{name:'Lluvia lenta',desc:'Para días grises',chords:[[45,52,55,60],[41,48,52,57],[48,52,55,59],[43,50,55,57]],dur:7.6,mel:[64,67,69,72,74,76],p:.28,v:.04},
   noche:{name:'Noche de estrellas',desc:'Calma nocturna',chords:[[50,54,57,61],[47,50,54,57],[43,50,54,59],[45,49,52,57]],dur:7,mel:[74,76,78,81,83,86],p:.34,v:.04}};
 let songs=[],curSong=null,userSong=null,ambCheck=0;
-function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
+function initAudio(){if(AC)return;try{const ACx=window.AudioContext||window.webkitAudioContext;try{AC=new ACx({latencyHint:'playback'})}catch(e){AC=new ACx()}}catch(e){return}
   master=AC.createGain();master.gain.value=.7;master.connect(AC.destination);musicOut=AC.createGain();musicOut.gain.value=gameMusicOn?1:0;
-  conv=AC.createConvolver();const len=AC.sampleRate*3.2|0,buf=AC.createBuffer(2,len,AC.sampleRate);for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
+  conv=AC.createConvolver();const len=AC.sampleRate*1.8|0,buf=AC.createBuffer(2,len,AC.sampleRate);for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
   conv.buffer=buf;const rv=AC.createGain();rv.gain.value=.55;conv.connect(rv);rv.connect(master);musicOut.connect(master);musicOut.connect(conv);
   noiseBuf=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const nd=noiseBuf.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
   const src=AC.createBufferSource();src.buffer=noiseBuf;src.loop=true;rainLP=AC.createBiquadFilter();rainLP.type='lowpass';rainLP.frequency.value=1500;
@@ -528,17 +529,16 @@ function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkit
   playSong(ambientSong(),.5)}
 function playSong(id,fade=3){if(!AC||curSong&&curSong.id===id)return;const now=AC.currentTime;
   if(curSong){curSong.bus.gain.cancelScheduledValues(now);curSong.bus.gain.setValueAtTime(curSong.bus.gain.value,now);curSong.bus.gain.linearRampToValueAtTime(0,now+fade);curSong.dying=now+fade+3}
-  const bus=AC.createGain();bus.gain.setValueAtTime(0,now);bus.gain.linearRampToValueAtTime(.55,now+fade);bus.connect(musicOut);
+  const bus=AC.createGain();bus.gain.setValueAtTime(0,now);bus.gain.linearRampToValueAtTime(.55,now+fade);const blp=AC.createBiquadFilter();blp.type='lowpass';blp.frequency.value=1400;bus.connect(blp);blp.connect(musicOut);
   curSong={id,bus,next:now+.2,i:0,last:SONGS[id].mel[2],dying:0};songs.push(curSong)}
-function pad(bus,m,t,dur,vol){const o1=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain(),f=AC.createBiquadFilter();o1.type='triangle';o2.type='sine';o1.frequency.value=mf(m);o2.frequency.value=mf(m)*1.003;
-  f.type='lowpass';f.frequency.value=900;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+2.2);g.gain.setValueAtTime(vol,t+dur-.5);g.gain.linearRampToValueAtTime(0,t+dur+2.5);
-  o1.connect(f);o2.connect(f);f.connect(g);g.connect(bus);o1.start(t);o2.start(t);o1.stop(t+dur+2.6);o2.stop(t+dur+2.6)}
-function pluck(bus,m,t,vol){const o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain(),g2=AC.createGain();o.type='sine';o2.type='triangle';o.frequency.value=mf(m);o2.frequency.value=mf(m)*2;g2.gain.value=.15;
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+2.2);o.connect(g);o2.connect(g2);g2.connect(g);g.connect(bus);o.start(t);o2.start(t);o.stop(t+2.3);o2.stop(t+2.3)}
+function pad(bus,m,t,dur,vol){const o1=AC.createOscillator(),g=AC.createGain();o1.type='triangle';o1.frequency.value=mf(m);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol*1.5,t+2.2);g.gain.setValueAtTime(vol*1.5,t+dur-.5);g.gain.linearRampToValueAtTime(0,t+dur+2.5);o1.connect(g);g.connect(bus);o1.start(t);o1.stop(t+dur+2.6)}
+function pluck(bus,m,t,vol){const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=mf(m);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+1.8);o.connect(g);g.connect(bus);o.start(t);o.stop(t+1.9)}
 function ambientSong(){const t=st.dayT;if(st.rain>.35||st.weather>0)return'lluvia';if(sky.night>.6)return'noche';if(t>.22&&t<.48)return'manana';return'tarde'}
 function audioTick(){if(!AC)return;const now=AC.currentTime;
   for(let k=songs.length-1;k>=0;k--){const s=songs[k],sd=SONGS[s.id];if(s.dying&&now>s.dying){s.bus.disconnect();songs.splice(k,1);continue}
-    if(s.dying)continue;while(s.next<now+.4){const ch=sd.chords[s.i%sd.chords.length];for(const m of ch)pad(s.bus,m,s.next,sd.dur,.022);pad(s.bus,ch[0]-12,s.next,sd.dur,.03);
+    if(s.dying)continue;while(s.next<now+1.5){const ch=sd.chords[s.i%sd.chords.length];for(const m of ch)pad(s.bus,m,s.next,sd.dur,.022);pad(s.bus,ch[0]-12,s.next,sd.dur,.03);
       for(let k2=0;k2<8;k2++)if(Math.random()<sd.p){let idx=sd.mel.indexOf(s.last);if(idx<0)idx=2;idx=clamp(idx+Math.round((Math.random()-.5)*4),0,sd.mel.length-1);s.last=sd.mel[idx];pluck(s.bus,s.last,s.next+k2*sd.dur/8+Math.random()*.08,sd.v)}
       s.next+=sd.dur;s.i++}}
   if(!userSong&&--ambCheck<=0){ambCheck=240;playSong(ambientSong())}
@@ -666,7 +666,7 @@ function update(){st.time++;const p=player;
   const cx=p.x+4;const zi=scene.zones.findIndex(z=>cx>=z[0]&&cx<z[1]);if(zi!==lastZone&&zi>=0&&!trans&&!cine.on){lastZone=zi;showZone(scene.zones[zi])}
   nearI=findInteract();updateActBtn();
   // lluvia
-  const nR=Math.round(st.rain*(st.weather===2?9:6));
+  const nR=Math.round(st.rain*(st.weather===2?9:6)*(lowQ?.6:1));
   for(let i=0;i<nR;i++)rain.push({x:camX-30+Math.random()*(W+90),y:-6-Math.random()*20,vy:4.5+Math.random()*1.5,l:4+Math.random()*3});
   for(let i=rain.length-1;i>=0;i--){const d=rain[i];d.y+=d.vy;d.x+=st.wind*1.6;const xi=d.x|0;if(xi<0||xi>=scene.LW||d.y>H){rain.splice(i,1);continue}
     if(!scene.interior&&d.y>=scene.hmap[xi]){if(Math.random()<.5)splash.push({x:d.x,y:scene.hmap[xi]-1,vx:(Math.random()-.5)*.8,vy:-.5-Math.random()*.6,life:10});
@@ -712,11 +712,13 @@ function updateNPCs(){const t=st.dayT,ts=Math.min(st.ts,6);
 function tinted(src,factor,col,alpha,y0){tctx.globalCompositeOperation='source-over';tctx.clearRect(0,0,W,H);const w=src.width;let ox=-(((camX*factor)%w)+w)%w;
   for(let x=ox;x<W;x+=w)tctx.drawImage(src,Math.round(x),y0||0);tctx.globalCompositeOperation='source-in';tctx.fillStyle=css(col);tctx.fillRect(0,0,W,H);tctx.globalCompositeOperation='source-over';
   ctx.globalAlpha=alpha;ctx.drawImage(tmpB,0,0);ctx.globalAlpha=1}
+let lowQ=false;const _strips={};
+function auroraStrip(col){const k=col.join();if(_strips[k])return _strips[k];const c=mk(1,48),g=c.getContext('2d'),gr=g.createLinearGradient(0,0,0,48);gr.addColorStop(0,css(col,0));gr.addColorStop(.7,css(col,1));gr.addColorStop(1,css(col,0));g.fillStyle=gr;g.fillRect(0,0,1,48);return _strips[k]=c}
 function drawSky(){const g=ctx.createLinearGradient(0,0,0,150);g.addColorStop(0,css(sky.top));g.addColorStop(.55,css(sky.mid));g.addColorStop(1,css(sky.hor));ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   const sa=sky.night*(1-st.cloud*.9);if(sa>.02)for(const s of stars){const x=((s.x-camX*.02)%900+900)%900;if(x>W)continue;const tw=.55+.45*Math.sin(st.time*.03+s.ph);ctx.fillStyle=`rgba(255,250,235,${sa*tw*(.4+s.b*.6)})`;ctx.fillRect(x|0,s.y|0,1,1)}
-  if(st.aurora>.02){ctx.globalCompositeOperation='lighter';for(const [ph,col,h] of [[0,[80,255,170],34],[2.1,[60,220,230],26],[4.2,[170,110,255],20]])for(let x=0;x<W;x++){const wx=x+camX*.04;
+  if(st.aurora>.02){ctx.globalCompositeOperation='lighter';for(const [ph,col,h] of [[0,[80,255,170],34],[2.1,[60,220,230],26],[4.2,[170,110,255],20]]){const strip=auroraStrip(col),stp=lowQ?4:2;for(let x=0;x<W;x+=stp){const wx=x+camX*.04;
     const y=16+Math.sin(wx*.018+st.time*.004+ph)*10+Math.sin(wx*.05+ph*2)*4,hh=h+Math.sin(wx*.07+st.time*.01+ph)*10,a=st.aurora*(cine.aur||1)*(.16+.12*Math.sin(wx*.03+st.time*.006+ph));
-    const gg=ctx.createLinearGradient(0,y,0,y+hh);gg.addColorStop(0,css(col,0));gg.addColorStop(.7,css(col,a));gg.addColorStop(1,css(col,0));ctx.fillStyle=gg;ctx.fillRect(x,y,1,hh)}ctx.globalCompositeOperation='source-over'}
+    ctx.globalAlpha=clamp(a,0,1);ctx.drawImage(strip,x,y,stp,hh)}}ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
   const t=st.dayT;if(t>.2&&t<.82){const f=(t-.2)/.62,sx=W*.1+f*W*.8,sy=150-Math.sin(f*Math.PI)*125,c=mix([255,250,226],[255,190,110],clamp(sky.sunset*1.2,0,1));
     ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.55*(1-st.cloud*.9);ctx.drawImage(GL.sun,sx-60,sy-60,120,120);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
     if(sky.sunset>.15&&st.cloud<.6){ctx.globalCompositeOperation='lighter';const ra=sky.sunset*.07*(1-st.cloud);for(let k=0;k<6;k++){const ang=Math.PI*.5+(k-2.5)*.22+Math.sin(st.time*.002+k)*.03;
@@ -736,7 +738,7 @@ function updateBirds(){const t=st.dayT;if(scene.interior)return;if(birds.length<
   for(let i=birds.length-1;i>=0;i--){const b=birds[i];b.x+=b.dir*b.sp*Math.min(st.ts,3);b.ph+=.25;b.y+=Math.sin(b.ph*.2)*.05;if(b.x<-40||b.x>W+40)birds.splice(i,1)}}
 function drawBirds(){if(!birds.length)return;const c=css(mix(sky.dark,[20,18,30],.6),.85);ctx.fillStyle=c;for(const b of birds){const x=Math.round(b.x),y=Math.round(b.y),up=Math.sin(b.ph)>0;
   ctx.fillRect(x,y,1,1);if(up){ctx.fillRect(x-2,y-1,2,1);ctx.fillRect(x+1,y-1,2,1)}else{ctx.fillRect(x-2,y+1,2,1);ctx.fillRect(x+1,y+1,2,1)}}}
-function drawMist(front){const t=st.dayT,m=clamp(1-Math.abs(t-.29)/.08,0,1)*(1-st.rain*.5);if(m<.02)return;
+function drawMist(front){if(lowQ)return;const t=st.dayT,m=clamp(1-Math.abs(t-.29)/.08,0,1)*(1-st.rain*.5);if(m<.02)return;
   for(let k=0;k<(front?2:4);k++){const y=front?142+k*6:112+k*9,h=front?10:12;const g=ctx.createLinearGradient(0,y,0,y+h);const col=mix(sky.hor,[255,255,255],.35);
     g.addColorStop(0,css(col,0));g.addColorStop(.5,css(col,m*(front?.22:.32)));g.addColorStop(1,css(col,0));ctx.fillStyle=g;const off=Math.sin(st.time*.003+k)*20;ctx.fillRect(-30+off,y,W+60,h)}}
 function drawParallax(){drawBirds();const far=mix(mix(sky.hor,sky.mid,.45),sky.dark,.18),city=mix(sky.hor,sky.dark,.45),hill=mix(sky.hor,sky.dark,.68),lo=lampsOn();
@@ -752,7 +754,7 @@ function drawPlayer(c){const p=player;if(p.alpha<=0)return;const cx=Math.round(p
   const SK='#f3c6a0',SKs='#dba07c',HA='#2a2135',SH='#f6f3ec',SHs='#c5c7d8',PA='#2a3150',PAs='#1f2540',SO='#f1ebe2',SOs='#77748a',BP='#d4553f',BPs='#9a3a2c',PH='#3a3a48';
   let drop=0,lf=0,lb=0,legH=6,arm=0,armUp=0;const a=p.anim,t=p.animT;
   if(a==='run'){const s=Math.sin(t*.36);lf=Math.round(s*2.2);lb=-lf;arm=-Math.round(s*1.6);drop=Math.abs(s)<.4?-1:0}else if(a==='idle')drop=Math.sin(t*.05)>.75?1:0;
-  else if(a==='jump'){lf=2;lb=-1;legH=5;armUp=1}else if(a==='fall'){lf=1;lb=-2;armUp=2}else if(a==='crouch')drop=5;else if(a==='slide')drop=8;else if(a==='wall'){lf=1;lb=-1;armUp=1}else if(a==='sit')drop=4;
+  else if(a==='jump'){lf=2;lb=-1;legH=5;armUp=1}else if(a==='fall'){lf=1;lb=-2;armUp=2}else if(a==='crouch')drop=5;else if(a==='slide')drop=8;else if(a==='wall'){lf=1;lb=-1;armUp=1}else if(a==='sit')drop=p.sitAt&&p.sitAt.low?4:-1;
   const T=-13+drop,hy=T-6;
   if(p.back){// de espaldas
     P(-2+lb,-legH,2,legH-1,PA);P(lf,-legH,2,legH-1,PA);P(-2+lb,-1,3,1,SOs);P(lf,-1,3,1,SOs);P(-3,T,6,7,SH);P(-4,T+1,1,5,SHs);P(3,T+1,1,5,SHs);
@@ -761,7 +763,7 @@ function drawPlayer(c){const p=player;if(p.alpha<=0)return;const cx=Math.round(p
     for(let i=1;i<=5;i++){const dx=-1+back*i*1.3+st.wind*i*.3*f,dy=T+1+i*(.5-sp*.3)+Math.sin(st.time*.22+i*.9)*(.3+sp*.6)*i*.35;P(Math.round(dx),Math.round(dy),2,1,i>3?'#a8303a':'#d8414c')}
     P(-6,T-1,3,8,BP);P(-6,T+6,3,1,BPs);P(-5,T,1,1,'#f2876a');if(a!=='slide'&&!armUp&&a!=='sit')P(-2-arm,T+1,2,5,SHs);
     if(a==='crouch'){P(-3,-3,7,2,PA);P(-3,-1,3,1,SOs);P(2,-1,3,1,SO)}else if(a==='slide'){P(-3,-3,10,2,PA);P(7,-3,2,2,SO);P(-4,-1,5,1,PAs)}
-    else if(a==='sit'){P(-3,-9,8,2,PA);P(3,-7,2,5,PA);P(3,-2,3,1,SO)}else{P(-2+lb,-legH,2,legH-1,PAs);P(-2+lb,-1,3,1,SOs);P(lf,-legH,2,legH-1,PA);P(lf,-1,3,1,SO)}
+    else if(a==='sit'){if(p.sitAt&&p.sitAt.low){P(-3,-3,9,2,PA);P(6,-3,2,2,SO)}else{P(-3,-8,8,2,PA);P(3,-6,2,5,PA);P(3,-1,3,1,SO)}}else{P(-2+lb,-legH,2,legH-1,PAs);P(-2+lb,-1,3,1,SOs);P(lf,-legH,2,legH-1,PA);P(lf,-1,3,1,SO)}
     const th=a==='crouch'?6:a==='slide'?5:7;P(-3,T,6,th,SH);P(-3,T+th-1,6,1,SHs);P(1,T,1,3,'#3a6db0');P(-3,T,1,th,SHs);
     P(-3,hy,6,6,SK);P(-3,hy+5,6,1,SKs);P(-3,hy-1,7,2,HA);P(-4,hy,2,4,HA);P(2,hy+1,2,1,HA);P(-1,hy+1,1,1,HA);
     const blink=st.time%223<6,lookUp=a==='idle'&&t>300&&t%420>320;if(!blink)P(1,hy+(lookUp?2:3),1,1,'#1e1726');else P(0,hy+3,2,1,SKs);P(2,hy+4,1,1,'#f08f88');
@@ -1098,9 +1100,17 @@ const resetBtn=$('#reset');let resetArm=0;if(save.prologue||foundCount)resetBtn.
 resetBtn.addEventListener('pointerup',e=>{e.stopPropagation();if(!resetArm){resetArm=1;resetBtn.textContent='Toca otra vez para borrar';return}
   try{localStorage.removeItem(SAVE_KEY)}catch(err){}save={};for(const k in found)found[k]=0;foundCount=0;$('#btnBook span').textContent='0 / 3';resetBtn.hidden=true;toast('Progreso borrado')});
 
+// pantalla completa
+const fsEl=document.documentElement,fsReq=fsEl.requestFullscreen||fsEl.webkitRequestFullscreen,fsOn=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
+function goFS(){if(!fsReq)return;try{const r=fsReq.call(fsEl);const lock=()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}};if(r&&r.then)r.then(lock).catch(()=>{});else lock()}catch(e){}}
+if(!fsReq)$('#btnFS').hidden=true;
+$('#btnFS').addEventListener('click',()=>{if(fsOn()){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else goFS()});
+const fsSync=()=>{$('#btnFS span').textContent=fsOn()?'✕':'⛶'};document.addEventListener('fullscreenchange',fsSync);document.addEventListener('webkitfullscreenchange',fsSync);
 // ============================================================ bucle
+let fpsN=0,fpsT=performance.now(),slowFor=0;
 let last=performance.now(),acc=0;
 function frame(now){acc+=Math.min(100,now-last);last=now;let n=0;while(acc>=1000/60&&n<4){update();acc-=1000/60;n++}draw();if(started)audioTick();
+  if(++fpsN>=30){const dt=now-fpsT,f=Math.round(30000/dt);fpsT=now;fpsN=0;$('#fps').textContent=f;if(f<42){if(++slowFor>=4)lowQ=true}else{slowFor=0;if(f>55)lowQ=false}}
   const hh=Math.floor(st.dayT*24),mm=Math.floor((st.dayT*24-hh)*60);const ts=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+(st.mode==='fast'?' ⏩':st.mode==='music'?' ♪':'');
   const ce=$('#clock span');if(ce.textContent!==ts)ce.textContent=ts;requestAnimationFrame(frame)}
 computeSky();camXf=clamp(player.x-W/2,0,OUT.LW-W);requestAnimationFrame(frame);
