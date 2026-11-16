@@ -561,9 +561,17 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
   for(const [x,y,m] of [[90,150,20],[300,150,16],[520,150,24],[640,150,18],[910,150,34],[1150,150,20],[1400,150,26],[1560,150,22],[1760,150,28],[1940,150,18],[2850,126,22],[3020,126,18],[1500,42,30],[1800,42,24]])
     B.puddles.push({x,y,m,rip:[]});
   B.koiPuddle=B.puddles.find(p=>p.x===910);
-  if(window.WD_ASSETS&&WD_ASSETS.shop){const im=new Image(),Ls=L,Es=E;im.onload=()=>{const w=im.width/Z,h=im.height/Z,x=1012,y=150-h+2;Ls.imageSmoothingEnabled=false;Ls.drawImage(im,x,y,w,h);
-      const c=mk(im.width,im.height),g=c.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,c.width,c.height),q=d.data;for(let i=0;i<q.length;i+=4){const r=q[i],gg=q[i+1],bb=q[i+2];if(!(r>170&&gg>110&&r>bb+50))q[i+3]=0}g.putImageData(d,0,0);Es.imageSmoothingEnabled=false;Es.drawImage(c,x,y,w,h)};im.src=WD_ASSETS.shop;
-    LT(1040,128,40,'warm',1);LT(1068,130,26,'warm',.8);LT(1018,112,20,'red',.8);LT(1084,112,20,'red',.8)}
+  if(window.WD_ASSETS&&WD_ASSETS.buildings){const WA=WD_ASSETS,Ls=L,Es=E,Bs=B,X0=-10,X1=336;
+    Ls.clearRect(X0,0,X1-X0,150);Es.clearRect(X0,0,X1-X0,150);
+    for(const k of ['lights','oneways','drips','lamps'])Bs[k]=Bs[k].filter(o=>o.x<X0||o.x>=X1);
+    const place=(src,x,w,h,sc,glow)=>{const im=new Image();im.onload=()=>{const ww=w*sc/Z,hh=h*sc/Z,y=150-hh+.5;Ls.imageSmoothingEnabled=false;Ls.drawImage(im,x,y,ww,hh);
+        if(glow){const c=mk(w,h),g=c.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,w,h),q=d.data;for(let i=0;i<q.length;i+=4){if(!(q[i]>175&&q[i+1]>115&&q[i]>q[i+2]+60))q[i+3]=0}g.putImageData(d,0,0);Es.imageSmoothingEnabled=false;Es.drawImage(c,x,y,ww,hh)}};im.src=src};
+    const bld=(name,x)=>{const b=WA.buildings[name];if(!b)return;place(b.src,x,b.w,b.h,1,true);const top=150-b.h/Z;O(x+8,top+2,b.w/Z-16);
+      const ls=[...b.lights].sort((p,q)=>q[2]-p[2]),pick=[];for(const l of ls){if(pick.length>=5)break;if(pick.every(o=>Math.hypot(o[0]-l[0],o[1]-l[1])>16))pick.push(l)}
+      for(const [lx,ly,n] of pick)Bs.lights.push({x:x+lx/Z,y:top+ly/Z,r:clamp(14+n*.6,16,40),kind:'warm',s:.95});Bs.drips.push({x:x+2,y:top+6},{x:x+b.w/Z-2,y:top+6})};
+    const prop=(name,x,sc=1)=>{const p=WA.props[name];if(p)place(p.src,x,p.w,p.h,sc,name==='vending')};
+    bld('cafe',6);prop('vending',82);bld('shop',96);prop('mailbox',173,.75);bld('house',182);prop('bike',250);prop('trash',273);prop('plant',283,.85);prop('flower',295);prop('stop',305);prop('mirror',418);
+    Bs.lights.push({x:88,y:132,r:22,kind:'cool',s:.9})}
   finalize(OUT);
 })();
 

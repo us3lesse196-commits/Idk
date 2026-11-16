@@ -1,6 +1,25 @@
 {
-  "nota": "Imágenes generadas con SpriteCook en la cuenta del usuario. Los PNG viven en assets.local/ (no se suben). Para recuperarlas, descargar el raw del asset y reducir con tools.",
+  "nota": "Imágenes generadas con SpriteCook en la cuenta del usuario. Los PNG viven en assets.local/ (no se suben). Para recuperarlas, descargar el raw del asset y reducir con tools. Script de proceso: ver commit \"Calle Hoshimachi\" (paso en Python dentro de la sesión).",
   "assets": {
-    "shop": {"spritecook_asset_id": "376e603e-78d2-4767-b0ee-3ffa6d316665", "uso": "fachada de tienda en el barrio", "proceso": "raw 1024 -> BOX 160x160, alfa > 140"}
+    "shop": {
+      "spritecook_asset_id": "376e603e-78d2-4767-b0ee-3ffa6d316665",
+      "uso": "fachada de tienda en el barrio",
+      "proceso": "raw -> BOX 160, recorte"
+    },
+    "cafe": {
+      "spritecook_asset_id": "087af4de-470a-4fb7-94b2-07c042c00a55",
+      "uso": "cafetería, Calle Hoshimachi",
+      "proceso": "raw -> BOX 160, recorte"
+    },
+    "house": {
+      "spritecook_asset_id": "ad810119-8d4e-4505-9326-5c747ea8054b",
+      "uso": "casa de dos pisos",
+      "proceso": "raw -> BOX 160, recorte"
+    },
+    "props": {
+      "spritecook_asset_id": "6d178bb0-3b58-4e3a-b48c-a35e3620aff4",
+      "uso": "objetos de calle",
+      "proceso": "raw -> BOX 102, separar por componentes"
+    }
   }
 }
