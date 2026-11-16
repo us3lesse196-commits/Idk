@@ -86,5 +86,8 @@ Tres formas, según el lugar:
 - El cuaderno en pantalla; progreso y guardado; tamaño de la primera versión.
 
 ## Prototipo
+- `warm-dreams/index.html`: prueba de sistemas 0.2 (3 mapas japoneses, casa con interior, callejón,
+  NPC con rutinas y paraguas, Aoi con diálogo, banca + audífonos con 2 menús y timelapse,
+  3 momentos del cuaderno, tren y paso a nivel).
 - `prueba/index.html`: prueba visual 0.1 (5 zonas, ciclo de día, lluvia/charcos/goteras, aurora,
   zorro espíritu, música generada).
