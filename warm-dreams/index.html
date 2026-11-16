@@ -1475,9 +1475,12 @@ function drawXing_(c,sc,layer){if(sc!==OUT||camX>1000||camX+W<820)return;const X
       if(cb>0){const g=[P(TW+.2,1,cb-.6),P(TW+.2,TH,cb-.6),P(TW+.2,TH,cb+.6),P(TW+.2,1,cb+.6)];quad(g,'rgba(10,10,20,.8)')}}
     if(zf>0){const fr=[P(-TW,1,zf),P(TW,1,zf),P(TW,TH,zf),P(-TW,TH,zf)];quad(fr,BODY);const wx=(a,b,ya,yb,col)=>quad([P(a,ya,zf),P(b,ya,zf),P(b,yb,zf),P(a,yb,zf)],col);
       wx(-12,12,16,28,DK);wx(-.6,.6,16,28,BODY);wx(-6,6,29,31,N>.4?'#ffcf6a':'#c9a24a');wx(-TW,TW,9,12,STR);wx(-TW,TW,1,4,DK);X.head=[P(-10,6,zf),P(10,6,zf),zf]}else{
-      const cut=[P(-TW,1,0),P(TW,1,0),P(TW,TH,0),P(-TW,TH,0)];quad(cut,BODY);for(let i=0;i<5;i++){const y=4+((i*7+X.t*2.3)%28);quad([P(-TW,y,0),P(TW,y,0),P(TW,y+.6,0),P(-TW,y+.6,0)],'rgba(255,255,255,.25)')}X.head=null}}
+      X.head=null}}
   else if(layer===1){for(const [px,dir] of [[861,-1],[961,1]]){const ang=-Math.PI/2+(dir<0?-1:1)*(Math.PI/2)*X.arm;c.save();c.translate(px+.5,128);c.rotate(ang);
-      for(let i=0;i<28;i+=2){c.fillStyle=(i/2)%2?'#1e1e24':'#f2c42a';c.fillRect(i,-.75,2,1.5)}c.restore();c.fillStyle='#3a3a44';c.fillRect(px-1.5,126,4,5);c.fillStyle='#e8e8ec';c.fillRect(px-.5,127,1,1)}}
+      for(let i=0;i<28;i+=2){c.fillStyle=(i/2)%2?'#1e1e24':'#f2c42a';c.fillRect(i,-.75,2,1.5)}c.restore();c.fillStyle='#3a3a44';c.fillRect(px-1.5,126,4,5);c.fillStyle='#e8e8ec';c.fillRect(px-.5,127,1,1)}
+    if(X.ph==='pass'){const zf=-160*(X.t/XDUR.pass),z1=zf+160,ZN=14,TW=15,TH=32,BODY=sh('#e4e6ec',.05),STR=sh('#3aa860',.1),TOP=sh('#c4c8d2',.15),za=Math.max(zf,-ZN),zb=Math.min(0,z1);
+      for(let z=zb;z>za;z-=1){const zz=Math.max(za,z-1);c.globalAlpha=clamp(1+z/ZN,0,1)*.95;quad([P(TW,1,z),P(TW,TH,z),P(TW,TH,zz),P(TW,1,zz)],BODY);quad([P(TW,8,z),P(TW,11,z),P(TW,11,zz),P(TW,8,zz)],STR);quad([P(-TW,TH,z),P(TW,TH,z),P(TW,TH,zz),P(-TW,TH,zz)],TOP)}
+      c.globalAlpha=.35;c.strokeStyle='#ffffff';c.lineWidth=.5;c.beginPath();for(let i=0;i<7;i++){const y=3+((i*5+X.t*3)%27),p1=P(TW,y,zb),p2=P(TW,y,za);c.moveTo(p1[0],p1[1]);c.lineTo(p2[0],p2[1])}c.stroke();c.globalAlpha=1}}
   else if(layer===2){c.globalCompositeOperation='lighter';if(X.lit&&lo>.1){c.fillStyle=`rgba(255,210,140,${lo*.35})`;for(const q of X.lit){c.beginPath();c.moveTo(q[0][0],q[0][1]);for(let i=1;i<4;i++)c.lineTo(q[i][0],q[i][1]);c.closePath();c.fill()}}
     if(X.head&&X.ph==='approach'){const sc=D/(D+X.head[2]);for(const h of [X.head[0],X.head[1]]){const s2=Math.max(6,sc*40);c.globalAlpha=.9;c.drawImage(GL.warm,h[0]-s2/2,h[1]-s2/2,s2,s2)}c.globalAlpha=.25;const s3=sc*110;c.drawImage(GL.warm,(X.head[0][0]+X.head[1][0])/2-s3/2,X.head[0][1]-s3/2,s3,s3)}
     c.globalAlpha=1;c.globalCompositeOperation='source-over'}}
