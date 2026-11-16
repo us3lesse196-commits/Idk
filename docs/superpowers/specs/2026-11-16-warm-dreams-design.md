@@ -103,7 +103,11 @@ Tres formas, según el lugar:
 ## En discusión
 - El cuaderno en pantalla; progreso y guardado; tamaño de la primera versión.
 
+## Arte (decidido)
+- Todo el arte lo genera el juego por código, en píxel fino: personajes con esqueleto animado, fondos lejanos propios, efectos de clima y luz. No se usan packs de terceros.
+
 ## Prototipo
+- `warm-dreams/index.html` (0.8): fuente actual.
 - `warm-dreams/index.html`: prueba de sistemas 0.2 (3 mapas japoneses, casa con interior, callejón,
   NPC con rutinas y paraguas, Aoi con diálogo, banca + audífonos con 2 menús y timelapse,
   3 momentos del cuaderno, tren y paso a nivel).
