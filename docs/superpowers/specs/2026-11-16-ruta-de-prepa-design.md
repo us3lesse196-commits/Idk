@@ -53,18 +53,27 @@ Tres formas, según el lugar:
   1. **Música:** eliges música y empieza un **timelapse medianamente rápido**; puedes solo escuchar
      y ver el mundo cambiar. (Qué más se puede hacer aquí: pendiente, ver abajo.)
   2. **Clima y hora:** eliges clima y hora, confirmas y empieza un **timelapse rápido** hasta llegar ahí.
-- Propuesta de Claude: tocar la pantalla salta el timelapse; la música elegida se puede mantener al
-  pedir clima y hora.
+- Tocar la pantalla salta el timelapse (aprobado).
+- Al pedir clima y hora, la canción actual se desvanece y entra otra acorde al nuevo ambiente (aprobado).
 - Clima natural además cambia solo, con pronósticos dentro del mundo (tele, vecinos, cielo nublándose).
 - Los botones de Hora/Clima de la prueba quedan solo para pruebas.
 - Abierto: si todos los climas están disponibles desde el inicio o algunos se desbloquean al vivirlos.
+
+## Personajes (aprobado)
+- NPC repartidos por los mapas. La mayoría son de fondo, con poco detalle y sin interacción.
+- Solo algunos se pueden hablar: son importantes para el cuaderno o para secretos, y tienen más detalle.
+- Hay lugares solitarios y tranquilos a propósito.
+- La cantidad de gente depende de la hora y el clima con lógica: de noche y con lluvia hay poca gente.
+- Propuestas de Claude: los NPC de fondo reaccionan al clima (paraguas, se refugian en la parada del bus);
+  tienen rutinas según la hora (estudiantes de día, vendedores en la mañana); los NPC importantes se
+  distinguen con una señal sutil y tienen horarios donde encontrarlos.
 
 ## Pendientes para recordar
 - [ ] **Recordarle al usuario:** qué más se puede hacer en el modo música/timelapse además de escuchar
       (lo pensará después de terminar lo más importante).
 
 ## En discusión
-- Personajes y diálogos; el cuaderno en pantalla; progreso y guardado; tamaño de la primera versión.
+- El cuaderno en pantalla; progreso y guardado; tamaño de la primera versión.
 
 ## Prototipo
 - `prueba/index.html`: prueba visual 0.1 (5 zonas, ciclo de día, lluvia/charcos/goteras, aurora,
