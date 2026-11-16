@@ -110,6 +110,7 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
 #draw .pg{display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:12px}
 #draw .x{color:var(--paper-ink);border-color:#cdb998}
 #reset{margin-top:14px;font-size:11px;padding:5px 10px;background:transparent;border:1px solid var(--edge);color:var(--ink-dim);cursor:pointer}
+.credits{font-size:12px;line-height:1.7;color:var(--ink-dim)}.credits b{color:var(--ink);font-weight:600}
 .vr{display:grid;grid-template-columns:130px 1fr 34px;align-items:center;gap:10px;font-size:13px;margin:10px 0}
 .vr input{width:100%;height:28px;accent-color:var(--accent);touch-action:pan-x}
 .vr b{font-weight:400;text-align:right;color:var(--accent);font-variant-numeric:tabular-nums}
@@ -174,8 +175,10 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
   <label class="vr" for="vMusic"><span>Música del juego</span><input id="vMusic" type="range" min="0" max="100" step="5"><b id="vMusicN">80</b></label>
   <label class="vr" for="vSfx"><span>Ambiente y efectos</span><input id="vSfx" type="range" min="0" max="100" step="5"><b id="vSfxN">80</b></label>
   <div class="row" style="justify-content:space-between;align-items:center"><span class="note" style="font-size:11px;color:var(--ink-dim)">El volumen de Spotify se ajusta en su reproductor.</span><button class="chip" id="btnMute" type="button">Silenciar</button></div>
+  <div class="lbl">Créditos</div>
+  <div class="credits">Personaje base: <b>kowches</b> · Free Basic Platformer Character<br>Fondos: <b>LyniaDesign</b> · Tiny Pixel Japan Parallax Background<br>Edificios: <b>The Flavare</b> · Japan Neighborhood Tileset (theflavare.com)<br>Retratos: <b>kanomwan</b> · Pixel School Character Set<br>Juego, música y efectos: hechos para Warm Dreams</div>
 </div>
-<div id="talk" hidden><canvas class="face" width="32" height="32"></canvas><div class="tx"><div class="who"></div><div class="say"></div><div class="more">Toca para seguir ▸</div></div></div>
+<div id="talk" hidden><canvas class="face" width="64" height="64"></canvas><div class="tx"><div class="who"></div><div class="say"></div><div class="more">Toca para seguir ▸</div></div></div>
 
 <div class="sheet" id="music" hidden role="dialog" aria-label="Música">
   <h2>🎵 Música <button class="x" id="musicClose" type="button">Cerrar</button></h2>
@@ -217,7 +220,7 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
 <div id="toast"></div>
 
 <div id="start"><div class="box">
-  <div class="tag">Demo de pruebas · versión 0.6</div>
+  <div class="tag">Demo de pruebas · versión 0.7</div>
   <h1>Warm Dreams</h1>
   <div class="go">Toca para empezar</div>
   <div class="keys">◀ ▶ caminar · ▲ saltar · ▼ agacharse · botón naranja para interactuar<br>
@@ -227,18 +230,20 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
 </div></div>
 <div id="rotate"><div><span class="ico">📱</span>Gira tu celular<br>Warm Dreams se juega en horizontal</div></div>
 
+<script id="wd-assets"></script>
 <script>
 (()=>{
 "use strict";
 // ============================================================ utilidades
 const out=document.getElementById('game'),octx=out.getContext('2d');
-const H=180;let W=320;
+const H=180,Z=2,VH=120,OH=VH*Z;let W=320,OW=640,camY=52,camYf=52;
 const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
-const frameA=mk(W,H),frameB=mk(W,H),worldB=mk(W,H),actorB=mk(W,H),lightB=mk(W,H),tmpB=mk(W,H);
+const frameA=mk(W,H),frameB=mk(W,H),worldB=mk(W,H),actorB=mk(W,H),lightB=mk(W,H),tmpB=mk(W,H),skyB=mk(W,H),frontB=mk(W,H),hiB=mk(OW,OH),fullA=mk(OW,OH),fullB=mk(OW,OH),layB=mk(OW,OH);
+const skyCtx=skyB.getContext('2d'),frontCtx=frontB.getContext('2d'),hctx=hiB.getContext('2d'),layCtx=layB.getContext('2d'),fullActx=fullA.getContext('2d'),fullBctx=fullB.getContext('2d');
 const fA=frameA.getContext('2d'),fB=frameB.getContext('2d'),wctx=worldB.getContext('2d'),actx=actorB.getContext('2d'),lctx=lightB.getContext('2d'),tctx=tmpB.getContext('2d');
 let ctx=fA,vignette=mk(W,H);
-function resize(){const a=innerWidth/Math.max(1,innerHeight);W=Math.max(220,Math.min(440,Math.round(H*a)));
-  for(const c of [out,frameA,frameB,worldB,actorB,lightB,tmpB]){c.width=W;c.height=H}
+function resize(){const a=innerWidth/Math.max(1,innerHeight);OW=Math.max(360,Math.min(680,Math.round(OH*a)));W=Math.ceil(OW/Z);
+  for(const c of [frameA,frameB,worldB,actorB,lightB,tmpB,skyB,frontB]){c.width=W;c.height=H}for(const c of [out,hiB,fullA,fullB,layB]){c.width=OW;c.height=OH}
   vignette=mk(W,H);const g=vignette.getContext('2d');const gr=g.createRadialGradient(W/2,H*.55,H*.35,W/2,H*.55,W*.75);
   gr.addColorStop(0,'rgba(12,6,30,0)');gr.addColorStop(1,'rgba(12,6,30,.42)');g.fillStyle=gr;g.fillRect(0,0,W,H)}
 addEventListener('resize',resize);resize();
@@ -255,6 +260,11 @@ function glow(col){const c=mk(64,64),g=c.getContext('2d');const gr=g.createRadia
 const GL={hole:glow([255,255,255]),warm:glow([255,196,120]),cool:glow([150,205,255]),cyan:glow([110,255,225]),tv:glow([140,160,255]),
   sun:glow([255,214,150]),moon:glow([200,215,255]),fire:glow([210,255,140]),red:glow([255,110,80]),koi:glow([255,170,90])};
 
+// ============================================================ assets externos (sprites y fondos)
+const A=window.WD_ASSETS||null;const IMG={};
+if(A){const ld=(k,src)=>{const im=new Image();im.src=src;IMG[k]=im};ld('spr',A.sprites);for(const k in A.layers)ld('L_'+k,A.layers[k]);for(const k in A.faces)ld('F_'+k,A.faces[k])}
+const ready=k=>IMG[k]&&IMG[k].complete&&IMG[k].naturalWidth>0;
+const useSpr=()=>A&&ready('spr');
 // ============================================================ escenas
 let B=null,L=null,E=null;
 function newScene(name,LW,o){const s={name,LW,levelC:mk(LW,H),emisC:mk(LW,H),solids:[],oneways:[],ground:[],lights:[],lamps:[],puddles:[],drips:[],trees:[],
@@ -484,7 +494,7 @@ const stars=[];(()=>{const r=rng(3);for(let i=0;i<150;i++)stars.push({x:r()*900,
 // ============================================================ estado
 const st={dayT:.715,ts:1,mode:'normal',target:null,weather:0,rain:0,cloud:.2,wind:0,wet:0,aurora:0,auroraForce:0,auroraNight:1,flash:0,bolt:null,time:0,wxTimer:60*90,train:null,trainTimer:60*20};
 let scene=OUT;
-const player={x:250,y:150-18,w:8,h:18,vx:0,vy:0,facing:1,grounded:true,coyote:0,jumpBuf:0,wallDir:0,wallLock:0,slideT:0,crouch:false,drop:0,anim:'idle',animT:0,wasG:true,splashT:0,
+const player={x:250,y:150-16,w:8,h:16,vx:0,vy:0,facing:1,grounded:true,coyote:0,jumpBuf:0,wallDir:0,wallLock:0,slideT:0,crouch:false,drop:0,anim:'idle',animT:0,wasG:true,splashT:0,
   state:'play',back:0,alpha:1,lift:0,phones:0,sitAt:null};
 let camXf=0,camX=0;
 const rain=[],splash=[],drops=[],leaves=[],dust=[],sparks=[];
@@ -579,18 +589,18 @@ const puddleW=pd=>pd.perm?pd.m:pd.m*sstep(clamp((st.wet-.18)/.6,0,1));
 function updatePlayer(){const p=player;const jp=input.jump&&!prevJump;prevJump=input.jump;
   if(p.state==='cine'){if(p.auto){const d=p.auto.x-p.x;if(Math.abs(d)>p.auto.sp){p.x+=Math.sign(d)*p.auto.sp;p.facing=Math.sign(d);if(p.anim!=='run'){p.anim='run';p.animT=0}p.animT+=p.auto.sp/1.7}
       else{p.x=p.auto.x;const r=p.auto.res;p.auto=null;p.anim='idle';p.animT=0;r()}}else if(p.pose){p.anim=p.pose;p.animT++}else{if(p.anim!=='idle'){p.anim='idle';p.animT=0}p.animT++}
-    p.h=p.anim==='crouch'?11:18;p.y=scene.gmap[clamp((p.x+4)|0,0,scene.LW-1)]-p.h;p.vx=0;p.vy=0;p.grounded=true;return}
+    p.h=p.anim==='crouch'?10:16;p.y=scene.gmap[clamp((p.x+4)|0,0,scene.LW-1)]-p.h;p.vx=0;p.vy=0;p.grounded=true;return}
   if(p.state!=='play'){if(p.state==='sit'&&(input.left||input.right||jp))stand();p.animT++;return}
   if(jp)p.jumpBuf=7;else if(p.jumpBuf>0)p.jumpBuf--;const dir=(input.right?1:0)-(input.left?1:0);
   if(p.wallLock>0)p.wallLock--;if(p.drop>0)p.drop--;
-  if(p.grounded&&input.down&&p.slideT<=0&&!p.crouch){if(Math.abs(p.vx)>1.25){p.slideT=30;p.vx=Math.sign(p.vx)*2.5;setHeight(p,10);puff(p.x+4,p.y+p.h,5,1.2)}else{p.crouch=true;setHeight(p,11)}}
-  if(p.slideT>0){p.slideT--;p.vx*=.965;if(p.grounded&&Math.random()<.4)puff(p.x+4,p.y+p.h,1,.8);if(p.slideT<=0||Math.abs(p.vx)<.45){p.slideT=0;if(input.down){p.crouch=true;setHeight(p,11)}else if(!setHeight(p,18)){p.crouch=true;setHeight(p,11)}}}
-  else if(p.crouch&&!input.down){if(setHeight(p,18))p.crouch=false}
+  if(p.grounded&&input.down&&p.slideT<=0&&!p.crouch){if(Math.abs(p.vx)>1.25){p.slideT=30;p.vx=Math.sign(p.vx)*2.5;setHeight(p,8);puff(p.x+4,p.y+p.h,5,1.2)}else{p.crouch=true;setHeight(p,10)}}
+  if(p.slideT>0){p.slideT--;p.vx*=.965;if(p.grounded&&Math.random()<.4)puff(p.x+4,p.y+p.h,1,.8);if(p.slideT<=0||Math.abs(p.vx)<.45){p.slideT=0;if(input.down){p.crouch=true;setHeight(p,10)}else if(!setHeight(p,16)){p.crouch=true;setHeight(p,10)}}}
+  else if(p.crouch&&!input.down){if(setHeight(p,16))p.crouch=false}
   const maxV=p.crouch?.6:1.7;
   if(p.slideT<=0){if(dir&&p.wallLock<=0){p.vx+=dir*(p.grounded?.28:.2);p.facing=dir}else if(p.grounded)p.vx*=.72;else p.vx*=.97;if(Math.abs(p.vx)>maxV)p.vx=p.grounded?Math.sign(p.vx)*maxV:p.vx*.96}
   if(p.grounded)p.coyote=6;else if(p.coyote>0)p.coyote--;
   if(p.jumpBuf>0&&input.down&&p.grounded){const on=scene.oneways.find(r=>p.x+p.w>r.x&&p.x<r.x+r.w&&Math.abs(p.y+p.h-r.y)<1);if(on){p.drop=12;p.y+=2;p.jumpBuf=0;p.grounded=false}}
-  if(p.jumpBuf>0&&p.coyote>0){if(p.crouch||p.slideT>0){if(setHeight(p,18)){p.crouch=false;if(p.slideT>0){p.vx*=1.12;p.slideT=0}}}if(!p.crouch){p.vy=-4.3;p.jumpBuf=0;p.coyote=0;p.grounded=false;puff(p.x+4,p.y+p.h,4,1)}}
+  if(p.jumpBuf>0&&p.coyote>0){if(p.crouch||p.slideT>0){if(setHeight(p,16)){p.crouch=false;if(p.slideT>0){p.vx*=1.12;p.slideT=0}}}if(!p.crouch){p.vy=-4.3;p.jumpBuf=0;p.coyote=0;p.grounded=false;puff(p.x+4,p.y+p.h,4,1)}}
   else if(p.jumpBuf>0&&!p.grounded&&p.wallDir){p.vy=-4;p.vx=-p.wallDir*2.1;p.wallLock=11;p.facing=-p.wallDir;p.jumpBuf=0;puff(p.x+(p.wallDir>0?p.w:0),p.y+10,5,.6)}
   p.vy+=.2;if(p.vy<0&&!input.jump)p.vy+=.24;let maxFall=4.5;if(!p.grounded&&p.wallDir&&dir===p.wallDir&&p.vy>0)maxFall=.85;if(p.vy>maxFall)p.vy=maxFall;
   // X con subida de escalones
@@ -600,7 +610,7 @@ function updatePlayer(){const p=player;const jp=input.jump&&!prevJump;prevJump=i
   const prevBottom=p.y+p.h;p.wasG=p.grounded;const prevVy=p.vy;p.grounded=false;p.y+=p.vy;r=hitSolid(p.x,p.y,p.w,p.h);
   if(r){if(p.vy>0){p.y=r.y-p.h;p.grounded=true}else p.y=r.y+r.h;p.vy=0}
   if(p.vy>=0&&p.drop<=0)for(const o of scene.oneways)if(p.x+p.w>o.x&&p.x<o.x+o.w&&prevBottom<=o.y+.01&&p.y+p.h>=o.y){p.y=o.y-p.h;p.vy=0;p.grounded=true;break}
-  if(p.grounded&&!p.wasG&&prevVy>2.2)puff(p.x+4,p.y+p.h,7,1.4);
+  if(p.grounded&&!p.wasG&&prevVy>1.2)p.landT=9;if(p.grounded&&!p.wasG&&prevVy>2.2)puff(p.x+4,p.y+p.h,7,1.4);if(p.landT>0)p.landT--;
   p.wallDir=0;if(!p.grounded){if(hitSolid(p.x+1,p.y+2,p.w,p.h-6))p.wallDir=1;else if(hitSolid(p.x-1,p.y+2,p.w,p.h-6))p.wallDir=-1}
   if(p.grounded&&Math.abs(p.vx)>.5&&--p.splashT<=0){p.splashT=7;const cx=p.x+4,by=p.y+p.h;for(const pd of scene.puddles){const w=puddleW(pd);if(w>3&&Math.abs(pd.y-by)<1&&Math.abs(cx-pd.x)<w/2){for(let i=0;i<5;i++)splash.push({x:cx,y:by-1,vx:(Math.random()-.5)*1.6-p.vx*.2,vy:-.6-Math.random()*.9,life:22});pd.rip.push({x:cx-pd.x,r:0});blip();break}}}
   const prev=p.anim;if(p.slideT>0)p.anim='slide';else if(p.crouch)p.anim='crouch';else if(!p.grounded)p.anim=p.wallDir&&dir===p.wallDir&&p.vy>0?'wall':p.vy<0?'jump':'fall';else p.anim=Math.abs(p.vx)>.25?'run':'idle';
@@ -622,7 +632,7 @@ function stand(){const p=player;p.state='play';p.phones=0;p.anim='idle';showSit(
 let trans=null;
 function startTrans(kind,it){const p=player;p.state='trans';p.vx=0;closePhones();showSit(false);trans={kind,t:0,it,x0:p.x,from:scene};
   if(kind==='door'){trans.door=scene.doors.find(d=>Math.abs(d.x+d.w/2-it.x)<2)}}
-function goScene(name,x,facing){scene=SCENES[name];const p=player;p.x=x;p.y=150-18;p.h=18;p.vy=0;p.vx=0;p.facing=facing||1;p.grounded=true;
+function goScene(name,x,facing){scene=SCENES[name];const p=player;p.x=x;p.y=150-16;p.h=16;camYf=camY=52;p.vy=0;p.vx=0;p.facing=facing||1;p.grounded=true;
   camXf=clamp(p.x-W/2,0,scene.LW-W);camX=Math.round(camXf);rain.length=0;splash.length=0;drops.length=0;leaves.length=0;lastZone=-1}
 function updateTrans(){const T=trans,p=player;T.t++;const t=T.t;
   if(T.kind==='door'){const d=T.door;
@@ -678,7 +688,7 @@ function update(){st.time++;const p=player;
   if(st.train){st.train.x+=st.train.dir*3.2;if(st.train.x>1500||st.train.x<-500)st.train=null}
   if(trans)updateTrans();else updatePlayer();
   // cámara
-  const target=p.x+p.w/2-W/2+(p.state==='play'?p.facing*22:0);if(cine.pan){const c=cine.pan;c.t++;camXf=c.from+(c.to-c.from)*sstep(clamp(c.t/c.dur,0,1))}else if(cine.camX!=null)camXf+=(cine.camX-camXf)*.04;else camXf+=(target-camXf)*.075;camXf=clamp(camXf,0,scene.LW-W);camX=Math.round(camXf);
+  const target=p.x+p.w/2-W/2+(p.state==='play'?p.facing*22:0);if(cine.pan){const c=cine.pan;c.t++;camXf=c.from+(c.to-c.from)*sstep(clamp(c.t/c.dur,0,1))}else if(cine.camX!=null)camXf+=(cine.camX-camXf)*.04;else camXf+=(target-camXf)*.075;camXf=clamp(camXf,0,scene.LW-W);camX=Math.round(camXf);{const ty=clamp(p.y+p.h-104,0,H-VH);camYf+=(ty-camYf)*.08;camY=Math.round(camYf)}
   const cx=p.x+4;const zi=scene.zones.findIndex(z=>cx>=z[0]&&cx<z[1]);if(zi!==lastZone&&zi>=0&&!trans&&!cine.on){lastZone=zi;showZone(scene.zones[zi])}
   nearI=findInteract();updateActBtn();
   // lluvia
@@ -757,13 +767,13 @@ function drawBirds(){if(!birds.length)return;const c=css(mix(sky.dark,[20,18,30]
 function drawMist(front){if(lowQ)return;const t=st.dayT,m=clamp(1-Math.abs(t-.29)/.08,0,1)*(1-st.rain*.5);if(m<.02)return;
   for(let k=0;k<(front?2:4);k++){const y=front?142+k*6:112+k*9,h=front?10:12;const g=ctx.createLinearGradient(0,y,0,y+h);const col=mix(sky.hor,[255,255,255],.35);
     g.addColorStop(0,css(col,0));g.addColorStop(.5,css(col,m*(front?.22:.32)));g.addColorStop(1,css(col,0));ctx.fillStyle=g;const off=Math.sin(st.time*.003+k)*20;ctx.fillRect(-30+off,y,W+60,h)}}
-function drawParallax(){drawBirds();const far=mix(mix(sky.hor,sky.mid,.45),sky.dark,.18),city=mix(sky.hor,sky.dark,.45),hill=mix(sky.hor,sky.dark,.68),lo=lampsOn();
-  tinted(farC,.08,far,1,0);tinted(cityC,.2,city,1,2);
+function drawParallax(){const far=mix(mix(sky.hor,sky.mid,.45),sky.dark,.18),city=mix(sky.hor,sky.dark,.45),hill=mix(sky.hor,sky.dark,.68),lo=lampsOn();
+  if(!A)tinted(farC,.08,far,1,0);const townA=scene===OUT?clamp((2050-camX)/250,0,1):1;if(townA>0)tinted(cityC,.2,city,townA,2);
   // tren en el viaducto
   if(st.train){const tx=Math.round(st.train.x-camX*.2);ctx.fillStyle=css(mix(city,[255,255,255],.12));ctx.fillRect(tx,108,150,10);ctx.fillRect(tx+2,106,146,2);
     ctx.fillStyle=lo>.1?`rgba(255,230,170,${.35+lo*.6})`:css(mix(city,[255,255,255],.3));for(let k=4;k<146;k+=7)ctx.fillRect(tx+k,110,4,3)}
   if(lo>.05){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=lo*.8;const w=cityW.width,ox=-(((camX*.2)%w)+w)%w;for(let x=ox;x<W;x+=w)ctx.drawImage(cityW,Math.round(x),2);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
-  const fg=ctx.createLinearGradient(0,95,0,150);fg.addColorStop(0,css(sky.hor,0));fg.addColorStop(1,css(sky.hor,.35+st.rain*.25));ctx.fillStyle=fg;ctx.fillRect(0,95,W,55);tinted(hillC,.45,hill,1,4);drawMist(false)}
+  const fg=ctx.createLinearGradient(0,95,0,150);fg.addColorStop(0,css(sky.hor,0));fg.addColorStop(1,css(sky.hor,.35+st.rain*.25));ctx.fillStyle=fg;ctx.fillRect(0,95,W,55);if(!A)tinted(hillC,.45,hill,1,4);drawMist(false)}
 
 function drawPlayer(c){const p=player;if(p.alpha<=0)return;const cx=Math.round(p.x+p.w/2-camX),by=Math.round(p.y+p.h-(p.lift||0)),f=p.facing;
   const P=(dx,dy,w,h,col)=>{c.fillStyle=col;c.fillRect(f>0?cx+dx:cx-dx-w,by+dy,w,h)};c.globalAlpha=p.alpha;
@@ -787,7 +797,11 @@ function drawPlayer(c){const p=player;if(p.alpha<=0)return;const cx=Math.round(p
     if(a==='slide')P(-5,T+1,3,2,SH);else if(armUp){P(1,T-2-armUp,2,4,SH);P(1,T-3-armUp,2,1,SK)}else if(a==='sit'){P(1,T+1,2,4,SH);P(2,T+5,2,1,SK)}else{P(arm,T+1,2,5,SH);P(arm,T+6,2,1,SK)}}
   if(p.shade){c.globalAlpha=p.shade*.55*p.alpha;c.fillStyle='#120f20';c.fillRect(cx-7,by-22,14,23)}
   c.globalAlpha=1}
-function drawNPC(c,n){if(n.a<.02)return;const sx=Math.round(n.x-camX),by=Math.round(n.y);if(sx<-20||sx>W+20)return;c.globalAlpha=n.a;
+const HUM={student:1,office:1,granny:1,kid:1,dog:1,jogger:1,aoi:1};
+function npcVariant(n){return n.kind==='aoi'?'aoi':n.kind==='office'?'office':n.kind==='granny'?'granny':n.kind==='jogger'?'jogger':n.kind==='student'?(n.var<.5?'girl':'boy'):'boy'}
+function drawNPC(c,n){if(n.a<.02)return;
+  if(useSpr()&&HUM[n.kind]){if(n.kind==='dog'){const sx=Math.round(n.x-camX),by=Math.round(n.y),f=n.dir||1,step=n.walking?Math.round(Math.sin(n.ph*.2)*1.5):0;if(sx<-20||sx>W+20)return;c.globalAlpha=n.a;
+      const dx=(f>0?6:-11);c.fillStyle='#c89a6a';c.fillRect(sx+dx,by-4,6,3);c.fillRect(sx+dx+(f>0?5:-1),by-6,3,3);c.fillRect(sx+dx+1+step,by-1,1,1);c.fillRect(sx+dx+4-step,by-1,1,1);c.fillStyle='#8a5a3a';c.fillRect(sx+dx+(f>0?6:0),by-6,1,1);c.globalAlpha=1}return}const sx=Math.round(n.x-camX),by=Math.round(n.y);if(sx<-20||sx>W+20)return;c.globalAlpha=n.a;
   const f=n.dir||1,P=(dx,dy,w,h,col)=>{c.fillStyle=col;c.fillRect(f>0?sx+dx:sx-dx-w,by+dy,w,h)};const step=n.walking?Math.round(Math.sin(n.ph*.2)*1.5):0;
   if(n.kind==='cat'){const sleep=n.house&&st.rain>.3;const cx=n.house&&st.rain>.3?285:n.x;const X=Math.round(cx-camX),Y=n.house&&st.rain>.3?113:by;
     c.fillStyle='#e8a35a';if(sleep){c.fillRect(X,Y-4,9,4);c.fillRect(X+7,Y-6,4,3);c.fillRect(X+7,Y-7,1,1);c.fillRect(X+10,Y-7,1,1);c.fillStyle='#c07a3a';c.fillRect(X+2,Y-3,1,2);c.fillRect(X+5,Y-3,1,2);c.fillRect(X-2,Y-2,3,1);
@@ -822,9 +836,11 @@ function drawGrass(c){if(scene!==OUT)return;const x0=Math.max(2120,camX-4),x1=Ma
 function drawDoors(c){for(const d of scene.doors){if(d.open<=0)continue;const sx=Math.round(d.x-camX);c.fillStyle='#1a1424';c.fillRect(sx,d.y,d.w,d.h);c.fillStyle='rgba(255,210,150,.25)';c.fillRect(sx,d.y+d.h-6,d.w,6);
   const off=Math.round(d.open*d.w*.9);c.fillStyle=d.col;c.fillRect(sx+off,d.y,Math.max(0,d.w-off),d.h);c.fillStyle='rgba(0,0,0,.15)';for(let y=d.y+4;y<d.y+d.h;y+=6)c.fillRect(sx+off,y,Math.max(0,d.w-off),1)}}
 
-function renderScene(sc){const saveScene=scene,saveCam=camX;scene=sc;if(sc!==saveScene){camX=sc===OUT&&trans&&trans.fromCam!=null?trans.fromCam:clamp(Math.round(sc.camXf||0),0,sc.LW-W)}else sc.camXf=camX;
+function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!==saveScene){camX=sc===OUT&&trans&&trans.fromCam!=null?trans.fromCam:clamp(Math.round(sc.camXf||0),0,sc.LW-W)}else sc.camXf=camX;
   const N=sky.night,lo=lampsOn();
-  if(sc.parallax||sc.alleySky){drawSky()}else{ctx.fillStyle='#000';ctx.fillRect(0,0,W,H)}
+  ctx=skyCtx;ctx.clearRect(0,0,W,H);
+  if(sc.parallax||sc.alleySky){drawSky();if(sc.parallax)drawBirds()}else{ctx.fillStyle='#000';ctx.fillRect(0,0,W,H)}
+  ctx=fA;ctx.clearRect(0,0,W,H);
   if(sc.parallax)drawParallax();
   if(sc.interior&&rain.length){ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.55),.6);ctx.lineWidth=1;ctx.beginPath();for(const d of rain){const x=d.x-camX+.5;ctx.moveTo(x,d.y);ctx.lineTo(x-st.wind*1.6*d.l/4,d.y-d.l)}ctx.stroke()}
   // mundo
@@ -832,7 +848,7 @@ function renderScene(sc){const saveScene=scene,saveCam=camX;scene=sc;if(sc!==sav
   actx.globalCompositeOperation='source-over';actx.clearRect(0,0,W,H);
   for(const l of leaves){const sx=Math.round(l.x-camX);if(sx<-2||sx>W+2)continue;actx.fillStyle=l.col;if(l.land||Math.sin(l.ph*2)>0)actx.fillRect(sx,Math.round(l.y),2,1);else actx.fillRect(sx,Math.round(l.y),1,2)}
   for(const n of sc.npcs)drawNPC(actx,n);
-  if(sc===saveScene)drawPlayer(actx);
+  if(sc===saveScene&&!useSpr())drawPlayer(actx);
   for(const d of dust){actx.fillStyle=`rgba(225,210,190,${clamp(d.life/d.m,0,1)*.8})`;actx.fillRect(Math.round(d.x-camX),Math.round(d.y),1,1)}
   for(const c of [wctx,actx]){c.globalCompositeOperation='source-atop';
     if(st.wet>0&&!sc.interior){c.fillStyle=`rgba(18,22,48,${st.wet*.26})`;c.fillRect(0,0,W,H)}
@@ -871,6 +887,7 @@ function renderScene(sc){const saveScene=scene,saveCam=camX;scene=sc;if(sc!==sav
     for(const l of sc.lights){const sx=l.x-camX;if(sx<-l.r||sx>W+l.r)continue;ctx.globalAlpha=(l.alwaysOn?Math.max(eA,.5):eA)*l.s*(l.lamp?.42:.22);const r=l.lamp?l.r*.8:l.r*.7;ctx.drawImage(GL[l.kind],sx-r,l.y-r-(l.lamp?6:0),r*2,r*2)}
     ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
   ctx.drawImage(actorB,0,0);
+  ctx=frontCtx;ctx.clearRect(0,0,W,H);
   // gotas, salpicaduras, lluvia
   if(sc===saveScene){ctx.fillStyle=css(mix(sky.hor,[220,235,255],.6),.9);for(const d of drops){const sx=Math.round(d.x-camX);if(d.g>0)ctx.fillRect(sx,d.y,1,d.g>9?1:2);else ctx.fillRect(sx,Math.round(d.y),1,2)}
     for(const s of splash)ctx.fillRect(Math.round(s.x-camX),Math.round(s.y),1,1);
@@ -886,27 +903,71 @@ function renderScene(sc){const saveScene=scene,saveCam=camX;scene=sc;if(sc!==sav
   if(sky.sunset>.05&&!sc.interior){const g=ctx.createLinearGradient(0,0,W,0);g.addColorStop(0,'rgba(255,150,90,0)');g.addColorStop(1,`rgba(255,160,90,${sky.sunset*.12})`);ctx.globalCompositeOperation='lighter';ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.globalCompositeOperation='source-over'}
   if(st.flash>.02){ctx.fillStyle=`rgba(230,235,255,${st.flash*(sc.interior?.25:.55)})`;ctx.fillRect(0,0,W,H)}
   ctx.drawImage(vignette,0,0);
-  scene=saveScene;camX=saveCam}
+  // composición en alta resolución
+  const g=tgt;g.imageSmoothingEnabled=false;g.globalAlpha=1;g.globalCompositeOperation='source-over';g.clearRect(0,0,OW,OH);
+  g.drawImage(skyB,0,camY,W,VH,0,0,W*Z,OH);
+  if(sc.parallax&&A)drawPackLayers(g,sc);
+  g.drawImage(frameA,0,camY,W,VH,0,0,W*Z,OH);
+  if(useSpr())drawHiActors(g,sc,sc===saveScene,darkA>.01);
+  g.drawImage(frontB,0,camY,W,VH,0,0,W*Z,OH);
+  ctx=fA;scene=saveScene;camX=saveCam}
+// ---------------------------------------------------------------- capas del pack (alta resolución)
+const PACK=[['Fuji',.02,.15,0],['Mountain_Back',.04,.25,0],['Mountain_Middle',.07,.4,0],['Mountain_Front',.11,.55,0],['Town',.28,.62,1],['Shrine_Multiple',.16,.45,2],['BackgroundTrees',.3,.6,2],['Trees',.5,.7,2]];
+function drawPackLayers(g,sc){const N=sky.night,town=sc===OUT?clamp((2050-camX)/250,0,1):sc===HOUSE?1:0,shr=sc===OUT?clamp((camX-1900)/250,0,1):0;
+  for(const [name,f,d,zone] of PACK){const im=IMG['L_'+name];if(!im||!im.complete||!im.naturalWidth)continue;const za=zone===0?1:zone===1?town:shr;if(za<.02)continue;
+    const iw=im.naturalWidth,ih=im.naturalHeight;const gy=Math.round((150-camY*(.4+f))*Z+(zone===1?46:zone===2?6:-4));
+    layCtx.globalCompositeOperation='source-over';layCtx.clearRect(0,0,OW,OH);let ox=-(((camX*Z*f)%iw)+iw)%iw;for(let x=ox;x<OW;x+=iw)layCtx.drawImage(im,Math.round(x),gy-ih);
+    const col=mix(mix(sky.hor,sky.mid,.3),sky.dark,d);const a=clamp((zone===1?.5:.62-d*.45)+N*.45+st.rain*.25,0,.94);
+    layCtx.globalCompositeOperation='source-atop';layCtx.fillStyle=css(col,a);layCtx.fillRect(0,0,OW,OH);
+    if(zone===1&&lampsOn()>.05){layCtx.fillStyle=`rgba(255,215,150,${lampsOn()*.1})`;layCtx.fillRect(0,0,OW,OH)}
+    layCtx.globalCompositeOperation='source-over';g.globalAlpha=za;g.drawImage(layB,0,0);g.globalAlpha=1}}
+// ---------------------------------------------------------------- personajes en alta resolución
+function sprFrame(row,fi,ox,oy,flip,c,alpha){const M=A.meta,im=IMG.spr;const r=M.rows[row];if(r==null)return;c.globalAlpha=alpha;
+  if(flip){c.save();c.translate(ox,0);c.scale(-1,1);c.drawImage(im,fi*M.cw,r*M.ch,M.cw,M.ch,-M.ox,oy-M.oy,M.cw,M.ch);c.restore()}
+  else c.drawImage(im,fi*M.cw,r*M.ch,M.cw,M.ch,ox-M.ox,oy-M.oy,M.cw,M.ch);c.globalAlpha=1}
+function playerFrame(p){const F=A.meta.frames,a=p.anim,t=p.animT;
+  if(a==='run')return F.run[Math.floor(t/4.5)%8];if(a==='jump')return p.vy<-2.6?F.jump[0]:p.vy<-1?F.jump[1]:F.jump[2];if(a==='fall'||a==='wall')return F.fall[Math.floor(st.time/8)%2];
+  if(a==='crouch')return F.crouch[0];if(a==='slide')return F.slide[0];if(a==='sit')return p.sitAt&&p.sitAt.low?F.crouch[0]:F.sit[0];
+  if(p.landT>0)return F.land[Math.min(2,Math.floor((9-p.landT)/3))];return F.idle[Math.floor(st.time/22)%3]}
+function drawHiActors(g,sc,cur,dark){const c=hctx;c.globalCompositeOperation='source-over';c.clearRect(0,0,OW,OH);c.imageSmoothingEnabled=false;
+  const X=wx=>Math.round((wx-camX)*Z),Y=wy=>Math.round((wy-camY)*Z);
+  for(const n of sc.npcs){if(!HUM[n.kind]||n.a<.02)continue;const ox=X(n.x),oy=Y(n.y);if(ox<-40||ox>OW+40)continue;const F=A.meta.frames;
+    const fi=n.walking?F.run[Math.floor((n.ph||0)*.22)%8]:F.idle[Math.floor((st.time+(n.var||0)*90)/26)%3];sprFrame(npcVariant(n),fi,ox,oy,(n.dir||1)<0,c,n.a);
+    if(n.umbOpen){c.globalAlpha=n.a;c.fillStyle=n.ucol;const uy=oy-40;for(let r=0;r<6;r++){const w=10+r*3;c.fillRect(ox-w,uy+r,w*2,1)}c.fillStyle='rgba(0,0,0,.22)';c.fillRect(ox-25,uy+5,50,1);c.fillStyle='#2a2a33';c.fillRect(ox,uy+6,1,14);c.globalAlpha=1}
+    if(n.kind==='aoi'&&n.a>.6&&!n.walking&&!cine.on){const b=Math.round(Math.sin(st.time*.08)*2),by=oy-44+b;c.fillStyle='#fff4e2';c.fillRect(ox-8,by,17,9);c.fillRect(ox-1,by+9,3,2);c.fillStyle='#3b2f3f';for(const k of [-4,0,4])c.fillRect(ox+k,by+4,2,2)}}
+  if(cur){const p=player;if(p.alpha>0){const ox=X(p.x+p.w/2),oy=Y(p.y+p.h-(p.lift||0)),row=p.back?'haruB':'haru',fi=playerFrame(p);
+      // bufanda al viento
+      if(!p.back){const f=p.facing,back=Math.abs(p.vx)>.3?-Math.sign(p.vx)*f:-1,sp=Math.min(1,Math.abs(p.vx)/1.7+Math.abs(p.vy)/4),hy=oy-19-(p.anim==='crouch'||p.anim==='slide'?-8:0)+(p.anim==='sit'?-1:0);c.globalAlpha=p.alpha;
+        for(let i=1;i<=6;i++){const dx=(-3+back*i*2.2+st.wind*i*.5*f)*f,dy=i*(.7-sp*.4)+Math.sin(st.time*.22+i*.9)*(.4+sp)*i*.45;c.fillStyle=i>4?'#a8303a':'#d8414c';c.fillRect(Math.round(ox+dx),Math.round(hy+dy),3,2)}c.globalAlpha=1}
+      sprFrame(row,fi,ox,oy,p.facing<0,c,p.alpha);
+      if(p.phones&&!p.back){const hx=ox,hy=oy-(p.anim==='sit'?32:31);c.fillStyle='#3a3a48';c.fillRect(hx-7,hy,14,2);c.fillRect(hx-8,hy+2,2,7);c.fillRect(hx+6,hy+2,2,7);c.fillStyle='#ff8fa3';c.fillRect(hx-8,hy+4,2,3);c.fillRect(hx+6,hy+4,2,3)}
+      if(p.shade){c.globalCompositeOperation='source-atop';c.fillStyle=`rgba(18,15,32,${p.shade*.55})`;c.fillRect(ox-20,oy-44,40,46);c.globalCompositeOperation='source-over'}}}
+  // misma luz que el mundo
+  c.globalCompositeOperation='source-atop';
+  if(st.wet>0&&!sc.interior){c.fillStyle=`rgba(18,22,48,${st.wet*.18})`;c.fillRect(0,0,OW,OH)}
+  c.fillStyle=css(sky.tint,sky.tint[3]*(sc.interior?.5:1));c.fillRect(0,0,OW,OH);
+  if(st.rain>.02){c.fillStyle=`rgba(70,80,105,${st.rain*(sc.interior?.08:.18)})`;c.fillRect(0,0,OW,OH)}
+  if(dark)c.drawImage(lightB,0,camY,W,VH,0,0,W*Z,OH);
+  c.globalCompositeOperation='source-over';g.drawImage(hiB,0,0)}
 function drawFox(){if(fox.a<.02)return;const t=fox.t,x=fox.x,y=fox.y,flip=fox.dir<0,sx=Math.round(x-camX),sy=Math.round(y+Math.sin(t*.05)*.5),a=fox.a,c=ctx;
   ctx.globalCompositeOperation='lighter';ctx.globalAlpha=a*.5;ctx.drawImage(GL.cyan,sx-18,sy-26,48,40);ctx.globalAlpha=a;const C='#9ffff0',C2='#e8fffb',C3='#4fc8d8';
   R(c,sx+2,sy-6,7,4,C);R(c,sx+3,sy-2,1,2,C3);R(c,sx+7,sy-2,1,2,C3);R(c,sx+8,sy-9,4,4,C);R(c,sx+8,sy-10,1,1,C2);R(c,sx+11,sy-10,1,1,C2);R(c,sx+12,sy-7,1,1,C);R(c,sx+10,sy-8,1,1,'#1d4a5a');
   const tw=Math.round(Math.sin(t*.06)*1.5),tw2=Math.round(Math.sin(t*.06+1.2)*1.5);R(c,sx-1,sy-7+tw,4,2,C);R(c,sx-3,sy-9+tw,3,2,C2);R(c,sx-1,sy-5+tw2,3,1,C);R(c,sx-3,sy-6+tw2,2,2,C2);
   ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
 
-function blit(buf,z,fx,fy,alpha){const sw=W/z,sh=H/z;const sx=clamp(fx-sw/2,0,W-sw),sy=clamp(fy-sh/2,0,H-sh);octx.imageSmoothingEnabled=false;octx.globalAlpha=alpha;octx.drawImage(buf,sx,sy,sw,sh,0,0,W,H);octx.globalAlpha=1}
-function draw(){octx.globalAlpha=1;
+function blit(buf,z,fx,fy,alpha){const sw=OW/z,sh=OH/z;const sx=clamp(fx-sw/2,0,OW-sw),sy=clamp(fy-sh/2,0,OH-sh);octx.imageSmoothingEnabled=false;octx.globalAlpha=alpha;octx.drawImage(buf,sx,sy,sw,sh,0,0,OW,OH);octx.globalAlpha=1}
+function draw(){octx.globalAlpha=1;octx.imageSmoothingEnabled=false;const fy=OH*.62;
   if(trans&&(trans.kind==='alleyIn'||trans.kind==='alleyOut')&&trans.fromScene){const T=trans;
-    ctx=fA;renderScene(T.fromScene);ctx=fB;renderScene(scene);ctx=fA;
-    const fsx=T.kind==='alleyIn'?(T.focus.x-T.fromCam):W/2,fy=T.focus?T.focus.y:110;
-    if(T.kind==='alleyIn'){blit(frameA,T.zoom,fsx,fy,1);blit(frameB,T.zoomB,W/2,110,sstep(T.mixB))}
-    else{blit(frameB,T.zoomB,T.focus.x-camX,fy,1);blit(frameA,T.zoom,W/2,110,1-sstep(T.mixB))}}
-  else if(trans&&trans.kind==='alleyIn'&&trans.zoom>1){ctx=fA;renderScene(scene);blit(frameA,trans.zoom,trans.it.x-camX,110,1)}
-  else{ctx=fA;renderScene(scene);octx.drawImage(frameA,0,0)}
-  if(trans&&trans.fade>0){octx.fillStyle=`rgba(6,5,14,${trans.fade})`;octx.fillRect(0,0,W,H)}
-  if(cine.book){const b=cine.book,sx=Math.round(b.x-camX),sy=Math.round(b.y);octx.globalCompositeOperation='lighter';octx.globalAlpha=.6+.3*Math.sin(st.time*.2);octx.drawImage(GL.warm,sx-12,sy-12,24,24);octx.globalAlpha=1;octx.globalCompositeOperation='source-over';
-    octx.fillStyle='#7a4a3a';octx.fillRect(sx-3,sy-2,7,5);octx.fillStyle='#f4ead6';octx.fillRect(sx-2,sy-1,5,3);octx.fillStyle='#c9a24a';octx.fillRect(sx,sy-2,1,5)}
-  if(cine.lb>0){const h=Math.round(cine.lb*20);octx.fillStyle='#05040c';octx.fillRect(0,0,W,h);octx.fillRect(0,H-h,W,h)}
-  if(cine.fade>0){octx.fillStyle=css(cine.fadeCol,cine.fade);octx.fillRect(0,0,W,H)}}
+    renderScene(T.fromScene,fullActx);renderScene(scene,fullBctx);
+    if(T.kind==='alleyIn'){blit(fullA,T.zoom,(T.focus.x-T.fromCam)*Z,fy,1);blit(fullB,T.zoomB,OW/2,fy,sstep(T.mixB))}
+    else{blit(fullB,T.zoomB,(T.focus.x-camX)*Z,fy,1);blit(fullA,T.zoom,OW/2,fy,1-sstep(T.mixB))}}
+  else if(trans&&trans.kind==='alleyIn'&&trans.zoom>1){renderScene(scene,fullActx);blit(fullA,trans.zoom,(trans.it.x-camX)*Z,fy,1)}
+  else{renderScene(scene,fullActx);octx.drawImage(fullA,0,0)}
+  if(trans&&trans.fade>0){octx.fillStyle=`rgba(6,5,14,${trans.fade})`;octx.fillRect(0,0,OW,OH)}
+  if(cine.book){const b=cine.book,sx=Math.round((b.x-camX)*Z),sy=Math.round((b.y-camY)*Z);octx.globalCompositeOperation='lighter';octx.globalAlpha=.6+.3*Math.sin(st.time*.2);octx.drawImage(GL.warm,sx-24,sy-24,48,48);octx.globalAlpha=1;octx.globalCompositeOperation='source-over';
+    octx.fillStyle='#3b2a2a';octx.fillRect(sx-7,sy-5,14,10);octx.fillStyle='#7a4a3a';octx.fillRect(sx-6,sy-4,12,8);octx.fillStyle='#f4ead6';octx.fillRect(sx-5,sy-3,10,6);octx.fillStyle='#c9a24a';octx.fillRect(sx,sy-4,1,8)}
+  if(cine.lb>0){const h=Math.round(cine.lb*OH*.11);octx.fillStyle='#05040c';octx.fillRect(0,0,OW,h);octx.fillRect(0,OH-h,OW,h)}
+  if(cine.fade>0){octx.fillStyle=css(cine.fadeCol,cine.fade);octx.fillRect(0,0,OW,OH)}}
 
 // ============================================================ HUD
 const $=s=>document.querySelector(s);
@@ -972,7 +1033,9 @@ talkEl.addEventListener('click',advanceTalk);
 function advanceTalk(){if(!talkOpen||!lines[li])return;const L=lines[li];if(typed<L.text.length){typed=L.text.length;clearInterval(typeTimer);talkEl.querySelector('.say').textContent=L.text;return}li++;if(li>=lines.length){talkEl.hidden=true;talkOpen=false;const d=talkDone;talkDone=null;if(d)d();return}showLine()}
 function talkBlip(who){if(!AC||!soundOn)return;const now=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=who==='Aoi'?620+Math.random()*60:who==='Haru'?420+Math.random()*40:900;
   g.gain.setValueAtTime(.025,now);g.gain.exponentialRampToValueAtTime(.0001,now+.05);o.connect(g);g.connect(sfxOut);o.start(now);o.stop(now+.06)}
-function drawPortrait(c,who){const g=c.getContext('2d');g.clearRect(0,0,32,32);const P=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h)};
+function drawPortrait(c,who){const g=c.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,64,64);g.imageSmoothingEnabled=false;
+  if(A&&ready('F_'+who)){const bg=g.createLinearGradient(0,0,0,64);bg.addColorStop(0,who==='Aoi'?'#5a3a5a':'#3a3a5e');bg.addColorStop(1,'#1d1733');g.fillStyle=bg;g.fillRect(0,0,64,64);g.drawImage(IMG['F_'+who],0,0,64,64);return}
+  g.setTransform(2,0,0,2,0,0);const P=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h)};
   const bg=g.createLinearGradient(0,0,0,32);bg.addColorStop(0,who==='Aoi'?'#5a3a5a':who==='Haru'?'#3a3a5e':'#1d3a4a');bg.addColorStop(1,'#1d1733');g.fillStyle=bg;g.fillRect(0,0,32,32);
   if(who==='Kitsune'){P(8,14,16,10,'#9ffff0');P(10,8,4,7,'#9ffff0');P(18,8,4,7,'#9ffff0');P(11,10,2,4,'#4fc8d8');P(19,10,2,4,'#4fc8d8');P(12,17,2,2,'#1d4a5a');P(18,17,2,2,'#1d4a5a');P(15,21,2,1,'#4fc8d8');P(6,22,20,10,'#c8fff6');return}
   const SK='#f3c6a0',SKs='#dba07c';
@@ -1135,6 +1198,6 @@ function frame(now){acc+=Math.min(100,now-last);last=now;let n=0;while(acc>=1000
   const ce=$('#clock span');if(ce.textContent!==ts)ce.textContent=ts;requestAnimationFrame(frame)}
 computeSky();camXf=clamp(player.x-W/2,0,OUT.LW-W);requestAnimationFrame(frame);
 window.__dbg={st,player,found,set:(t,w,wet)=>{st.dayT=t;if(w!=null){st.weather=w;st.rain=[0,.6,1][w];st.cloud=[.15,.85,1][w]}if(wet!=null)st.wet=wet;st.wxTimer=1e9;computeSky()},
-  go:(x,sc)=>{if(sc)goScene(sc,x);else{player.x=x;player.y=scene.gmap[x|0]-18;player.vy=0}camXf=x-W/2},interact,cine,prologue,ending,giveAll:()=>{for(const k of ['koi','fox','cat'])if(!found[k]){found[k]=1;foundCount++}writeSave()},save:()=>save,get near(){return nearI},get scene(){return scene.name},get trans(){return trans}};
+  go:(x,sc)=>{if(sc)goScene(sc,x);else{player.x=x;player.y=scene.gmap[x|0]-16;player.vy=0}camXf=x-W/2},interact,cine,prologue,ending,giveAll:()=>{for(const k of ['koi','fox','cat'])if(!found[k]){found[k]=1;foundCount++}writeSave()},save:()=>save,get near(){return nearI},get scene(){return scene.name},get trans(){return trans}};
 })();
 </script>
