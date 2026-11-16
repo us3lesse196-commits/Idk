@@ -20,6 +20,11 @@
       "spritecook_asset_id": "6d178bb0-3b58-4e3a-b48c-a35e3620aff4",
       "uso": "objetos de calle",
       "proceso": "raw -> BOX 102, separar por componentes"
+    },
+    "shrine": {
+      "spritecook_asset_id": "31a637eb-7b4e-4189-b82e-352813f64ac0",
+      "uso": "templo de la Colina del Santuario",
+      "proceso": "raw -> BOX 190, recorte"
     }
   }
 }
