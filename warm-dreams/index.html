@@ -1163,7 +1163,7 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   if(!sc.interior&&st.rain>.04&&!OFF.rain){const n=Math.round(90*st.rain*[.3,.6,1][Q]);ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.4),.32);ctx.lineWidth=.5;ctx.beginPath();for(let i=0;i<n;i++){const sp=2.6+(i%5)*.45,x=((i*61.7-camX*.5+st.time*st.wind*1.1)%(W+40)+W+40)%(W+40)-20,y=(i*37.3+st.time*sp)%190;ctx.moveTo(x,y);ctx.lineTo(x-st.wind*1.1,y-3.5)}ctx.stroke()}
   if(sc.interior&&rain.length){ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.55),.6);ctx.lineWidth=.5;ctx.beginPath();for(const d of rain){const x=d.x-camX+.5;ctx.moveTo(x,d.y);ctx.lineTo(x-st.wind*1.6*d.l/4,d.y-d.l)}ctx.stroke()}
   // mundo
-  wctx.globalCompositeOperation='source-over';wctx.clearRect(0,0,W,H);drawXing(wctx,sc,0);ID(wctx);blitCh(wctx,sc,'l',camX*Z,camY*Z,OW,OH,0,0,OW,OH);XF(wctx);drawDoors(wctx);drawTrees(wctx,sc);drawFlags(wctx,sc);drawXing(wctx,sc,1);drawGrass(wctx);
+  wctx.globalCompositeOperation='source-over';wctx.clearRect(0,0,W,H);drawXing(wctx,sc,0);ID(wctx);tick_('· cruce (fondo)');blitCh(wctx,sc,'l',camX*Z,camY*Z,OW,OH,0,0,OW,OH);XF(wctx);drawDoors(wctx);tick_('· nivel');drawTrees(wctx,sc);tick_('· árboles');drawFlags(wctx,sc);drawXing(wctx,sc,1);tick_('· cruce (frente) y banderas');drawGrass(wctx);tick_('· pasto');
   actx.globalCompositeOperation='source-over';actx.clearRect(0,0,W,H);
   for(const l of leaves){const sx=Math.round(l.x-camX);if(sx<-2||sx>W+2)continue;const fx=Math.round((l.x-camX)*2)/2,fy=Math.round(l.y*2)/2,tp=Math.sin(l.ph*2);actx.fillStyle=l.col;if(l.land){const LF=[600,1800,3600][Q],dry=clamp((l.land-LF*.45)/(LF*.45),0,1),fa=clamp((LF-l.land)/120,0,1);actx.globalAlpha=fa;actx.fillStyle=l.rgb?css(mix(l.rgb,[150,112,84],dry*.7)):l.col;
       if(l.fl){const r=Math.sin(l.ph*3)>0;actx.fillRect(fx-.5,fy+.5,r?2:1.5,r?.5:1);actx.fillStyle='rgba(255,255,255,.35)';actx.fillRect(fx-1,fy+1,.5,.5);actx.fillRect(fx+1.5,fy+1,.5,.5)}
@@ -1171,6 +1171,7 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   for(const n of sc.npcs)drawNPC(actx,n);
   drawLife(actx,sc);drawHiActors(actx,sc,sc===saveScene);
   for(const d of dust){actx.fillStyle=`rgba(225,210,190,${clamp(d.life/d.m,0,1)*.8})`;actx.fillRect(Math.round(d.x-camX),Math.round(d.y),1,1)}
+  tick_('· personajes y hojas');
   {const L_=[];if(st.wet>.02&&!sc.interior)L_.push([[18,22,48],st.wet*.26]);if(sky.tint[3]>.01)L_.push([sky.tint,sky.tint[3]*(sc.interior?.5:1)]);if(st.rain>.02)L_.push([[70,80,105],st.rain*(sc.interior?.08:.18)]);
     if(L_.length&&!OFF.dark){let keep=1,acc=[0,0,0];for(let i=L_.length-1;i>=0;i--){const [c,a]=L_[i];acc=[acc[0]+c[0]*a*keep,acc[1]+c[1]*a*keep,acc[2]+c[2]*a*keep];keep*=1-a}const A=1-keep,col=[acc[0]/A,acc[1]/A,acc[2]/A];
       for(const c of [wctx,actx]){c.globalCompositeOperation='source-atop';c.fillStyle=css(col,A);c.fillRect(0,0,W,H)}}}
