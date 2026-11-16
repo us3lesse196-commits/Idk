@@ -114,6 +114,7 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
 .vr{display:grid;grid-template-columns:130px 1fr 34px;align-items:center;gap:10px;font-size:13px;margin:10px 0}
 .vr input{width:100%;height:28px;accent-color:var(--accent);touch-action:pan-x}
 .vr b{font-weight:400;text-align:right;color:var(--accent);font-variant-numeric:tabular-nums}
+#diag{position:fixed;left:calc(env(safe-area-inset-left,0px) + 10px);top:calc(env(safe-area-inset-top,0px) + 60px);z-index:7;margin:0;padding:6px 8px;font:11px/1.35 monospace;color:#d8ffe0;background:rgba(0,0,0,.6);border-radius:3px;pointer-events:none;white-space:pre}
 #toast{position:fixed;z-index:9;left:50%;top:calc(env(safe-area-inset-top,0px) + 64px);transform:translateX(-50%);background:var(--panel-solid);border:2px solid var(--accent);
   padding:8px 14px;font-size:14px;border-radius:3px;opacity:0;transition:opacity .6s ease;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1}
@@ -177,12 +178,17 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
   <div class="row" style="justify-content:space-between;align-items:center"><span class="note" style="font-size:11px;color:var(--ink-dim)">El volumen de Spotify se ajusta en su reproductor.</span><button class="chip" id="btnMute" type="button">Silenciar</button></div>
   <div class="lbl">Gráficos</div>
   <div class="opts" id="gfxQ"></div>
+  <div class="lbl">Resolución de dibujo</div>
+  <div class="opts" id="gfxR"></div>
   <div class="lbl">Límite de FPS</div>
   <div class="opts" id="gfxF"></div>
+  <div class="lbl">Diagnóstico</div>
+  <div class="opts" id="gfxD"></div>
   <p class="note" style="font-size:11px;color:var(--ink-dim);margin:6px 0 0">Auto baja la calidad sola si el juego se pone lento. 30 FPS ahorra batería.</p>
   <div class="lbl">Créditos</div>
   <div class="credits">Arte, música y efectos hechos para <b>Warm Dreams</b>.</div>
 </div>
+<pre id="diag" hidden></pre>
 <div id="talk" hidden><canvas class="face" width="64" height="64"></canvas><div class="tx"><div class="who"></div><div class="say"></div><div class="more">Toca para seguir ▸</div></div></div>
 
 <div class="sheet" id="music" hidden role="dialog" aria-label="Música">
@@ -225,7 +231,7 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
 <div id="toast"></div>
 
 <div id="start"><div class="box">
-  <div class="tag">Demo de pruebas · versión 1.4</div>
+  <div class="tag">Demo de pruebas · versión 1.5</div>
   <h1>Warm Dreams</h1>
   <div class="go">Toca para empezar</div>
   <div class="keys">◀ ▶ caminar · ▲ saltar · ▼ agacharse · botón naranja para interactuar<br>
@@ -248,13 +254,14 @@ const shadB=mk(OW,OH),shctx=shadB.getContext('2d');
 const frameA=mk(W,H),frameB=mk(W,H),worldB=mk(W,H),actorB=mk(W,H),lightB=mk(W,H),tmpB=mk(W,H),skyB=mk(W,H),frontB=mk(W,H),hiB=mk(OW,OH),fullA=mk(OW,OH),fullB=mk(OW,OH),layB=mk(OW,OH);
 const skyCtx=skyB.getContext('2d'),frontCtx=frontB.getContext('2d'),hctx=hiB.getContext('2d'),layCtx=layB.getContext('2d'),fullActx=fullA.getContext('2d'),fullBctx=fullB.getContext('2d');
 const fA=frameA.getContext('2d'),fB=frameB.getContext('2d'),wctx=worldB.getContext('2d'),actx=actorB.getContext('2d'),lctx=lightB.getContext('2d'),tctx=tmpB.getContext('2d');
+let RS=1,LRS=.5,BW=640,BH=240;try{const g=JSON.parse(localStorage.getItem('warm-dreams-gfx')||'null');if(g&&g.rs)RS=g.rs}catch(e){}
 let ctx=fA,vignette=mk(W,H);
 function resize(){const a=innerWidth/Math.max(1,innerHeight);OW=Math.max(360,Math.min(680,Math.round(OH*a)));W=Math.ceil(OW/Z);
-  for(const c of [out,worldB,actorB,lightB,tmpB,fullA,fullB,layB,shadB]){c.width=OW;c.height=OH}tctx.imageSmoothingEnabled=false;
-  vignette=mk(OW,OH);const g=vignette.getContext('2d');const gr=g.createRadialGradient(OW/2,OH*.55,OH*.4,OW/2,OH*.55,OW*.72);
+  BW=Math.round(OW*RS);BH=Math.round(OH*RS);out.width=OW;out.height=OH;for(const c of [worldB,actorB,tmpB,fullA,fullB,layB,shadB]){c.width=BW;c.height=BH}lightB.width=Math.ceil(BW*LRS);lightB.height=Math.ceil(BH*LRS);tctx.imageSmoothingEnabled=false;
+  vignette=mk(BW,BH);const g=vignette.getContext('2d');g.scale(RS,RS);const gr=g.createRadialGradient(OW/2,OH*.55,OH*.4,OW/2,OH*.55,OW*.72);
   gr.addColorStop(0,'rgba(12,6,30,0)');gr.addColorStop(1,'rgba(12,6,30,.42)');g.fillStyle=gr;g.fillRect(0,0,OW,OH)}
-const XF=c=>c.setTransform(Z,0,0,Z,0,-camY*Z),ID=c=>c.setTransform(1,0,0,1,0,0);
-function bl(dst,src){ID(dst);dst.drawImage(src,0,0);XF(dst)}
+const XF=c=>{const k=c===lctx?LRS*RS:RS;c.setTransform(Z*k,0,0,Z*k,0,-camY*Z*k)},ID=c=>{const k=c===lctx?LRS*RS:RS;c.setTransform(k,0,0,k,0,0)},RAW=c=>c.setTransform(1,0,0,1,0,0);
+function bl(dst,src){RAW(dst);if(src===lightB){dst.imageSmoothingEnabled=true;dst.drawImage(src,0,0,BW,BH);dst.imageSmoothingEnabled=false}else dst.drawImage(src,0,0);XF(dst)}
 addEventListener('resize',resize);resize();
 function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const hash=x=>{let h=Math.imul(x|0,374761393)^0x5bd1e995;h=Math.imul(h^h>>>13,1274126177);return(h^h>>>16)>>>0};
@@ -372,7 +379,7 @@ function detail(s){const c=s.levelC,g=c.getContext('2d');g.setTransform(1,0,0,1,
       if(x<pw-1){const r=df(i+4);if(r>60)m*=.95}
       o[i]=d[i]*m;o[i+1]=d[i+1]*m;o[i+2]=d[i+2]*m}
     const out=new ImageData(o,pw,h);g.putImageData(out,x1,0,off,0,cw,h)}g.setTransform(Z,0,0,Z,0,0)}
-function finalize(s){detail(s);s.hmap=new Int16Array(s.LW).fill(H);s.gmap=new Int16Array(s.LW).fill(H);
+function finalize(s){detail(s);s.surf=[...s.solids,...s.oneways];s.hmap=new Int16Array(s.LW).fill(H);s.gmap=new Int16Array(s.LW).fill(H);
   for(const r of [...s.solids,...s.oneways])for(let x=Math.max(0,r.x|0);x<Math.min(s.LW,r.x+r.w);x++)if(r.y<s.hmap[x])s.hmap[x]=r.y;
   for(const r of s.ground)for(let x=Math.max(0,r.x|0);x<Math.min(s.LW,r.x+r.w);x++)if(r.y<s.gmap[x])s.gmap[x]=r.y;
   for(const d of s.drips){let best=H;for(const r of [...s.solids,...s.oneways])if(d.x>=r.x&&d.x<r.x+r.w&&r.y>d.y&&r.y<best)best=r.y;d.ty=best}}
@@ -731,8 +738,10 @@ function initAudio(){if(AC)return;try{const ACx=window.AudioContext||window.webk
   conv=AC.createConvolver();const len=AC.sampleRate*1.8|0,buf=AC.createBuffer(2,len,AC.sampleRate);for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
   conv.buffer=buf;const rv=AC.createGain();rv.gain.value=.55;conv.connect(rv);rv.connect(master);musicOut.connect(master);musicOut.connect(conv);
   noiseBuf=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const nd=noiseBuf.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
-  const src=AC.createBufferSource();src.buffer=noiseBuf;src.loop=true;rainLP=AC.createBiquadFilter();rainLP.type='lowpass';rainLP.frequency.value=1500;
-  const hp=AC.createBiquadFilter();hp.type='highpass';hp.frequency.value=280;rainGain=AC.createGain();rainGain.gain.value=0;src.connect(rainLP);rainLP.connect(hp);hp.connect(rainGain);rainGain.connect(sfxOut);src.start();
+  {const n=AC.sampleRate*3,bb=AC.createBuffer(2,n,AC.sampleRate);for(let ch=0;ch<2;ch++){const d=bb.getChannelData(ch);let last=0;for(let i=0;i<n;i++){const w=Math.random()*2-1;last=(last+.02*w)/1.02;d[i]=last*3.2}
+    const fade=2000;for(let i=0;i<fade;i++){const k=i/fade;d[i]*=k;d[n-1-i]*=k}}
+  const src=AC.createBufferSource();src.buffer=bb;src.loop=true;rainLP=AC.createBiquadFilter();rainLP.type='lowpass';rainLP.frequency.value=1000;rainLP.Q.value=.3;
+  const hp=AC.createBiquadFilter();hp.type='highpass';hp.frequency.value=90;rainGain=AC.createGain();rainGain.gain.value=0;src.connect(rainLP);rainLP.connect(hp);hp.connect(rainGain);rainGain.connect(sfxOut);src.start()}
   playSong(ambientSong(),.5)}
 function playSong(id,fade=3){if(!AC||curSong&&curSong.id===id)return;const now=AC.currentTime;
   if(curSong){curSong.bus.gain.cancelScheduledValues(now);curSong.bus.gain.setValueAtTime(curSong.bus.gain.value,now);curSong.bus.gain.linearRampToValueAtTime(0,now+fade);curSong.dying=now+fade+3}
@@ -749,12 +758,20 @@ function audioTick(){if(!AC)return;const now=AC.currentTime;
       for(let k2=0;k2<8;k2++)if(Math.random()<sd.p){let idx=sd.mel.indexOf(s.last);if(idx<0)idx=2;idx=clamp(idx+Math.round((Math.random()-.5)*4),0,sd.mel.length-1);s.last=sd.mel[idx];pluck(s.bus,s.last,s.next+k2*sd.dur/8+Math.random()*.08,sd.v)}
       s.next+=sd.dur;s.i++}}
   if(!userSong&&--ambCheck<=0){ambCheck=240;playSong(ambientSong())}
-  const inside=scene.interior;rainGain.gain.setTargetAtTime(st.rain*(inside?.12:.32),now,.4);rainLP.frequency.setTargetAtTime(inside?420:1500,now,.3);
+  const inside=scene.interior,surf=rainSurface();rainGain.gain.setTargetAtTime(st.rain*(inside?.22:surf==='techo'?.3:.38),now,.6);rainLP.frequency.setTargetAtTime(inside?360:surf==='techo'?650:surf==='pasto'?800:1100,now,.5);
+  if(st.rain>.05&&!paused){const rate=st.rain*(st.weather===2?.7:.45)*(inside?.5:1);if(Math.random()<rate&&now-(audioTick.lastDrop||0)>.03){audioTick.lastDrop=now;rainDrop(surf,inside)}}
   // campana del paso del tren
   if(XG.ph!=='idle'&&XG.ph!=='raise'&&scene===OUT&&st.time%26===0){const d=Math.abs(player.x-910);const v=clamp(1-d/500,0,1)*.05;if(v>.004){const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=(st.time/26)%2?740:880;
     g.gain.setValueAtTime(v,now);g.gain.exponentialRampToValueAtTime(.0001,now+.25);const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=1800;o.connect(f);f.connect(g);g.connect(sfxOut);o.start(now);o.stop(now+.26)}}}
 function thunder(delay){if(!AC)return;const t=AC.currentTime+delay,s=AC.createBufferSource();s.buffer=noiseBuf;const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=220+Math.random()*200;
   const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(scene.interior?.4:.9,t+.08);g.gain.exponentialRampToValueAtTime(.001,t+3.5);s.connect(f);f.connect(g);g.connect(sfxOut);s.start(t);s.stop(t+3.6)}
+function rainSurface(){if(scene.interior)return'interior';const p=player,xi=clamp((p.x+4)|0,0,scene.LW-1);if(scene.hmap[xi]<p.y-2)return'techo';if(scene===OUT&&p.x>2120)return'pasto';
+  if(st.wet>.4)for(const pd of scene.puddles){if(Math.abs(pd.x-p.x)<24&&puddleW(pd)>4)return'charco'}return'calle'}
+function rainDrop(surf,inside){const now=AC.currentTime+Math.random()*.02,v=(.5+Math.random()*.5)*(surf==='techo'?.11:surf==='interior'?.06:surf==='pasto'?.035:.05);
+  if((surf==='charco'&&Math.random()<.6)||(surf==='calle'&&st.wet>.5&&Math.random()<.15)){const o=AC.createOscillator(),g=AC.createGain(),f0=900+Math.random()*900;o.type='sine';o.frequency.setValueAtTime(f0,now);o.frequency.exponentialRampToValueAtTime(f0*.55,now+.06);
+    g.gain.setValueAtTime(v*.6,now);g.gain.exponentialRampToValueAtTime(.0001,now+.09);o.connect(g);g.connect(sfxOut);if(scene.alleySky)g.connect(conv);o.start(now);o.stop(now+.1);return}
+  const s=AC.createBufferSource();s.buffer=noiseBuf;const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=surf==='techo'?450+Math.random()*350:surf==='interior'?380+Math.random()*200:surf==='pasto'?1800+Math.random()*900:2200+Math.random()*1400;f.Q.value=surf==='techo'?2.5:1.2;
+  const g=AC.createGain(),d=surf==='techo'?.08:.04;g.gain.setValueAtTime(v,now);g.gain.exponentialRampToValueAtTime(.0001,now+d);s.connect(f);f.connect(g);g.connect(sfxOut);if(scene.alleySky)g.connect(conv);s.start(now,Math.random()*1.5);s.stop(now+d+.02)}
 function blip(){if(!AC)return;const now=AC.currentTime;if(now-lastBlip<.09)return;lastBlip=now;const o=AC.createOscillator(),g=AC.createGain();o.type='sine';const f0=1300+Math.random()*900;
   o.frequency.setValueAtTime(f0,now);o.frequency.exponentialRampToValueAtTime(f0*.45,now+.07);g.gain.setValueAtTime(.035,now);g.gain.exponentialRampToValueAtTime(.0001,now+.12);o.connect(g);g.connect(sfxOut);o.start(now);o.stop(now+.13)}
 function chime(){if(!AC)return;const now=AC.currentTime;[76,81,88].forEach((m,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=mf(m);g.gain.setValueAtTime(0,now+i*.12);
@@ -878,7 +895,7 @@ function update(){st.time++;const p=player;
   const nR=Math.round(st.rain*(st.weather===2?9:6)*[.4,.7,1][Q]);
   for(let i=0;i<nR;i++)rain.push({x:camX-30+Math.random()*(W+90),y:-6-Math.random()*20,vy:4.5+Math.random()*1.5,l:4+Math.random()*3});
   for(let i=rain.length-1;i>=0;i--){const d=rain[i];d.y+=d.vy;d.x+=st.wind*1.6;const xi=d.x|0;if(xi<0||xi>=scene.LW||d.y>H){rain.splice(i,1);continue}
-    if(!scene.interior&&d.y>=scene.hmap[xi]){if(Math.random()<.5)splash.push({x:d.x,y:scene.hmap[xi]-1,vx:(Math.random()-.5)*.8,vy:-.5-Math.random()*.6,life:10});if(Q>=1&&rings.length<90&&Math.random()<.45)rings.push({x:d.x,y:scene.hmap[xi],r:.3});
+    if(!scene.interior&&d.y>=scene.hmap[xi]){if(Math.random()<[.15,.3,.5][Q])splash.push({x:d.x,y:scene.hmap[xi]-1,vx:(Math.random()-.5)*.8,vy:-.5-Math.random()*.6,life:10});if(Q>=1&&rings.length<90&&Math.random()<.45)rings.push({x:d.x,y:scene.hmap[xi],r:.3});
       for(const pd of scene.puddles)if(pd.y===scene.hmap[xi]){const w=puddleW(pd);if(w>4&&Math.abs(d.x-pd.x)<w/2-1&&Math.random()<.35)pd.rip.push({x:d.x-pd.x,r:0})}rain.splice(i,1)}}
   if(!scene.interior&&st.wet>.22)for(const d of scene.drips){if(d.x<camX-10||d.x>camX+W+10)continue;if(Math.random()<(st.wet*.008+(st.rain>.3?.004:0))*Math.min(st.ts,3))drops.push({x:d.x,y:d.y,ty:d.ty,vy:0,g:18})}
   for(let i=drops.length-1;i>=0;i--){const d=drops[i];if(d.g>0){d.g--;continue}d.vy=Math.min(d.vy+.2,5);d.y+=d.vy;if(d.y>=d.ty){for(let k=0;k<3;k++)splash.push({x:d.x,y:d.ty-1,vx:(Math.random()-.5),vy:-.4-Math.random()*.7,life:14});
@@ -886,12 +903,16 @@ function update(){st.time++;const p=player;
   for(let i=splash.length-1;i>=0;i--){const s=splash[i];s.x+=s.vx;s.y+=s.vy;s.vy+=.12;if(--s.life<=0)splash.splice(i,1)}
   for(const pd of scene.puddles)for(let i=pd.rip.length-1;i>=0;i--){pd.rip[i].r+=.12;if(pd.rip[i].r>4.5)pd.rip.splice(i,1)}
   // hojas
-  if(!scene.interior){for(const t of scene.trees){if(t.x<camX-60||t.x>camX+W+60)continue;const rate=t.kind==='sakura'?.12:.04;if(Math.random()<rate*(1+Math.abs(st.wind)*2.5)){
-      const col=t.kind==='sakura'?(Math.random()<.5?'#ffe2ea':'#f4c4d4'):(Math.random()<.6?'#6fb06a':'#468a55');leaves.push({x:t.x+(Math.random()-.5)*t.r*1.6,y:t.y+(Math.random()-.3)*t.r*.6,vy:.2+Math.random()*.2,ph:Math.random()*6,col,land:0})}}
+  if(!scene.interior){const aw=Math.abs(WE),lc=t=>t.kind==='sakura'?(Math.random()<.5?'#ffe2ea':'#f4c4d4'):(Math.random()<.6?'#6fb06a':'#468a55');
+    for(const t of scene.trees){const sak=t.kind==='sakura',rate=(sak?.008:.003)+(sak?.1:.045)*clamp(aw-.15,0,1.6)+(st.gust>.6?(sak?.09:.04):0);if(Math.random()>=rate)continue;
+      const col=lc(t),on=t.x>camX-60&&t.x<camX+W+60;
+      if(on)leaves.push({x:t.x+(Math.random()-.5)*t.r*1.6,y:t.y+(Math.random()-.3)*t.r*.6,vy:.2+Math.random()*.2,ph:Math.random()*6,col,land:0,rgb:hex(col),tr:t});
+      else if((t.lit||0)<30&&Math.random()<.5){const x=t.x+(Math.random()-.5)*t.r*2.4+WE*8,xi=clamp(x|0,0,scene.LW-1);t.lit=(t.lit||0)+1;leaves.push({x,y:scene.gmap[xi]-1,vy:0,ph:Math.random()*6,col,land:1,rgb:hex(col),tr:t})}}
     if(Math.random()<.03+Math.abs(st.wind)*.08)leaves.push({x:camX+W+5+(st.wind<0?0:-W-10),y:20+Math.random()*90,vy:.25,ph:Math.random()*6,col:Math.random()<.6?'#ffe2ea':'#6fb06a',land:0})}
   {const pp=player,pcx=pp.x+4,pby=pp.y+pp.h,fast=Math.abs(pp.vx),slide=pp.anim==='slide',landed=pp.landT===8,aw=Math.abs(WE),stuck=st.wet>.45;
   for(let i=leaves.length-1;i>=0;i--){const l=leaves[i];
-    if(l.land>0){l.land++;
+    if(l.land>0){l.land++;const LIFE_=[600,1800,3600][Q];if(l.land>LIFE_){if(l.tr)l.tr.lit=Math.max(0,(l.tr.lit||0)-1);leaves.splice(i,1);continue}
+      if(l.fl){const w=puddleW(l.fl);if(w<3)l.fl=null;else{l.x+=WE*.03+Math.sin(st.time*.02+l.ph)*.02;l.x=clamp(l.x,l.fl.x-w/2+1,l.fl.x+w/2-1);l.ph+=.01}}
       const dx=l.x-pcx,near=Math.abs(l.y-pby)<3&&pp.state!=='cine';
       if(near&&Math.abs(dx)<(slide?9:5)&&(fast>.55||slide)){l.land=0;l.vx=pp.vx*(.5+Math.random()*.6)+Math.sign(dx||1)*.25;l.vy=-(.5+Math.random()*(slide?1.8:1.1));l.ph=Math.random()*6;continue}
       if(near&&landed&&Math.abs(dx)<12){l.land=0;l.vx=Math.sign(dx||1)*(.3+Math.random()*.6);l.vy=-(.4+Math.random()*.9);continue}
@@ -899,8 +920,8 @@ function update(){st.time++;const p=player;
       if(!stuck&&aw>.4&&Math.random()<.02)l.x+=WE*.15;continue}
     l.ph+=.06;l.vx=(l.vx||0)*.965;l.vy+=(.3-l.vy)*.04;l.x+=Math.sin(l.ph)*.45*(l.vy>0?1:.4)+WE*.9-.05+l.vx;l.y+=l.vy+Math.cos(l.ph*2)*.12;
     const xi=l.x|0;if(xi<0||xi>=scene.LW||l.y>H||l.x<camX-120||l.x>camX+W+120){leaves.splice(i,1);continue}
-    if(l.vy>=0&&l.y>=scene.hmap[xi]-1&&l.y<scene.hmap[xi]+3){l.y=scene.hmap[xi]-1;l.land=1;l.vx=0}}
-  if(leaves.length>650){let rm=leaves.length-650;for(let i=0;i<leaves.length&&rm>0;i++)if(leaves[i].land>0){leaves.splice(i,1);i--;rm--}}}
+    let hm=scene.hmap[xi];if(l.y>hm+3)hm=scene.gmap[xi];if(l.vy>=0&&l.y>=hm-1&&l.y<hm+3){l.y=hm-1;l.land=1;l.vx=0;l.fl=null;for(const pd of scene.puddles){const w=puddleW(pd);if(w>3&&pd.y===hm&&Math.abs(l.x-pd.x)<w/2-1){l.fl=pd;break}}}}
+  const LCAP=[200,400,650][Q];if(leaves.length>LCAP){let rm=leaves.length-LCAP;for(let i=0;i<leaves.length&&rm>0;i++)if(leaves[i].land>0){leaves.splice(i,1);i--;rm--}}}
   for(let i=dust.length-1;i>=0;i--){const d=dust[i];d.x+=d.vx;d.y+=d.vy;d.vx*=.94;d.vy-=.005;if(--d.life<=0)dust.splice(i,1)}
   for(const f of flies){f.vx+=(Math.random()-.5)*.04;f.vy+=(Math.random()-.5)*.04;f.vx*=.97;f.vy*=.97;f.x+=f.vx;f.y+=f.vy;if(f.y<64)f.vy+=.02;if(f.y>146)f.vy-=.03;if(f.x<2140)f.vx+=.03;if(f.x>3290)f.vx-=.03}
   if(st.shoot){const q=st.shoot;q.x+=q.vx;q.y+=q.vy;if(--q.life<=0)st.shoot=null}else if(sky.night>.7&&st.cloud<.4&&Math.random()<.0025)st.shoot={x:Math.random()*W,y:Math.random()*50,vx:2.5+Math.random()*2,vy:1+Math.random(),life:26};
@@ -915,8 +936,8 @@ function update(){st.time++;const p=player;
   if(Math.random()<.06&&scene===OUT)sparks.push({x:2880+Math.random()*110,y:60+Math.random()*40,vx:(Math.random()-.5)*.1,vy:-.12-Math.random()*.15,life:70,col:'cyan',faint:1});
   for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.x+=s.vx;s.y+=s.vy;s.vx*=.98;s.vy*=.99;if(--s.life<=0)sparks.splice(i,1)}}
 
-function updateNPCs(){const t=st.dayT,ts=Math.min(st.ts,6);
-  for(const n of scene.npcs){
+function updateNPCs(){const t=st.dayT,ts0=Math.min(st.ts,6);let ni=0;
+  for(const n of scene.npcs){ni++;const far=!n.fixed&&Math.abs(n.x-camX-W/2)>W*1.6;if(far&&((st.time+ni)&3))continue;const ts=far?ts0*4:ts0;
     if(n.kind==='cat'){n.ph=(n.ph||0)+1;if(n.outdoor)n.a+=((st.rain<.25&&sky.night<.8?1:0)-n.a)*.03;continue}
     if(n.kind==='aoi'&&cine.aoi){const d=cine.aoi.x-n.x;n.walking=Math.abs(d)>1;if(n.walking){n.dir=Math.sign(d);n.x+=n.dir*.7}else if(cine.aoi.face)n.dir=cine.aoi.face;n.a+=(cine.aoi.a-n.a)*.08;n.ph=(n.ph||0)+1;continue}
     if(n.kind==='aoi'){const sched=t>.33&&t<.82;const shelter=st.rain>.35;n.x+=((shelter?1612:1462)-n.x)*.02*ts;n.a+=((sched?1:0)-n.a)*.03;n.walking=Math.abs((shelter?1612:1462)-n.x)>2;if(n.walking)n.dir=(shelter?1612:1462)>n.x?1:-1;n.ph=(n.ph||0)+ts;continue}
@@ -934,6 +955,8 @@ function tintCache(im,c,a,mode){const key=c.map(v=>v>>2).join()+'|'+Math.round(a
   const g=e.c.getContext('2d');g.globalCompositeOperation='copy';g.drawImage(im,0,0);g.globalCompositeOperation=mode==='in'?'source-in':'source-atop';g.fillStyle=css(c,a);g.fillRect(0,0,im.width,im.height);g.globalCompositeOperation='source-over';e.key=key;return e.c}
 function tinted(src,factor,col,alpha,y0,k){k=k||1;const t=tintCache(src,col,1,'in'),w=src.width*k;let ox=-(((camX*factor)%w)+w)%w;const sm=ctx.imageSmoothingEnabled;ctx.imageSmoothingEnabled=false;ctx.globalAlpha=alpha;
   for(let x=ox;x<W;x+=w)ctx.drawImage(t,Math.round(x*Z)/Z,y0||0,w,src.height*k);ctx.globalAlpha=1;ctx.imageSmoothingEnabled=sm}
+const DIAG={on:false,v:{},add(k,ms){if(!this.on)return;this.v[k]=(this.v[k]||ms)*.92+ms*.08},show(){const el=document.getElementById('diag');if(!this.on){el.hidden=true;return}el.hidden=false;
+  el.textContent=Object.entries(this.v).map(([k,v])=>k.padEnd(30,' ')+v.toFixed(1)+' ms').join('\n')+'\ncalidad '+['baja','media','alta'][Q]+' · render '+Math.round(RS*100)+'% · '+BW+'×'+BH}};
 let Q=2,gq='auto',fpsCap=60;try{const g=JSON.parse(localStorage.getItem('warm-dreams-gfx')||'null');if(g){gq=g.q;fpsCap=g.fps||60;if(gq!=='auto')Q=gq}}catch(e){}
 const _strips={};
 function auroraStrip(col){const k=col.join();if(_strips[k])return _strips[k];const c=mk(1,48),g=c.getContext('2d'),gr=g.createLinearGradient(0,0,0,48);gr.addColorStop(0,css(col,0));gr.addColorStop(.7,css(col,1));gr.addColorStop(1,css(col,0));g.fillStyle=gr;g.fillRect(0,0,1,48);return _strips[k]=c}
@@ -1112,37 +1135,39 @@ function drawDoors(c){for(const d of scene.doors){if(d.open<=0)continue;const sx
   const off=Math.round(d.open*d.w*.9);c.fillStyle=d.col;c.fillRect(sx+off,d.y,Math.max(0,d.w-off),d.h);c.fillStyle='rgba(0,0,0,.15)';for(let y=d.y+4;y<d.y+d.h;y+=6)c.fillRect(sx+off,y,Math.max(0,d.w-off),1)}}
 
 function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!==saveScene){camX=sc===OUT&&trans&&trans.fromCam!=null?trans.fromCam:clamp(Math.round(sc.camXf||0),0,sc.LW-W)}else sc.camXf=camX;
-  const N=sky.night,lo=lampsOn();
+  const N=sky.night,lo=lampsOn();let _t=performance.now();const tick_=n=>{const q=performance.now();DIAG.add(n,q-_t);_t=q};
   ctx=tgt;for(const c of [tgt,wctx,actx,lctx,tctx]){c.globalAlpha=1;c.globalCompositeOperation='source-over';XF(c)}tctx.imageSmoothingEnabled=false;
   ctx.clearRect(0,0,W,H);
   if(sc.parallax||sc.alleySky){drawSky();if(sc.parallax)drawBirds()}else{ctx.fillStyle='#000';ctx.fillRect(0,0,W,H)}
-  if(sc.parallax){drawFar(sc);drawParallax()}
+  if(sc.parallax){drawFar(sc);drawParallax()}tick_('cielo y fondos');
   if(!sc.interior&&st.rain>.04){const n=Math.round(90*st.rain*[.3,.6,1][Q]);ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.4),.32);ctx.lineWidth=.5;ctx.beginPath();for(let i=0;i<n;i++){const sp=2.6+(i%5)*.45,x=((i*61.7-camX*.5+st.time*st.wind*1.1)%(W+40)+W+40)%(W+40)-20,y=(i*37.3+st.time*sp)%190;ctx.moveTo(x,y);ctx.lineTo(x-st.wind*1.1,y-3.5)}ctx.stroke()}
   if(sc.interior&&rain.length){ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.55),.6);ctx.lineWidth=.5;ctx.beginPath();for(const d of rain){const x=d.x-camX+.5;ctx.moveTo(x,d.y);ctx.lineTo(x-st.wind*1.6*d.l/4,d.y-d.l)}ctx.stroke()}
   // mundo
   wctx.globalCompositeOperation='source-over';wctx.clearRect(0,0,W,H);drawXing(wctx,sc,0);ID(wctx);wctx.drawImage(sc.levelC,camX*Z,camY*Z,OW,OH,0,0,OW,OH);XF(wctx);drawDoors(wctx);drawTrees(wctx,sc);drawFlags(wctx,sc);drawXing(wctx,sc,1);drawGrass(wctx);
   actx.globalCompositeOperation='source-over';actx.clearRect(0,0,W,H);
-  for(const l of leaves){const sx=Math.round(l.x-camX);if(sx<-2||sx>W+2)continue;const fx=Math.round((l.x-camX)*2)/2,fy=Math.round(l.y*2)/2,tp=Math.sin(l.ph*2);actx.fillStyle=l.col;if(l.land){actx.fillRect(fx-.5,fy,2,1);actx.fillStyle='rgba(255,255,255,.25)';actx.fillRect(fx-.5,fy,1,.5)}else if(tp>.3){actx.fillRect(fx,fy,1.5,1);actx.fillStyle='rgba(255,255,255,.45)';actx.fillRect(fx,fy,1,.5)}else if(tp>-.3)actx.fillRect(fx,fy,1.5,.5);else{actx.fillRect(fx+.5,fy-.5,1,1.5)}}
+  for(const l of leaves){const sx=Math.round(l.x-camX);if(sx<-2||sx>W+2)continue;const fx=Math.round((l.x-camX)*2)/2,fy=Math.round(l.y*2)/2,tp=Math.sin(l.ph*2);actx.fillStyle=l.col;if(l.land){const LF=[600,1800,3600][Q],dry=clamp((l.land-LF*.45)/(LF*.45),0,1),fa=clamp((LF-l.land)/120,0,1);actx.globalAlpha=fa;actx.fillStyle=l.rgb?css(mix(l.rgb,[150,112,84],dry*.7)):l.col;
+      if(l.fl){const r=Math.sin(l.ph*3)>0;actx.fillRect(fx-.5,fy+.5,r?2:1.5,r?.5:1);actx.fillStyle='rgba(255,255,255,.35)';actx.fillRect(fx-1,fy+1,.5,.5);actx.fillRect(fx+1.5,fy+1,.5,.5)}
+      else{actx.fillRect(fx-.5,fy,2,1);actx.fillStyle='rgba(255,255,255,.25)';actx.fillRect(fx-.5,fy,1,.5)}actx.globalAlpha=1}else if(tp>.3){actx.fillRect(fx,fy,1.5,1);actx.fillStyle='rgba(255,255,255,.45)';actx.fillRect(fx,fy,1,.5)}else if(tp>-.3)actx.fillRect(fx,fy,1.5,.5);else{actx.fillRect(fx+.5,fy-.5,1,1.5)}}
   for(const n of sc.npcs)drawNPC(actx,n);
   drawLife(actx,sc);drawHiActors(actx,sc,sc===saveScene);
   for(const d of dust){actx.fillStyle=`rgba(225,210,190,${clamp(d.life/d.m,0,1)*.8})`;actx.fillRect(Math.round(d.x-camX),Math.round(d.y),1,1)}
   for(const c of [wctx,actx]){c.globalCompositeOperation='source-atop';
     if(st.wet>0&&!sc.interior){c.fillStyle=`rgba(18,22,48,${st.wet*.26})`;c.fillRect(0,0,W,H)}
-    c.fillStyle=css(sky.tint,sky.tint[3]*(sc.interior?.5:1));c.fillRect(0,0,W,H);
+    if(sky.tint[3]>.01){c.fillStyle=css(sky.tint,sky.tint[3]*(sc.interior?.5:1));c.fillRect(0,0,W,H)}
     if(st.rain>.02){c.fillStyle=`rgba(70,80,105,${st.rain*(sc.interior?.08:.18)})`;c.fillRect(0,0,W,H)}}
-  const darkA=sc.interior?N*.5+st.rain*.15+.05:sc.alleySky?.15+N*.55+st.rain*.1:N*.52+st.rain*.12*(1-N);
+  tick_('mundo y personajes');const darkA=sc.interior?N*.5+st.rain*.15+.05:sc.alleySky?.15+N*.55+st.rain*.1:N*.52+st.rain*.12*(1-N);
   if(darkA>.01){lctx.globalCompositeOperation='source-over';lctx.clearRect(0,0,W,H);lctx.fillStyle=css(mix([12,16,48],[30,30,60],st.rain),darkA);lctx.fillRect(0,0,W,H);lctx.globalCompositeOperation='destination-out';
     for(const l of sc.lights){const sx=l.x-camX;if(sx<-l.r||sx>W+l.r)continue;let s=l.s*(l.alwaysOn?1:sc.alleySky?Math.max(.7,lo):lo);lctx.globalAlpha=clamp(s,0,1);lctx.drawImage(GL.hole,sx-l.r,l.y-l.r,l.r*2,l.r*2)}
     if(sc===OUT&&fox.a>.05){lctx.globalAlpha=fox.a*.8;lctx.drawImage(GL.hole,fox.x+5-camX-24,fox.y-30,48,48)}
     if(sc.interior)for(const w of sc.windows){lctx.globalAlpha=(1-N)*.7;lctx.drawImage(GL.hole,w.x-camX-40,w.y-30,w.w+80,w.h+120)}
     lctx.globalAlpha=1;lctx.globalCompositeOperation='source-over';bl(wctx,lightB);bl(actx,lightB)}
-  wctx.globalCompositeOperation='source-over';actx.globalCompositeOperation='source-over';if(Q>=1)drawShadows(sc,sc===saveScene,lo);bl(ctx,worldB);
+  wctx.globalCompositeOperation='source-over';actx.globalCompositeOperation='source-over';if(Q>=1)drawShadows(sc,sc===saveScene,lo);bl(ctx,worldB);tick_('luz y sombras');
   // luz del sol por la ventana
   if(sc.interior&&(1-N)*(1-st.rain)>.05)for(const w of sc.windows){const a=(1-N)*(1-st.rain)*.13;ctx.globalCompositeOperation='lighter';ctx.fillStyle=css(mix([255,230,180],[255,170,110],sky.sunset),a);
     ctx.beginPath();const x=w.x-camX;ctx.moveTo(x,w.y);ctx.lineTo(x+w.w,w.y);ctx.lineTo(x+w.w-50,150);ctx.lineTo(x-70,150);ctx.closePath();ctx.fill();for(let i=0;i<(Q>=1?26:0);i++){const h=hash(i*97+3),u=((h%1000)/1000+st.time*.0006*(1+(h%3)))%1,v=((h>>10)%1000)/1000;const mx=x+v*w.w-u*60+Math.sin(st.time*.01+i)*3,my=w.y+u*(150-w.y);ctx.fillStyle=`rgba(255,244,214,${a*3.2*(.4+.6*Math.sin(st.time*.03+i))})`;ctx.fillRect(mx,my,.5,.5)}ctx.globalCompositeOperation='source-over'}
   // gotas en el vidrio
   if(sc.interior&&st.wet>.2)for(const w of sc.windows){ctx.fillStyle='rgba(220,235,255,.55)';for(let i=0;i<14;i++){const h=hash(i*31+7),x=w.x-camX+(h%w.w),y=w.y+((h>>8)%w.h+st.time*(.2+(h%5)*.08))%w.h;ctx.fillRect(Math.round(x),Math.round(y),1,2)}}
-  if(st.wet>.05&&!sc.interior){ctx.fillStyle=css(mix(sky.hor,[255,255,255],.3),st.wet*.35);for(const r of [...sc.solids,...sc.oneways]){const sx=r.x-camX;if(sx>W||sx+r.w<0)continue;ctx.fillRect(Math.round(sx),r.y,Math.round(r.w),1)}}
+  if(st.wet>.05&&!sc.interior){ctx.fillStyle=css(mix(sky.hor,[255,255,255],.3),st.wet*.35);for(const r of sc.surf){const sx=r.x-camX;if(sx>W||sx+r.w<0)continue;ctx.fillRect(Math.round(sx),r.y,Math.round(r.w),1)}}
   // charcos
   for(const pd of sc.puddles){const w=puddleW(pd);if(w<2)continue;const sx=pd.x-camX;if(sx+w<0||sx-w>W)continue;const l=Math.round(sx-w/2),ww=Math.round(w),refl=mix(sky.mid,sky.top,.35);
     if(pd.perm){for(let r=0;r<4;r++){ctx.fillStyle=css(mix(mix(sky.hor,sky.mid,r/3),sky.top,r*.12));ctx.fillRect(l+(r>2?1:0),pd.y+r,ww-(r>2?2:0),1)}
@@ -1163,19 +1188,20 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
     if(Q>=2){const bw=bloomB.width,bh=bloomB.height;bctx.globalCompositeOperation='copy';bctx.imageSmoothingEnabled=true;bctx.drawImage(sc.emisC,camX*Z,camY*Z,OW,OH,0,0,bw,bh);ctx.imageSmoothingEnabled=true;ctx.globalAlpha=wA*.2;ctx.drawImage(bloomB,0,0,bw,bh,0,0,OW,OH);ctx.globalAlpha=wA*.1;ctx.drawImage(bloomB,0,0,bw,bh,-6,-4,OW+12,OH+8)}
     XF(ctx);
     drawFlagGlow(ctx,sc,lo);drawXing(ctx,sc,2);
-    for(const lp of sc.lamps){if(Q<1)break;const sx=lp.x-camX;if(sx<-40||sx>W+40)continue;const gy=sc.gmap[clamp(lp.x|0,0,sc.LW-1)],a=lo*(.07+st.rain*.1);const cg=ctx.createLinearGradient(0,lp.y,0,gy);cg.addColorStop(0,`rgba(255,214,150,${a*1.6})`);cg.addColorStop(1,`rgba(255,214,150,${a*.25})`);
-      ctx.fillStyle=cg;ctx.beginPath();ctx.moveTo(sx-1.5,lp.y);ctx.lineTo(sx+1.5,lp.y);ctx.lineTo(sx+24,gy);ctx.lineTo(sx-24,gy);ctx.closePath();ctx.fill();
+    for(const lp of sc.lamps){if(Q<1)break;const sx=lp.x-camX;if(sx<-40||sx>W+40)continue;const gy=sc.gmap[clamp(lp.x|0,0,sc.LW-1)],a=lo*(.07+st.rain*.1);if(!lp.cg){lp.cg=ctx.createLinearGradient(0,lp.y,0,gy);lp.cg.addColorStop(0,'rgba(255,214,150,1)');lp.cg.addColorStop(1,'rgba(255,214,150,.16)')}const cg=lp.cg;ctx.globalAlpha=clamp(a*1.6,0,1);
+      ctx.fillStyle=cg;ctx.beginPath();ctx.moveTo(sx-1.5,lp.y);ctx.lineTo(sx+1.5,lp.y);ctx.lineTo(sx+24,gy);ctx.lineTo(sx-24,gy);ctx.closePath();ctx.fill();ctx.globalAlpha=1;
       ctx.fillStyle=`rgba(255,220,160,${lo*.22})`;ctx.beginPath();ctx.ellipse(sx,gy+.5,24,1.6,0,0,7);ctx.fill();
       if(lo>.5&&st.rain<.2){ctx.fillStyle=`rgba(255,244,214,${lo*.9})`;for(let i=0;i<3;i++){const q=st.time*.06+i*2.1+lp.x;ctx.fillRect(sx+Math.cos(q)*(3+i)+Math.sin(q*2.3)*1.5,lp.y+2+Math.sin(q*1.3)*2.5,.5,.5)}}}
     for(const l of sc.lights){const sx=l.x-camX;if(sx<-l.r||sx>W+l.r)continue;ctx.globalAlpha=(l.alwaysOn?Math.max(eA,.5):eA)*l.s*(l.lamp?.42:.22);const r=l.lamp?l.r*.8:l.r*.7;ctx.drawImage(GL[l.kind],sx-r,l.y-r-(l.lamp?6:0),r*2,r*2)}
     ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
   bl(ctx,actorB);
   if(!sc.interior&&Q>=1){ID(ctx);ctx.imageSmoothingEnabled=false;const cv=ctx.canvas;
-    if(st.wet>.25&&Q>=2){ctx.globalAlpha=(st.wet-.25)*.3;for(let x=0;x<W;x+=10){const top=sc.gmap[clamp(camX+x+5,0,sc.LW-1)];if(top>=H)continue;const py=(top-camY)*Z;if(py<8||py>OH-4)continue;ctx.drawImage(cv,x*Z,py-34,10*Z,34,x*Z,py+9,10*Z,-9)}}
+    if(st.wet>.25&&Q>=2){ctx.globalAlpha=(st.wet-.25)*.3;for(let x=0;x<W;x+=10){const top=sc.gmap[clamp(camX+x+5,0,sc.LW-1)];if(top>=H)continue;const py=(top-camY)*Z;if(py<8||py>OH-4)continue;ctx.drawImage(cv,x*Z*RS,(py-34)*RS,10*Z*RS,34*RS,x*Z,py+9,10*Z,-9)}}
     for(const pd of sc.puddles){const w=puddleW(pd);if(w<4)continue;const px=Math.round((pd.x-w/2-camX)*Z)+2,py=(pd.y-camY)*Z,pw=Math.round(w*Z)-4,ph=pd.perm?8:5;if(px+pw<0||px>OW||py<30||py>OH)continue;
-      ctx.globalAlpha=pd.perm?.6:.55;ctx.drawImage(cv,px,py-ph*6,pw,ph*6,px,py+ph,pw,-ph);
+      ctx.globalAlpha=pd.perm?.6:.55;ctx.drawImage(cv,px*RS,(py-ph*6)*RS,pw*RS,ph*6*RS,px,py+ph,pw,-ph);
       ctx.globalAlpha=.16;ctx.fillStyle='#ffffff';for(let k=0;k<3;k++){const q=(st.time*.25+k*37+pd.x)%pw;ctx.fillRect(px+q,py+1+k*((ph-2)/2|0),Math.min(7,pw-q),1)}}
     ctx.globalAlpha=1;ctx.imageSmoothingEnabled=true;XF(ctx)}
+  tick_('reflejos y brillos');
   // gotas, salpicaduras, lluvia
   if(sc===saveScene){ctx.fillStyle=css(mix(sky.hor,[220,235,255],.6),.9);for(const d of drops){const sx=Math.round(d.x-camX);if(d.g>0)ctx.fillRect(sx,d.y,.5,d.g>9?.5:1.5);else ctx.fillRect(sx,Math.round(d.y*2)/2,.5,2)}
     for(const s of splash)ctx.fillRect(Math.round((s.x-camX)*2)/2,Math.round(s.y*2)/2,.5,.5+(s.life>6?.5:0));
@@ -1183,7 +1209,7 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
     if(!sc.interior&&rain.length){const rc=mix(sky.hor,[205,220,245],.6);ctx.lineWidth=.5;ctx.strokeStyle=css(rc,.6);ctx.beginPath();let k=0;for(const d of rain){if(k++%4===0)continue;const x=d.x-camX+.25;ctx.moveTo(x,d.y);ctx.lineTo(x-st.wind*1.6*d.l/4,d.y-d.l)}ctx.stroke();
       ctx.lineWidth=1;ctx.strokeStyle=css(rc,.3);ctx.beginPath();k=0;for(const d of rain){if(k++%4)continue;const x=d.x-camX+.5;ctx.moveTo(x,d.y);ctx.lineTo(x-st.wind*2.2*d.l/4,d.y-d.l*1.5)}ctx.stroke()}}
   // luciérnagas, zorro, chispas
-  if(sc===OUT){const fa=N*(1-st.rain)*.95;if(fa>.03){ctx.globalCompositeOperation='lighter';for(const f of flies){const sx=f.x-camX;if(sx<-5||sx>W+5)continue;const b=fa*(.4+.6*Math.max(0,Math.sin(st.time*.05+f.ph)));
+  if(sc===OUT){const fa=N*(1-st.rain)*.95;if(fa>.03){ctx.globalCompositeOperation='lighter';for(let fi_=0;fi_<flies.length;fi_++){if(fi_>=[10,20,99][Q])break;const f=flies[fi_];const sx=f.x-camX;if(sx<-5||sx>W+5)continue;const b=fa*(.4+.6*Math.max(0,Math.sin(st.time*.05+f.ph)));
       ctx.globalAlpha=b*.7;ctx.drawImage(GL.fire,sx-5,f.y-5,10,10);ctx.globalAlpha=b;ctx.fillStyle='#eaffb0';ctx.fillRect(Math.round(sx),Math.round(f.y),1,1)}ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
     drawFox()}
   if(sparks.length){ctx.globalCompositeOperation='lighter';for(const s of sparks){if(sc!==saveScene)break;ctx.globalAlpha=clamp(s.life/50,0,1)*(s.faint?.5*N+.15:1);ctx.fillStyle=s.col==='cyan'?'#9ffff0':s.col==='gold'?'#ffe7a0':'#c8d8ff';ctx.fillRect(Math.round(s.x-camX),Math.round(s.y),1,1)}ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
@@ -1192,23 +1218,23 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   if(st.rain>.02&&!sc.interior){ctx.fillStyle=css(mix(sky.hor,[150,160,180],.5),st.rain*.12);ctx.fillRect(0,0,W,H)}
   if(sky.sunset>.05&&!sc.interior){const g=ctx.createLinearGradient(0,0,W,0);g.addColorStop(0,'rgba(255,150,90,0)');g.addColorStop(1,`rgba(255,160,90,${sky.sunset*.12})`);ctx.globalCompositeOperation='lighter';ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.globalCompositeOperation='source-over'}
   if(st.flash>.02){ctx.fillStyle=`rgba(230,235,255,${st.flash*(sc.interior?.25:.55)})`;ctx.fillRect(0,0,W,H)}
-  ID(ctx);ctx.drawImage(vignette,0,0);
+  tick_('lluvia, partículas y niebla');RAW(ctx);ctx.drawImage(vignette,0,0);
   ctx=fA;scene=saveScene;camX=saveCam}
 // ---------------------------------------------------------------- personajes en alta resolución
 // ---------------------------------------------------------------- sombras: sol de día, faroles de noche
 function npcFrame(n){const F=A.meta.frames;return n.walking?(n.kind==='jogger'?F.run[Math.floor((n.ph||0)*.2)%8]:F.walk[Math.floor((n.ph||0)*(n.kind==='granny'?.1:.16))%8]):F.idle[Math.floor((st.time+(n.var||0)*90)/26)%4]}
 function treeSil(t){if(!t.sil){const c=mk(t.GW,t.GH),g=c.getContext('2d');g.drawImage(t.c,0,0);g.globalCompositeOperation='source-in';g.fillStyle='#0c0a18';g.fillRect(0,0,t.GW,t.GH);t.sil=c}return t.sil}
-function drawShadows(sc,cur,lo){if(!A)return;const g=shctx,M=A.meta;g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,OW,OH);g.imageSmoothingEnabled=false;
+function drawShadows(sc,cur,lo){if(!A)return;const g=shctx,M=A.meta;if((st.time&1)&&drawShadows.ok===sc){wctx.setTransform(1,0,0,1,0,0);wctx.globalCompositeOperation='source-atop';wctx.drawImage(shadB,0,0);wctx.globalCompositeOperation='source-over';XF(wctx);return}drawShadows.ok=sc;g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,BW,BH);g.imageSmoothingEnabled=false;
   const N=sky.night,t=st.dayT,f=clamp((t-.2)/.62,0,1),el=Math.sin(f*Math.PI),hd=Math.cos(f*Math.PI),sunA=sc.interior?0:(1-N)*(1-st.cloud*.75)*(1-st.rain)*clamp(el*3,0,1);
   const casters=[];if(cur&&player.alpha>.5&&!player.back)casters.push({x:player.x+player.w/2,y:player.y+player.h,row:'haru',fi:playerFrame(player),flip:player.facing<0});
   for(const n of sc.npcs)if(HUM[n.kind]&&n.a>.5&&!n.walking===false||HUM[n.kind]&&n.a>.5)casters.push({x:n.x,y:n.y,row:npcVariant(n),fi:npcFrame(n),flip:(n.dir||1)<0});
-  const one=(cx,cy,row,fi,flip,shear,sq,alpha)=>{const r=M.rows[row];if(r==null)return;g.globalAlpha=alpha;g.setTransform(flip?-1:1,0,shear*(flip?-1:1),sq,Math.round((cx-camX)*Z),Math.round((cy-camY)*Z));
+  const one=(cx,cy,row,fi,flip,shear,sq,alpha)=>{const r=M.rows[row];if(r==null)return;g.globalAlpha=alpha;g.setTransform((flip?-1:1)*RS,0,shear*(flip?-1:1)*RS,sq*RS,Math.round((cx-camX)*Z)*RS,Math.round((cy-camY)*Z)*RS);
     g.drawImage(IMG.sil,fi*M.cw,r*M.ch,M.cw,M.ch,-M.ox,-M.oy,M.cw,M.ch)};
   // sol
   if(sunA>.04){const L=clamp(.35/Math.max(el,.12),.4,3.2),sh=-hd*L;
     for(const c of casters){if(c.x<camX-40||c.x>camX+W+40)continue;one(c.x,c.y,c.row,c.fi,c.flip,c.flip?-sh:sh,.16,sunA*.32)}
     for(const tr of sc.treeSpr){if(tr.ox>camX+W+60||tr.ox+tr.GW<camX-60)continue;const base=tr.oy+tr.GH,cx=tr.ox+tr.GW/2;g.globalAlpha=sunA*.22;
-      g.setTransform(Z,0,sh*Z,.16*Z,Math.round((cx-camX)*Z),Math.round((base-camY)*Z));g.drawImage(treeSil(tr),-tr.GW/2,-tr.GH)}}
+      g.setTransform(Z*RS,0,sh*Z*RS,.16*Z*RS,Math.round((cx-camX)*Z)*RS,Math.round((base-camY)*Z)*RS);g.drawImage(treeSil(tr),-tr.GW/2,-tr.GH)}}
   // faroles y luces grandes
   const lamps=sc.lights.filter(l=>(l.lamp||l.r>=30)&&l.x>camX-80&&l.x<camX+W+80);const la=sc.interior?.8:lo;
   if(la>.05)for(const c of casters){if(c.x<camX-40||c.x>camX+W+40)continue;let k=0;for(const l of lamps){const dx=c.x-l.x,d=Math.abs(dx);if(d>l.r*1.4||k>=2)continue;k++;
@@ -1263,14 +1289,14 @@ function drawFox(){if(fox.a<.02)return;const t=fox.t,a=fox.a,c=ctx,flip=fox.dir<
   smap(c,'fox',ox,oy,flip,null);if(Math.random()<.2)sparks.push({x:fox.x+3+Math.random()*6,y:fox.y-2-Math.random()*8,vx:(Math.random()-.5)*.2,vy:-.2-Math.random()*.2,life:36,col:'cyan'});
   c.globalAlpha=1;c.globalCompositeOperation='source-over';XF(c)}
 
-function blit(buf,z,fx,fy,alpha){const sw=OW/z,sh=OH/z;const sx=clamp(fx-sw/2,0,OW-sw),sy=clamp(fy-sh/2,0,OH-sh);octx.imageSmoothingEnabled=false;octx.globalAlpha=alpha;octx.drawImage(buf,sx,sy,sw,sh,0,0,OW,OH);octx.globalAlpha=1}
+function blit(buf,z,fx,fy,alpha){const sw=OW/z,sh=OH/z;const sx=clamp(fx-sw/2,0,OW-sw),sy=clamp(fy-sh/2,0,OH-sh);octx.imageSmoothingEnabled=false;octx.globalAlpha=alpha;octx.drawImage(buf,sx*RS,sy*RS,sw*RS,sh*RS,0,0,OW,OH);octx.globalAlpha=1}
 function draw(){octx.globalAlpha=1;octx.imageSmoothingEnabled=false;const fy=OH*.62;
   if(trans&&(trans.kind==='alleyIn'||trans.kind==='alleyOut')&&trans.fromScene){const T=trans;
     renderScene(T.fromScene,fullActx);renderScene(scene,fullBctx);
     if(T.kind==='alleyIn'){blit(fullA,T.zoom,(T.focus.x-T.fromCam)*Z,fy,1);blit(fullB,T.zoomB,OW/2,fy,sstep(T.mixB))}
     else{blit(fullB,T.zoomB,(T.focus.x-camX)*Z,fy,1);blit(fullA,T.zoom,OW/2,fy,1-sstep(T.mixB))}}
   else if(trans&&trans.kind==='alleyIn'&&trans.zoom>1){renderScene(scene,fullActx);blit(fullA,trans.zoom,(trans.it.x-camX)*Z,fy,1)}
-  else{renderScene(scene,fullActx);const sh=st.shake>.3?Math.round((Math.random()-.5)*st.shake*2):0;octx.drawImage(fullA,sh,sh?Math.round((Math.random()-.5)*st.shake):0)}
+  else{renderScene(scene,fullActx);const sh=st.shake>.3?Math.round((Math.random()-.5)*st.shake*2):0;octx.drawImage(fullA,sh,sh?Math.round((Math.random()-.5)*st.shake):0,OW,OH)}
   if(trans&&trans.fade>0){octx.fillStyle=`rgba(6,5,14,${trans.fade})`;octx.fillRect(0,0,OW,OH)}
   if(cine.book){const b=cine.book,sx=Math.round((b.x-camX)*Z),sy=Math.round((b.y-camY)*Z);octx.globalCompositeOperation='lighter';octx.globalAlpha=.6+.3*Math.sin(st.time*.2);octx.drawImage(GL.warm,sx-24,sy-24,48,48);octx.globalAlpha=1;octx.globalCompositeOperation='source-over';
     octx.fillStyle='#3b2a2a';octx.fillRect(sx-7,sy-5,14,10);octx.fillStyle='#7a4a3a';octx.fillRect(sx-6,sy-4,12,8);octx.fillStyle='#f4ead6';octx.fillRect(sx-5,sy-3,10,6);octx.fillStyle='#c9a24a';octx.fillRect(sx,sy-4,1,8)}
@@ -1355,8 +1381,10 @@ function drawPortrait(c,who){const g=c.getContext('2d');g.setTransform(1,0,0,1,0
 const setEl=$('#settings');
 function renderGfx(){const mkB=(el,items,cur,fn)=>{el.innerHTML='';for(const [v,t,sm] of items){const b=document.createElement('button');b.type='button';b.className='opt';b.setAttribute('aria-pressed',cur===v?'true':'false');b.innerHTML=t+'<small>'+sm+'</small>';b.onclick=()=>{fn(v);saveGfx();renderGfx()};el.appendChild(b)}};
   mkB($('#gfxQ'),[['auto','Auto','Se ajusta sola'],[0,'Baja','Rápida'],[1,'Media','Equilibrada'],[2,'Alta','Todos los efectos']],gq,v=>{gq=v;if(v!=='auto')Q=v});
-  mkB($('#gfxF'),[[30,'30 FPS','Ahorra batería'],[60,'60 FPS','Más fluido']],fpsCap,v=>{fpsCap=v})}
-function saveGfx(){try{localStorage.setItem('warm-dreams-gfx',JSON.stringify({q:gq,fps:fpsCap}))}catch(e){}}
+  mkB($('#gfxF'),[[30,'30 FPS','Ahorra batería'],[60,'60 FPS','Más fluido']],fpsCap,v=>{fpsCap=v});
+  mkB($('#gfxR'),[[1,'100%','Nítido'],[.75,'75%','Más rápido'],[.5,'50%','El más rápido']],RS,v=>{RS=v;resize();drawShadows.ok=null});
+  mkB($('#gfxD'),[[true,'Activado','Muestra tiempos'],[false,'Apagado','']],DIAG.on,v=>{DIAG.on=v;DIAG.v={};DIAG.show()})}
+function saveGfx(){try{localStorage.setItem('warm-dreams-gfx',JSON.stringify({q:gq,fps:fpsCap,rs:RS}))}catch(e){}}
 function syncSet(){renderGfx();for(const [id,k] of [['vMaster','master'],['vMusic','music'],['vSfx','sfx']]){$('#'+id).value=vol[k];$('#'+id+'N').textContent=vol[k]}$('#btnMute').textContent=soundOn?'Silenciar':'Activar sonido'}
 for(const [id,k] of [['vMaster','master'],['vMusic','music'],['vSfx','sfx']])$('#'+id).addEventListener('input',e=>{vol[k]=+e.target.value;$('#'+id+'N').textContent=vol[k];applyVol();if(k==='sfx')blip()});
 $('#btnSet').addEventListener('click',()=>{syncSet();setEl.hidden=false});$('#setClose').addEventListener('click',()=>setEl.hidden=true);
@@ -1569,10 +1597,11 @@ function drawXing_(c,sc,layer){if(sc!==OUT||camX>1000||camX+W<820)return;const X
 // NPC: esperan en la barrera
 function npcXing(n){if(XG.on&&n.x>850&&n.x<972&&!n.fixed){n.x=n.x<911?850:972;n.walking=0}}
 // ============================================================ bucle
-let fpsN=0,fpsT=performance.now(),slowFor=0,fastFor=0,skipF=0;
+let fpsN=0,fpsT=performance.now(),slowFor=0,fastFor=0,skipF=0,paused=false;
+document.addEventListener('visibilitychange',()=>{if(document.hidden){paused=true;try{AC&&AC.suspend()}catch(e){}}else if(paused){paused=false;try{AC&&AC.resume()}catch(e){}last=performance.now();requestAnimationFrame(frame)}});
 let last=performance.now(),acc=0;
-function frame(now){if(fpsCap===30&&(++skipF&1)){requestAnimationFrame(frame);return}acc+=Math.min(100,now-last);last=now;let n=0;while(acc>=1000/60&&n<4){update();acc-=1000/60;n++}draw();if(started)audioTick();
-  if(++fpsN>=30){const dt=now-fpsT,f=Math.round(30000/dt);fpsT=now;fpsN=0;$('#fps').textContent=f;const tgt=fpsCap===30?27:42;if(gq==='auto'){if(f<tgt){if(++slowFor>=4&&Q>0){Q--;slowFor=0}}else{slowFor=0;if(f>(fpsCap===30?29:57)&&++fastFor>=12&&Q<2){Q++;fastFor=0}}}}
+function frame(now){if(paused)return;const lowCap=fpsCap===30||player.state==='sit'||talkOpen||!$('#book').hidden||!$('#settings').hidden||!$('#draw').hidden;if(lowCap&&(++skipF&1)){requestAnimationFrame(frame);return}const _f0=performance.now();acc+=Math.min(100,now-last);last=now;let n=0;while(acc>=1000/60&&n<4){update();acc-=1000/60;n++}const _f1=performance.now();DIAG.add('lógica',_f1-_f0);draw();DIAG.add('dibujo total',performance.now()-_f1);if(started)audioTick();
+  if(++fpsN>=30){DIAG.show();const dt=now-fpsT,f=Math.round(30000/dt);fpsT=now;fpsN=0;$('#fps').textContent=f;const tgt=fpsCap===30?27:42;if(gq==='auto'){if(f<tgt){if(++slowFor>=4&&Q>0){Q--;slowFor=0}}else{slowFor=0;if(f>(fpsCap===30?29:57)&&++fastFor>=12&&Q<2){Q++;fastFor=0}}}}
   const hh=Math.floor(st.dayT*24),mm=Math.floor((st.dayT*24-hh)*60);const ts=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+(st.mode==='fast'?' ⏩':st.mode==='music'?' ♪':'');
   const ce=$('#clock span');if(ce.textContent!==ts)ce.textContent=ts;requestAnimationFrame(frame)}
 computeSky();camXf=clamp(player.x-W/2,0,OUT.LW-W);requestAnimationFrame(frame);
