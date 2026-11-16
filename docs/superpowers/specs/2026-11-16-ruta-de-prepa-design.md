@@ -47,8 +47,24 @@ Tres formas, según el lugar:
 - Algunos abren solo a ciertas horas (tienda de día, biblioteca por la tarde).
 - Botón táctil extra de **entrar** que aparece solo junto a puertas o callejones.
 
+## Sentarse y los audífonos (aprobado en idea)
+- En bancas, azoteas, parada del bus, árbol grande, etc. el estudiante puede **sentarse**.
+- Sentado, se pone **audífonos** y aparecen 2 menús:
+  1. **Música:** eliges música y empieza un **timelapse medianamente rápido**; puedes solo escuchar
+     y ver el mundo cambiar. (Qué más se puede hacer aquí: pendiente, ver abajo.)
+  2. **Clima y hora:** eliges clima y hora, confirmas y empieza un **timelapse rápido** hasta llegar ahí.
+- Propuesta de Claude: tocar la pantalla salta el timelapse; la música elegida se puede mantener al
+  pedir clima y hora.
+- Clima natural además cambia solo, con pronósticos dentro del mundo (tele, vecinos, cielo nublándose).
+- Los botones de Hora/Clima de la prueba quedan solo para pruebas.
+- Abierto: si todos los climas están disponibles desde el inicio o algunos se desbloquean al vivirlos.
+
+## Pendientes para recordar
+- [ ] **Recordarle al usuario:** qué más se puede hacer en el modo música/timelapse además de escuchar
+      (lo pensará después de terminar lo más importante).
+
 ## En discusión
-- Cómo consigue el jugador la hora y el clima que necesita un momento.
+- Personajes y diálogos; el cuaderno en pantalla; progreso y guardado; tamaño de la primera versión.
 
 ## Prototipo
 - `prueba/index.html`: prueba visual 0.1 (5 zonas, ciclo de día, lluvia/charcos/goteras, aurora,
