@@ -9,6 +9,8 @@ Eres un estudiante de prepa que recorre su colonia, la escuela, la ciudad, los c
 místicos. Todo debe sentirse relajado: la música, lo visual y el ritmo.
 
 ## Decidido
+- **Ambientación: inspirada en Japón** (no Latinoamérica). Barrios japoneses, preparatoria japonesa,
+  konbini, santuarios, cerezos, trenes, etc. El zorro espíritu encaja como kitsune.
 - **Plataforma:** web primero (se juega desde el navegador del celular, con controles táctiles).
   Se puede pasar a Godot más adelante.
 - **Orientación:** solo horizontal.
@@ -67,6 +69,14 @@ Tres formas, según el lugar:
 - Propuestas de Claude: los NPC de fondo reaccionan al clima (paraguas, se refugian en la parada del bus);
   tienen rutinas según la hora (estudiantes de día, vendedores en la mañana); los NPC importantes se
   distinguen con una señal sutil y tienen horarios donde encontrarlos.
+
+## Cerrado en gameplay (aprobado)
+- Cuaderno en pantalla: libro con páginas pintadas; las incompletas muestran pista y boceto a lápiz.
+- Guardado automático en el dispositivo.
+- NPC: reaccionan al clima, rutinas por hora, los importantes tienen horario y señal sutil.
+
+## Siguiente paso: prototipo 0.2 (prueba de sistemas, desechable)
+3 mapas + lo básico de timelapse, hora, clima, NPC, sentarse con audífonos, entrar a un lugar.
 
 ## Pendientes para recordar
 - [ ] **Recordarle al usuario:** qué más se puede hacer en el modo música/timelapse además de escuchar
