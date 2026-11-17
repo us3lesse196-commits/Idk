@@ -649,8 +649,13 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
         const im=new Image(),fi=new Image();const ent={c:mk(1,1),ox:tx-T.w/2,oy:tb-T.h,GW:T.w,GH:T.h,ph:0,k:ZL,stiff:0};Bs.treeSpr.push(ent);im.onload=()=>{const c2=mk(Math.round(T.w*ZL),Math.round(T.h*ZL));c2.getContext('2d').drawImage(im,0,0,c2.width,c2.height);ent.c=c2};im.src=T.src;
         fi.onload=()=>{const c2=mk(Math.round(T.w*ZL),Math.round(T.h*ZL));c2.getContext('2d').drawImage(fi,0,0,c2.width,c2.height);(Bs.fronts||(Bs.fronts=[])).push({c:c2,x:tx-T.w/2,y:tb-T.h,w:T.w,h:T.h})};fi.src=T.front}deco('temizuya',2826,0,126);deco('kitsuneR',2890,0,126);deco('kitsuneL',2980,0,126);deco('ema',3014,0,126);deco('omikuji',3036,0,126);
       for(const bx of [3238,3262,3286])deco('barandal',bx,0,126);
-      tree(2700,126,80,10,0,'leaf','#4a3a30','cedro');tree(2664,126,80,10,0,'leaf','#4a3a30','pino');tree(2686,126,80,10,0,'leaf','#4a3a30','cedro');tree(2730,126,80,10,0,'leaf','#4a3a30','arceRojo');deco('bambuMaceta',2676,.5,127);deco('azalea',2706,.3,127);tree(3172,126,60,10,0,'leaf','#4a3a30','pino');
-      deco('juncos',2336,.6,176);deco('boj',2342,.2,172);deco('juncos',2499,.6,176);deco('boj',2492,.2,172);deco('boj',2503,.25,151);deco('azalea',2512,.3,151);deco('hierba',2496,.6,151);deco('pampas',2520,.7,151);
+      {const sy=x=>x>=2696?126:x<2600?150:146-Math.floor((x-2600)/16)*4,T=(k,x)=>tree(x,sy(x)+1,80,10,0,'leaf','#4a3a30',k);
+        // barrera de árboles en la subida (tapa el borde de la ladera)
+        T('cedro',2646);T('pino',2660);T('cedro',2672);T('arce',2684);T('cedro',2694);T('pino',2706);T('cedro',2718);T('arceRojo',2734);T('cedro',2744);
+        for(const [k,x] of [['boj',2652],['azalea',2668],['hierba',2680],['boj',2700],['azalea',2712],['pampas',2726]])deco(k,x,.3,sy(x)+1);
+        // orilla del lago (tapa el cambio de terreno)
+        T('arce',2478);T('bambu',2492);T('arce',2510);T('pino',2526);for(const [k,x] of [['boj',2470],['azalea',2486],['pampas',2500],['boj',2518],['hierba',2532],['azalea',2540]])deco(k,x,.3,151)}tree(3172,126,60,10,0,'leaf','#4a3a30','pino');
+      deco('juncos',2336,.6,176);deco('boj',2342,.2,172);deco('juncos',2499,.6,176);deco('boj',2492,.2,172);
     }
 
     if(WA.buildings.alaA&&WA.buildings.centro&&WA.buildings.alaAm){zone(1265,1971);
