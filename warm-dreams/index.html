@@ -630,7 +630,8 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
       deco('juncos',2146,.7);deco('espantapajaros',2200,.15);deco('arroz',2252,.1);deco('pampas',2290,.7);
     }
     if(WA.lago){const lg=WA.lago,LX=2328,top=150-(lg.rail[Math.round(lg.x0)+2]+8);zone(LX,LX+lg.w);Bs.puddles=Bs.puddles.filter(p=>p.x<LX||p.x>LX+lg.w);
-      const lim=new Image();lim.onload=()=>{Ls.clearRect(LX+4,150,lg.w-8,30);Ls.imageSmoothingEnabled=true;Ls.drawImage(lim,LX,top,lg.w,lg.h);B_._dirty={l:true,e:true}};lim.src=lg.src;
+      const lim=new Image(),bk=new Image();let nL=0;const both=()=>{if(++nL<2)return;Ls.clearRect(LX+4,150,lg.w-8,30);Ls.imageSmoothingEnabled=true;
+        {const cd=WA.ground.campo,wy=top+73,by=wy-14;Ls.save();Ls.beginPath();Ls.rect(LX+2,by,lg.w-4,wy-by+6);Ls.clip();for(let x=LX;x<LX+lg.w;x+=cd.w*.6)Ls.drawImage(bk,x,by,cd.w*.6,cd.h*.6);Ls.fillStyle='rgba(20,30,40,.35)';Ls.fillRect(LX,by,lg.w,30);Ls.restore()}Ls.drawImage(lim,LX,top,lg.w,lg.h);B_._dirty={l:true,e:true}};bk.onload=both;bk.src=WA.ground.campo.src;lim.onload=both;lim.src=lg.src;
       for(let u=Math.floor(lg.x0);u<lg.x1;u+=2){const r=lg.rail[u+1]??lg.rail[u];if(r==null)continue;const y=Math.round(top+r+8);if(y<150)S(LX+u,y,2,150-y,1)}
       LT(LX+9,top+50,26,'warm',.7);OUT.lake={x0:LX,x1:LX+lg.w,wy:top+73};
       const ld=WA.ladera,HX=LX+lg.w-16;if(WA.trees&&WA.trees.lloron)tree(LX+lg.w-6,150,90,20,0,'sakura',0,'lloron');OUT.tunnelX=2598;const lad=new Image();lad.onload=()=>{const go=()=>{Ls.imageSmoothingEnabled=true;Ls.drawImage(lad,HX,150-ld.h,ld.w,ld.h);
@@ -661,7 +662,7 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
         for(const [k,x] of [['hierba',2604],['juncos',2611],['hierba',2622],['pampas',2630],['hierba',2638],['hortensia',2644],['hierba',2656],['juncos',2676],['hierba',2690],['hierba',2560],['pampas',2546],['hierba',2572]])deco(k,x,k==='pampas'||k==='juncos'?.8:.6,sy(x)+1);
         for(const x of [2552,2626,2690]){deco('linterna',x,0,sy(x)+1);litLantern(x,sy(x)+1)}
         // orilla del lago (tapa el cambio de terreno)
-        T('arce',2478);T('bambu',2492);T('arce',2510);T('pino',2526);for(const [k,x] of [['boj',2470],['azalea',2486],['pampas',2500],['boj',2518],['hierba',2532],['azalea',2540]])deco(k,x,.3,151)}tree(3172,126,60,10,0,'leaf','#4a3a30','pino');
+        T('arce',2478);for(const [k,x] of [['boj',2330],['pampas',2338],['juncos',2346],['azalea',2324],['hierba',2352]])deco(k,x,.5,151);T('bambu',2492);T('arce',2510);T('pino',2526);for(const [k,x] of [['boj',2470],['azalea',2486],['pampas',2500],['boj',2518],['hierba',2532],['azalea',2540]])deco(k,x,.3,151)}tree(3172,126,60,10,0,'leaf','#4a3a30','pino');
       deco('juncos',2336,.6,176);deco('boj',2342,.2,172);deco('juncos',2499,.6,176);deco('boj',2492,.2,172);
     }
 
@@ -1327,7 +1328,10 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   if(sc.parallax||sc.alleySky){drawSky();if(sc.parallax)drawBirds()}else{ctx.fillStyle='#000';ctx.fillRect(0,0,W,H)}
   if(sc.parallax&&!OFF.far){drawFar(sc);drawParallax()}
   if(sc===OUT&&FOREST.im&&camX+W>2690){const fw=FOREST.w,fh=FOREST.h,x0=2690-camX,sh=(camX-2400)*.15,N=sky.night,col=mix(mix(sky.hor,sky.dark,.55),[10,14,30],N*.5),a=clamp(.12+N*.62+st.rain*.2,0,.9),img=a>.03?tintCache(FOREST.c,col,a,'atop'):FOREST.c;
-    ctx.save();ctx.beginPath();ctx.rect(x0,-40,9999,200);ctx.clip();ctx.imageSmoothingEnabled=true;for(let x=x0+sh-fw*Math.ceil(sh/fw+1);x<W;x+=fw)if(x+fw>x0)ctx.drawImage(img,x,128-fh,fw,fh);ctx.restore()}tick_('cielo y fondos');
+    const cv=ctx.canvas;if(!FOREST.buf||FOREST.buf.width!==cv.width||FOREST.buf.height!==cv.height){FOREST.buf=mk(cv.width,cv.height)}const fb=FOREST.buf,fg=fb.getContext('2d');fg.setTransform(1,0,0,1,0,0);fg.clearRect(0,0,fb.width,fb.height);fg.setTransform(ctx.getTransform());fg.imageSmoothingEnabled=true;
+    for(let x=x0+sh-fw*Math.ceil(sh/fw+1);x<W;x+=fw)if(x+fw>x0)fg.drawImage(img,x,128-fh,fw,fh);
+    fg.globalCompositeOperation='destination-in';const gr=fg.createLinearGradient(x0,0,x0+70,0);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,1)');fg.fillStyle=gr;fg.fillRect(x0-10,-60,W+80,260);fg.globalCompositeOperation='source-over';
+    const T0=ctx.getTransform();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(fb,0,0);ctx.setTransform(T0)}tick_('cielo y fondos');
   if(!sc.interior&&st.rain>.04&&!OFF.rain){const n=Math.round(90*st.rain*[.3,.6,1][Q]);ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.4),.32);ctx.lineWidth=.5;ctx.beginPath();for(let i=0;i<n;i++){const sp=2.6+(i%5)*.45,x=((i*61.7-camX*.5+st.time*st.wind*1.1)%(W+40)+W+40)%(W+40)-20,y=(i*37.3+st.time*sp)%190;ctx.moveTo(x,y);ctx.lineTo(x-st.wind*1.1,y-3.5)}ctx.stroke()}
   if(sc.interior&&rain.length){ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.55),.6);ctx.lineWidth=.5;ctx.beginPath();for(const d of rain){const x=d.x-camX+.5;ctx.moveTo(x,d.y);ctx.lineTo(x-st.wind*1.6*d.l/4,d.y-d.l)}ctx.stroke()}
   // mundo
