@@ -173,6 +173,23 @@
       "run": "28284aa7-92e5-4b9b-99f8-8dbe4ac18aee",
       "jump": "b7c84c8e-d395-40cf-b09e-b24f8e7885dc",
       "archivos": "assets.local/chars/haru_*.png (hojas de 202 px por cuadro)"
-    }
+    },
+    "npc_student": {
+      "base": "58d2c418-c108-41eb-95b1-4975ae567a93",
+      "walk": "c5e9cdc0-19eb-4d3d-b1b4-2a00733495f5"
+    },
+    "npc_office": {
+      "base": "6feb16ee-49b1-4715-98bf-516f9a5790d7",
+      "walk": "3d6aebdb-a90b-4082-b5ce-e2c160b2b8f9"
+    },
+    "npc_granny": {
+      "base": "39a9cbe4-b678-4fa1-860e-12e2cb51c365",
+      "walk": "dc8cd9c5-cd3d-45b7-a4e4-2677e2ac5b8c"
+    },
+    "npc_janitor": {
+      "base": "9a3d65c7-3753-44b1-b9c7-108dd5125a51",
+      "walk": "bed6cf4d-540b-4c5b-ad28-69e91fdc5ddd"
+    },
+    "npc_archivos": "assets.local/chars/npc_<tipo>_walk.png"
   }
 }
