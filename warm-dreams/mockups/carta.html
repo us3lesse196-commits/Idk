@@ -2,90 +2,114 @@
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Carta: maqueta</title>
 <style>
-html,body{margin:0;height:100%;background:#2a2240;color:#f4ead6;font-family:Georgia,serif;overflow:hidden}
-#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;gap:16px;padding:10px;box-sizing:border-box}
-#page{position:relative;height:min(94vh,150vw);aspect-ratio:180/260}
-#page canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
-#ui{display:flex;flex-direction:column;gap:8px;max-width:38vw}
-#ui button{font:14px Georgia,serif;padding:10px 12px;border:2px solid #8a7ab0;background:#3a3058;color:#f4ead6;border-radius:4px}
-#ui p{font-size:12px;opacity:.8;margin:0}
+html,body{margin:0;height:100%;background:#1c1626;overflow:hidden}
+canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 </style></head><body>
-<div id="wrap"><div id="page"><canvas id="c" width="180" height="260"></canvas></div>
-<div id="ui"><p>Maqueta de la página de la carta</p>
-<button data-n="0">0 pedazos</button><button data-n="2">2 pedazos</button><button data-n="4">4 pedazos</button><button data-n="5">Carta completa ✦</button>
-<p>Toca un botón para ver cada estado.</p></div></div>
+<canvas id="c"></canvas>
 <script>
-const c=document.getElementById('c'),g=c.getContext('2d'),Wd=180,Ht=260;
-const TXT=['No sé bien cuándo empezó;','solo sé que desde entonces','todo tiene un poco más de luz.',
- 'Cuando llueve pienso en ti,','y cuando sale el sol, también.','',
- 'Llevo dentro una llamita','que encendiste sin darte cuenta.','',
- 'Ha pasado vientos y tormentas','y nunca ha dejado de arder.','',
- 'Pase lo que pase, seguirá','encendida. Siempre, por ti.',''];
-// 5 franjas de la carta (y0,y1) dentro del papel
-const STR=[[40,82],[82,114],[114,146],[146,180],[180,222]];
-let have=2,t=0,doneT=0;
+// Maqueta: cuaderno con la carta. Tocar la pantalla cambia cuántos pedazos tienes.
+const cv=document.getElementById('c'),g=cv.getContext('2d');
+const P=3;// tamaño de cada "píxel" del dibujo
+let CH=540,CW=960;
 function hash(n){n=(n^61)^(n>>>16);n=n+(n<<3);n=n^(n>>>4);n=Math.imul(n,0x27d4eb2d);return (n^(n>>>15))>>>0}
+const rnd=(x,y)=>(hash(x*73856093^y*19349663)%1000)/1000;
 const BAY=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
-// --- marco de nubes (precalculado)
-const frame=document.createElement('canvas');frame.width=Wd;frame.height=Ht;
-(()=>{const f=frame.getContext('2d'),d=f.createImageData(Wd,Ht),q=d.data;
-  // nubes: círculos a lo largo del borde
-  const blobs=[];const inset=14;
-  for(let x=inset;x<=Wd-inset;x+=11){blobs.push([x,inset+(hash(x)%5)-2,9+hash(x*3)%4]);blobs.push([x,Ht-inset-(hash(x+7)%5)+2,9+hash(x*5)%4])}
-  for(let y=inset;y<=Ht-inset;y+=11){blobs.push([inset+(hash(y*7)%5)-2,y,9+hash(y)%4]);blobs.push([Wd-inset-(hash(y*11)%5)+2,y,9+hash(y*13)%4])}
-  for(const [cx,cy] of [[18,18],[Wd-18,18],[18,Ht-18],[Wd-18,Ht-18]])blobs.push([cx,cy,16]);
-  for(let y=0;y<Ht;y++)for(let x=0;x<Wd;x++){
-    // distancia al papel interior (rectángulo con nubes)
-    let cl=0;for(const [cx,cy,r] of blobs){const dd=Math.hypot(x-cx,y-cy)/r;if(dd<1)cl=Math.max(cl,1-dd)}
-    const inner=x>24&&x<Wd-24&&y>24&&y<Ht-24;const i=(y*Wd+x)*4;
-    if(!cl&&!inner)continue;
-    // papel crema con grano
-    let col=[244,236,218];const gr=(hash(x*977+y*131)%9)-4;col=col.map(v=>v+gr);
-    // borde de nube azul tipo acuarela: más oscuro hacia afuera
-    const ex=Math.min(x,Wd-1-x,y,Ht-1-y);let blue=cl>0?Math.max(0,1-(ex-4)/26):0;blue=Math.min(1,blue*1.15);
-    const th=BAY[(y&3)*4+(x&3)]/16;const k=Math.floor(blue*5+th)/5;
-    const B1=[176,190,214],B2=[110,128,170],B3=[70,86,132];
-    let bc=k>.8?B3:k>.5?B2:B1;if(k>.05)col=col.map((v,j)=>v+(bc[j]-v)*Math.min(1,k*1.1));
-    // contorno de la nube
-    if(cl>0&&cl<.12&&!inner)col=[58,66,104];
-    q[i]=col[0];q[i+1]=col[1];q[i+2]=col[2];q[i+3]=255}
+const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
+
+// ---------------- carta (baja resolución para el dibujo, texto en alta)
+const LW=118,LH=160;
+const letterLo=mk(LW,LH);
+(()=>{const f=letterLo.getContext('2d'),d=f.createImageData(LW,LH),q=d.data,blobs=[],ins=9;
+  for(let x=ins;x<=LW-ins;x+=8){blobs.push([x,ins+(hash(x)%4)-2,6+hash(x*3)%3]);blobs.push([x,LH-ins-(hash(x+7)%4)+2,6+hash(x*5)%3])}
+  for(let y=ins;y<=LH-ins;y+=8){blobs.push([ins+(hash(y*7)%4)-2,y,6+hash(y)%3]);blobs.push([LW-ins-(hash(y*11)%4)+2,y,6+hash(y*13)%3])}
+  for(const [cx,cy] of [[11,11],[LW-11,11],[11,LH-11],[LW-11,LH-11]])blobs.push([cx,cy,11]);
+  for(let y=0;y<LH;y++)for(let x=0;x<LW;x++){let cl=0;for(const [cx,cy,r] of blobs){const dd=Math.hypot(x-cx,y-cy)/r;if(dd<1)cl=Math.max(cl,1-dd)}
+    const inner=x>14&&x<LW-15&&y>14&&y<LH-15,i=(y*LW+x)*4;if(!cl&&!inner)continue;
+    let col=[245,238,220].map(v=>v+(hash(x*977+y*131)%7)-3);
+    const ex=Math.min(x,LW-1-x,y,LH-1-y);let b=cl>0||!inner?Math.max(0,1-(ex-3)/17):0;if(inner)b*=.55;
+    const k=Math.floor(Math.min(1,b*1.1)*5+BAY[(y&3)*4+(x&3)]/16)/5;
+    const bc=k>.8?[70,86,132]:k>.5?[110,128,170]:[176,190,214];if(k>.05)col=col.map((v,j)=>v+(bc[j]-v)*Math.min(1,k*1.1));
+    if(cl>0&&cl<.14&&!inner&&ex<9)col=[58,66,104];q[i]=col[0];q[i+1]=col[1];q[i+2]=col[2];q[i+3]=255}
   f.putImageData(d,0,0);
-  // espirales
   f.strokeStyle='#3a4268';f.lineWidth=1;
-  const swirl=(x,y,r,dir)=>{f.beginPath();for(let a=0;a<Math.PI*3.2;a+=.25){const rr=r*(1-a/(Math.PI*3.6));const px=x+Math.cos(a*dir)*rr,py=y+Math.sin(a*dir)*rr;a?f.lineTo(Math.round(px)+.5,Math.round(py)+.5):f.moveTo(Math.round(px)+.5,Math.round(py)+.5)}f.stroke()};
-  for(const [x,y,r,dd] of [[30,12,5,1],[Wd-34,13,5,-1],[9,60,4,1],[Wd-9,110,4,-1],[9,170,4,-1],[Wd-10,200,4,1],[60,Ht-11,5,-1],[Wd-62,Ht-12,5,1],[100,10,4,1],[8,230,4,1]])swirl(x,y,r,dd);
-  // estrellas
-  const star=(x,y,r)=>{f.fillStyle='#f2d45a';f.strokeStyle='#8a6a2a';f.beginPath();for(let k2=0;k2<10;k2++){const a=-Math.PI/2+k2*Math.PI/5,rr=k2%2?r*.45:r;const px=x+Math.cos(a)*rr,py=y+Math.sin(a)*rr;k2?f.lineTo(px,py):f.moveTo(px,py)}f.closePath();f.fill();f.stroke()};
-  for(const [x,y,r] of [[20,20,6],[36,12,4],[Wd-22,18,6],[Wd-38,26,4],[18,Ht-24,6],[34,Ht-14,4],[Wd-20,Ht-20,5]])star(x,y,r);
-})();
-// bordes rasgados entre franjas
-const tear=y=>{const pts=[];for(let x=26;x<=Wd-26;x+=3)pts.push([x,y+((hash(x*31+y)%5)-2)*.6]);return pts};
-const TEARS=STR.map(s=>tear(s[0]));
-function strip(i,present){const [y0,y1]=STR[i];g.save();g.beginPath();const top=tear(y0),bot=tear(y1);
-  g.moveTo(top[0][0],top[0][1]);for(const p of top)g.lineTo(p[0],p[1]);for(const p of bot.slice().reverse())g.lineTo(p[0],p[1]);g.closePath();
-  if(present){g.clip();g.fillStyle='#f6eedb';g.fillRect(0,y0-3,Wd,y1-y0+6);for(let k=0;k<40;k++){const h=hash(i*999+k);g.fillStyle='rgba(180,160,120,.12)';g.fillRect(26+h%128,y0+(h>>8)%(y1-y0),2,1)}
-    g.fillStyle='#3a3058';g.font='italic 7.4px Georgia';g.textAlign='center';const lines=TXT.slice(i*3,i*3+3).filter(Boolean);
-    lines.forEach((l,k)=>g.fillText(l,Wd/2,y0+12+k*9+(lines.length<3?4:0)));g.restore();
-    g.strokeStyle='rgba(120,100,70,.55)';g.lineWidth=.6;g.beginPath();top.forEach((p,k)=>k?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke()}
-  else{g.setLineDash([2,2]);g.strokeStyle='rgba(110,128,170,.7)';g.lineWidth=.7;g.stroke();g.setLineDash([]);g.restore();
-    g.fillStyle='rgba(110,128,170,.8)';g.font='9px Georgia';g.textAlign='center';g.fillText('?',Wd/2,(y0+y1)/2+3)}}
-// llama pixelada animada
-function flame(cx,by,tt){const s=1;g.save();
-  const glow=g.createRadialGradient(cx,by-8,1,cx,by-8,26);glow.addColorStop(0,'rgba(255,190,90,.45)');glow.addColorStop(1,'rgba(255,190,90,0)');g.fillStyle=glow;g.fillRect(cx-30,by-38,60,50);
+  const sw=(x,y,r,dr)=>{f.beginPath();for(let a=0;a<Math.PI*3.1;a+=.3){const rr=r*(1-a/(Math.PI*3.5));const px=Math.round(x+Math.cos(a*dr)*rr)+.5,py=Math.round(y+Math.sin(a*dr)*rr)+.5;a?f.lineTo(px,py):f.moveTo(px,py)}f.stroke()};
+  for(const [x,y,r,dr] of [[22,7,4,1],[LW-24,8,4,-1],[6,46,3,1],[LW-6,80,3,-1],[6,118,3,-1],[44,LH-7,4,-1],[LW-44,LH-8,4,1],[70,6,3,1]])sw(x,y,r,dr);
+  const star=(x,y,r)=>{f.fillStyle='#f2d45a';f.strokeStyle='#8a6a2a';f.beginPath();for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,rr=k%2?r*.45:r;k?f.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr):f.moveTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr)}f.closePath();f.fill();f.stroke()};
+  for(const [x,y,r] of [[12,12,4.5],[24,7,3],[LW-13,11,4.5],[LW-26,16,3],[11,LH-14,4.5],[23,LH-8,3],[LW-12,LH-12,4]])star(x,y,r);})();
+const LINES=[['Para ti',.115,1],['No sé bien cuándo empezó;',.2],['solo sé que desde entonces',.255],['todo tiene un poco más de luz.',.31],
+ ['Cuando llueve pienso en ti,',.395],['y cuando sale el sol, también.',.45],['Llevo dentro una llamita',.535],['que encendiste sin darte cuenta.',.59],
+ ['Ha pasado vientos y tormentas',.675],['y nunca ha dejado de arder.',.73],['Pase lo que pase, seguirá encendida.',.815],['Siempre, por ti.',.87]];
+const letterHi=mk(LW*P,LH*P);
+(()=>{const f=letterHi.getContext('2d');f.imageSmoothingEnabled=false;f.drawImage(letterLo,0,0,LW*P,LH*P);f.textAlign='center';
+  for(const [t,v,title] of LINES){f.fillStyle=title?'#6a5a8a':'#3a3058';f.font=(title?'italic 600 17px ':'italic 15px ')+'Georgia,serif';f.fillText(t,LW*P/2,v*LH*P+5)}})();
+
+// ---------------- cortes irregulares: a cada píxel de la carta le toca un pedazo
+const ID=new Uint8Array(LW*LH);
+for(let y=0;y<LH;y++)for(let x=0;x<LW;x++){const u=x/LW,v=y/LH;
+  const uu=u+.035*Math.sin(v*21+1)+.025*(rnd(x>>1,y)-.5),vv=v+.03*Math.sin(u*17+2)+.025*(rnd(x,y>>1)-.5);
+  let id;if(vv<.29-.09*uu)id=0;else if(vv<.6+.07*uu-.1*Math.max(0,uu-.7))id=(uu<.47+.25*(vv-.3))?1:2;else id=(uu+.6*(vv-.6)<.5)?3:4;ID[y*LW+x]=id}
+// lienzos de cada pedazo (alta resolución) + silueta para la sombra
+const PIECES=[];
+for(let k=0;k<5;k++){const m=mk(LW,LH),mg=m.getContext('2d'),md=mg.createImageData(LW,LH);let sx=0,sy=0,n=0;
+  for(let i=0;i<ID.length;i++){if(ID[i]!==k)continue;const x=i%LW,y=(i/LW)|0;const a=letterLo.getContext('2d');md.data[i*4+3]=255;sx+=x;sy+=y;n++;
+    const edge=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>{const X=x+dx,Y=y+dy;return X>=0&&Y>=0&&X<LW&&Y<LH&&ID[Y*LW+X]!==k});
+    if(edge){md.data[i*4]=255;md.data[i*4+1]=250;md.data[i*4+2]=238}else{md.data[i*4]=md.data[i*4+1]=md.data[i*4+2]=0}}
+  mg.putImageData(md,0,0);
+  // quitar las esquinas del papel que quedan fuera de la carta (transparentes)
+  const pc=mk(LW*P,LH*P),pg=pc.getContext('2d');pg.imageSmoothingEnabled=false;pg.drawImage(letterHi,0,0);pg.globalCompositeOperation='destination-in';pg.drawImage(m,0,0,LW*P,LH*P);
+  pg.globalCompositeOperation='source-over';
+  // borde blanco de papel rasgado
+  const e=mk(LW,LH),eg=e.getContext('2d'),ed=eg.createImageData(LW,LH);for(let i=0;i<ID.length;i++)if(md.data[i*4]===255&&letterLo.getContext('2d'))ed.data.set([255,250,238,255],i*4);eg.putImageData(ed,0,0);
+  pg.globalCompositeOperation='source-atop';pg.drawImage(e,0,0,LW*P,LH*P);pg.globalCompositeOperation='source-over';
+  const sh=mk(LW*P,LH*P),sg=sh.getContext('2d');sg.drawImage(pc,0,0);sg.globalCompositeOperation='source-in';sg.fillStyle='rgba(40,25,20,.35)';sg.fillRect(0,0,LW*P,LH*P);
+  PIECES.push({c:pc,sh,cx:sx/n*P,cy:sy/n*P})}
+// ¡las esquinas de nube fuera del papel no son pedazo de nadie! (transparencia del dibujo)
+// cómo quedó pegado cada pedazo: desplazamiento, giro y cinta
+const STUCK=[{r:-.02,tape:[[.2,.15,-.5],[.82,.2,.4]]},{r:.015,tape:[[.25,.45,.3]]},{r:-.012,tape:[[.85,.5,-.4]]},{r:.022,tape:[[.15,.85,.5]]},{r:-.016,tape:[[.8,.9,-.3],[.55,.62,.2]]}];
+const NOTES=['Cayó del árbol junto al templo, después de la tormenta.','Estaba en el basurero de la prepa; el conserje lo tiró en la tarde.','El zorro de la aurora lo traía en la espalda.','Arriba de todo, en lo alto del callejón.','Un gato jugaba con él frente a la cafetería.'];
+let have=[1,0,1,0,1],t=0,doneT=0,stage=1;
+const STAGES=[[0,0,0,0,0],[1,0,1,0,1],[1,1,1,1,1]];
+cv.onclick=()=>{stage=(stage+1)%3;have=STAGES[stage];doneT=0};
+
+function resize(){const a=innerWidth/innerHeight;CH=540;CW=Math.round(CH*Math.max(1.3,Math.min(2.4,a)));cv.width=CW;cv.height=CH}
+addEventListener('resize',resize);resize();
+
+function notebook(){// fondo de escritorio + cuaderno abierto que ocupa toda la pantalla
+  g.fillStyle='#3a2a24';g.fillRect(0,0,CW,CH);for(let y=0;y<CH;y+=9){g.fillStyle=y%18?'#40302a':'#36261f';g.fillRect(0,y,CW,3)}
+  const m=14,x0=m,x1=CW-m,y0=m,y1=CH-m,mid=CW/2;
+  g.fillStyle='#5a3a4a';g.fillRect(x0-6,y0-6,x1-x0+12,y1-y0+12);// tapa
+  g.fillStyle='#f3ead6';g.fillRect(x0,y0,x1-x0,y1-y0);
+  for(let y=y0+54;y<y1-12;y+=24){g.fillStyle='rgba(120,150,200,.35)';g.fillRect(x0+12,y,mid-x0-30,2);g.fillRect(mid+18,y,x1-mid-30,2)}
+  g.fillStyle='rgba(210,90,90,.45)';g.fillRect(x0+54,y0,2,y1-y0);
+  const gr=g.createLinearGradient(mid-40,0,mid+40,0);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(.5,'rgba(60,30,20,.28)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(mid-40,y0,80,y1-y0);
+  for(let y=y0+20;y<y1;y+=34){g.fillStyle='#b8a888';g.fillRect(mid-3,y,6,12);g.fillStyle='#8a7a5a';g.fillRect(mid-1,y+2,2,8)}
+  return {x0,x1,y0,y1,mid}}
+
+function flame(cx,by,tt,s){// llama pixelada (s = tamaño de píxel)
+  const glow=g.createRadialGradient(cx,by-8*s,2,cx,by-8*s,34*s/3);glow.addColorStop(0,'rgba(255,190,90,.5)');glow.addColorStop(1,'rgba(255,190,90,0)');g.fillStyle=glow;g.fillRect(cx-40*s/3,by-26*s,80*s/3,34*s);
   const L=[[7,'#d9473a'],[5,'#f08a3a'],[3.4,'#f6c24a'],[1.8,'#fff4c8']];
-  for(let li=0;li<L.length;li++){const [w,col]=L[li];g.fillStyle=col;const hgt=16-li*3.2;
-    for(let y=0;y<hgt;y++){const u=y/hgt;const sway=Math.sin(tt*.18+y*.45+li)*u*1.6+Math.sin(tt*.07)*u*.8;const ww=Math.max(0,w*(1-u*u)*(1+.15*Math.sin(tt*.3+y)));
-      if(ww<.4)continue;g.fillRect(Math.round(cx-ww/2+sway),by-y-li*.6,Math.max(1,Math.round(ww)),1)}}
-  // chispas
-  for(let k=0;k<3;k++){const p=((tt*.6+k*37)%60)/60;g.fillStyle=`rgba(255,220,140,${1-p})`;g.fillRect(Math.round(cx+Math.sin(k*2+tt*.05)*4),Math.round(by-14-p*18),1,1)}
-  // velita
-  g.fillStyle='#e8e0d0';g.fillRect(cx-3,by+1,6,7);g.fillStyle='#c8bca8';g.fillRect(cx+1,by+1,2,7);g.fillStyle='#3a3058';g.fillRect(cx,by-1,1,2);g.restore()}
-function draw(){t++;g.imageSmoothingEnabled=false;g.clearRect(0,0,Wd,Ht);g.drawImage(frame,0,0);
-  g.fillStyle='#6a5a8a';g.font='italic 8px Georgia';g.textAlign='center';g.fillText('Para ti',Wd/2,34);
-  for(let i=0;i<5;i++)strip(i,i<have);
-  g.fillStyle='#8a7aa0';g.font='7px Georgia';g.fillText(have+' / 5',Wd/2,232);
-  if(have===5){doneT++;const a=Math.min(1,doneT/40);g.globalAlpha=a;flame(Wd/2,240,t);g.globalAlpha=1}
+  for(let li=0;li<4;li++){const [w,col]=L[li];g.fillStyle=col;const hgt=15-li*3.1;
+    for(let y=0;y<hgt;y++){const u=y/hgt,sway=Math.sin(tt*.18+y*.45+li)*u*1.5+Math.sin(tt*.07)*u*.8,ww=w*(1-u*u)*(1+.15*Math.sin(tt*.3+y));if(ww<.5)continue;
+      g.fillRect(Math.round(cx/s-ww/2+sway)*s,Math.round(by/s-y-li*.6)*s,Math.max(1,Math.round(ww))*s,s)}}
+  for(let k=0;k<3;k++){const p=((tt*.6+k*37)%60)/60;g.fillStyle=`rgba(255,220,140,${1-p})`;g.fillRect(Math.round(cx/s+Math.sin(k*2+tt*.05)*4)*s,Math.round(by/s-14-p*18)*s,s,s)}
+  g.fillStyle='#e8e0d0';g.fillRect(cx-3*s,by+s,6*s,7*s);g.fillStyle='#c8bca8';g.fillRect(cx+s,by+s,2*s,7*s);g.fillStyle='#3a3058';g.fillRect(cx,by-s,s,2*s)}
+
+function draw(){t++;g.imageSmoothingEnabled=false;const nb=notebook(),n=have.reduce((a,b)=>a+b,0);
+  // página izquierda: notas de Haru
+  g.textAlign='left';g.fillStyle='#4a3a5a';g.font='italic 600 26px Georgia,serif';g.fillText('La carta',nb.x0+70,nb.y0+42);
+  g.font='italic 15px Georgia,serif';g.fillStyle='#7a6a8a';g.fillText('Pedazos: '+n+' / 5',nb.x0+70,nb.y0+66);
+  let ly=nb.y0+102;for(let k=0;k<5;k++){g.fillStyle=have[k]?'#3a3058':'rgba(90,80,110,.45)';g.font=(have[k]?'italic 16px ':'16px ')+'Georgia,serif';
+    const txt=have[k]?NOTES[k]:'· · ·';const words=txt.split(' ');let line='',yy=ly;const maxW=nb.mid-nb.x0-110;
+    g.fillText((k+1)+'.',nb.x0+70,yy);for(const w of words){const tst=line?line+' '+w:w;if(g.measureText(tst).width>maxW){g.fillText(line,nb.x0+92,yy);line=w;yy+=22}else line=tst}g.fillText(line,nb.x0+92,yy);ly=yy+40}
+  // página derecha: pedazos pegados
+  const sc=Math.min((nb.y1-nb.y0-40)/(LH*P),(nb.x1-nb.mid-60)/(LW*P)),lw=LW*P*sc,lh=LH*P*sc,lx=nb.mid+(nb.x1-nb.mid)/2-lw/2-(n===5?30:0),ly0=nb.y0+(nb.y1-nb.y0-lh)/2;
+  for(let k=0;k<5;k++){if(!have[k])continue;const p=PIECES[k],s=STUCK[k];if(s.dx==null){const ox=p.cx-LW*P/2,oy=p.cy-LH*P/2,L=Math.hypot(ox,oy)||1;s.dx=ox/L*9+(k%2?2:-2);s.dy=oy/L*9}g.save();g.translate(lx+p.cx*sc+s.dx,ly0+p.cy*sc+s.dy);g.rotate(s.r);g.scale(sc,sc);
+    g.drawImage(p.sh,-p.cx+5,-p.cy+6);g.drawImage(p.c,-p.cx,-p.cy);
+    for(const [tu,tv,tr] of s.tape){g.save();g.translate(tu*LW*P-p.cx,tv*LH*P-p.cy);g.rotate(tr);g.fillStyle='rgba(240,226,180,.62)';g.fillRect(-26,-9,52,18);g.fillStyle='rgba(255,255,255,.25)';g.fillRect(-26,-9,52,3);g.restore()}
+    g.restore()}
+  if(n===0){g.textAlign='center';g.fillStyle='rgba(90,80,110,.5)';g.font='italic 18px Georgia,serif';g.fillText('(aquí pegaré los pedazos que encuentre)',lx+lw/2,ly0+lh/2)}
+  if(n===5){doneT++;g.globalAlpha=Math.min(1,doneT/50);flame(lx+lw+52,ly0+lh-30,t,3);g.globalAlpha=1}
+  g.textAlign='right';g.font='13px Georgia,serif';g.fillStyle='rgba(255,255,255,.35)';g.fillText('maqueta · toca para cambiar',CW-20,CH-2);
   requestAnimationFrame(draw)}
-document.querySelectorAll('#ui button').forEach(b=>b.onclick=()=>{have=+b.dataset.n;doneT=0});
 draw();
 </script></body></html>
