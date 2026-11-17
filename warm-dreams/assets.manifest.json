@@ -101,5 +101,8 @@
     "callejon_dia_alt": "3a42e5fa-6cdf-4f38-9f38-0e454687effd",
     "callejon_noche": "7862a1a9-cfd7-416b-8407-100d07e2d31e",
     "metodo": "Tramo completo 16:9 (edificios conectados) con style_asset_ids=deptos; noche por edit; archivos en assets.local/tramos y assets.local/noche/tramoCallejon.png"
+  },
+  "props_nuevos": {
+    "bambu": "6e495db7-4152-4c86-bff3-495ef1a1721a"
   }
 }

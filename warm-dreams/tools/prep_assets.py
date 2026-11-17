@@ -196,7 +196,7 @@ def main():
     trees = {}
     for key, f, h_units in [('a', 'fase0/cerezo_a.png', 84), ('b', 'fase0/cerezo_b.png', 84),
                             ('lloron', 'fase1/cerezo_lloron.png', 80), ('joven', 'fase1/cerezo_joven.png', 74),
-                            ('sagrado', 'fase0/sagrado_b.png', 112)]:
+                            ('sagrado', 'fase0/sagrado_b.png', 112), ('bambu', 'props/bambu.png', 58)]:
         im = load(f); im = im.crop(bbox(im)); im = harden(fit_h(im, h_units * K))
         trees[key] = {'src': b64(im), 'w': im.width / K, 'h': h_units}
     A['trees'] = trees

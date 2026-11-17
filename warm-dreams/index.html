@@ -604,7 +604,7 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
     if(WA.buildings.casaMori){zone(428,552);bld('casaMori',437);const d=Bs.doors.find(d=>d.x===465),it=Bs.inter.find(i=>i.type==='door'&&i.target&&i.target.scene==='house');
       if(d){d.x=460;d.y=130;d.w=14;d.h=20}if(it){it.x=467;it.dx=467}}
     const tramoC=WA.buildings.tramoCallejon;
-    if(tramoC){zone(574,832);bld('tramoCallejon',580);const ai=Bs.inter.find(i=>i.type==='alley');if(ai)ai.x=693;
+    if(tramoC){zone(574,832);bld('tramoCallejon',580);if(WA.trees&&WA.trees.bambu)tree(675,150,100,10,0,'leaf','#4a3a30','bambu');const ai=Bs.inter.find(i=>i.type==='alley');if(ai)ai.x=693;
       for(const y of [59,82,104,126]){O(714,y,88);Bs.drips.push({x:715,y:y+2},{x:800,y:y+2})}}
     if(WA.buildings.casaC&&!tramoC){zone(576,680);bld('casaC',580)}
     if(WA.buildings.callejonEntrada&&!tramoC){zone(676,714);bld('callejonEntrada',678);const ai=Bs.inter.find(i=>i.type==='alley');if(ai)ai.x=696}
