@@ -632,7 +632,8 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
       const lim=new Image();lim.onload=()=>{Ls.clearRect(LX+4,150,lg.w-8,30);Ls.imageSmoothingEnabled=true;Ls.drawImage(lim,LX,top,lg.w,lg.h);B_._dirty={l:true,e:true}};lim.src=lg.src;
       for(let u=Math.floor(lg.x0);u<lg.x1;u+=2){const r=lg.rail[u+1]??lg.rail[u];if(r==null)continue;const y=Math.round(top+r+8);if(y<150)S(LX+u,y,2,150-y,1)}
       LT(LX+9,top+50,26,'warm',.7);OUT.lake={x0:LX,x1:LX+lg.w,wy:top+73};
-      const tn=WA.tunel,TX=LX+lg.w-3;zone(TX,TX+tn.w-6,150);const tim=new Image();tim.onload=()=>{Ls.imageSmoothingEnabled=true;Ls.drawImage(tim,TX,150-tn.h,tn.w,tn.h);B_._dirty={l:true,e:true}};tim.src=tn.src;OUT.tunnelX=TX;
+      const ld=WA.ladera,HX=LX+lg.w-16;if(WA.trees&&WA.trees.lloron)tree(LX+lg.w-6,150,90,20,0,'sakura',0,'lloron');OUT.tunnelX=2598;const lad=new Image();lad.onload=()=>{const go=()=>{Ls.imageSmoothingEnabled=true;Ls.drawImage(lad,HX,150-ld.h,ld.w,ld.h);
+        for(let i=0;i<6;i++){const x=2600+i*16,y=146-i*4;Ls.fillStyle='#9a9aa4';Ls.fillRect(x,y,16,150-y);Ls.fillStyle='#bdbdc6';Ls.fillRect(x,y,16,1);Ls.fillStyle='#85858f';Ls.fillRect(x,y+1,1,150-y)}B_._dirty={l:true,e:true}};if(lim.complete)go();else lim.addEventListener('load',()=>setTimeout(go,0))};lad.src=ld.src;
     }
 
     if(WA.buildings.alaA&&WA.buildings.centro&&WA.buildings.alaAm){zone(1265,1971);

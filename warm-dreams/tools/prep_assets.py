@@ -378,6 +378,7 @@ def main():
     A['deco'] = D
     # ---- lago con puente y túnel
     src = load('lago/lago_b.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
+    _a = np.asarray(im).copy(); _w, _h = im.width, im.height; _a[:int(_h * .5), int(_w * .9):, 3] = 0; im = Image.fromarray(_a, 'RGBA')
     a_ = np.asarray(im).astype(int); red = (a_[..., 0] > 140) & (a_[..., 1] < 95) & (a_[..., 2] < 90) & (a_[..., 3] > 200)
     W_ = im.width; top = np.full(W_, -1)
     for x in range(W_):
@@ -395,9 +396,10 @@ def main():
     redrows = np.where(red[:, x0:x0 + 6 * K].any(axis=1))[0]
     deckEnd = round(float(redrows.max()) / K, 1)
     A['lago'] = {'src': b64(im), 'w': W_ / K, 'h': 95, 'rail': prof, 'x0': round(x0 / K, 1), 'x1': round(x1 / K, 1), 'deckEnd': deckEnd}
-    src = load('lago/tunel.png'); im = fit_h(src.crop(bbox(src)), 96 * K)
-    A['tunel'] = {'src': b64(im), 'w': im.width / K, 'h': 96}
-    print('  lago w', W_ / K, 'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'tunel w', A['tunel']['w'])
+    A.pop('tunel', None)
+    src = load('lago/ladera.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
+    A['ladera'] = {'src': b64(im), 'w': im.width / K, 'h': 95}
+    print('  lago w', W_ / K, 'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])
     print('  cruce', X['cruce']['w'], 'vagon', X['vagon']['w'], 'cabina', X['cabina']['w'])
 
     open(path, 'w').write('window.WD_ASSETS=' + json.dumps(A) + ';')
