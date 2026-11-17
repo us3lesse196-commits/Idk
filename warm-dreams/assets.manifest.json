@@ -26,5 +26,13 @@
       "uso": "templo de la Colina del Santuario",
       "proceso": "raw -> BOX 190, recorte"
     }
+  },
+  "fase0_guia_estilo": {
+    "modelo": "gpt-image-2.5-flare medium 1K (usar raw_url, reducir con BOX)",
+    "edificio_tienda_cafe": "996e6f9f-2e17-4bba-a2bf-a9f210140b63",
+    "edificio_tienda_cafe_luces": "86dbdf7b-e895-429e-9127-482556e875ba",
+    "cerezo": "dd1eabe4-e0a7-4f3b-88bd-8cb6f9b26ab3",
+    "montanas": "f76266c5-dfa9-4e96-b131-6994ad9e934d",
+    "boton": "e9111570-162c-4a13-86f9-67248719ddcd"
   }
 }
