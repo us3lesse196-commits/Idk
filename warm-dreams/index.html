@@ -1208,6 +1208,7 @@ function drawFar(sc){const cam=sc.name+'|'+camX.toFixed(2)+'|'+camY.toFixed(2)+'
   RAW(ctx);ctx.drawImage(farCC,0,0);XF(ctx)}
 const FARN={};if(window.WD_ASSETS&&WD_ASSETS.far)for(const k in WD_ASSETS.far){const d=WD_ASSETS.far[k],im=new Image();im.onload=()=>{const c=mk(im.width,im.height);c.getContext('2d').drawImage(im,0,0);c.lw=d.lw;c.lh=d.lh;FARN[k]=c};im.src=d.src}
 function tileX(img,ox,iw,ih,gy,n0){for(let x=ox,k=0;x<OW;x+=iw,k++){const X=Math.round(x);if((n0+k)&1){ctx.save();ctx.translate(X+iw,0);ctx.scale(-1,1);ctx.drawImage(img,0,gy-ih,iw,ih);ctx.restore()}else ctx.drawImage(img,X,gy-ih,iw,ih)}}
+const FOREST={};if(window.WD_ASSETS&&WD_ASSETS.santuario&&WD_ASSETS.santuario.bosque){const d=WD_ASSETS.santuario.bosque,im=new Image();im.onload=()=>{const c=mk(im.width,im.height);c.getContext('2d').drawImage(im,0,0);FOREST.c=c;FOREST.im=im;FOREST.w=d.w;FOREST.h=d.h};im.src=d.src}
 function drawFar_(sc){const N=sky.night,town=sc===OUT?clamp((2050-camX)/250,0,1):1,shr=sc===OUT?clamp((camX-1900)/250,0,1):0,lo=lampsOn();
   const NF=FARN,useN=NF.montanas&&NF.cordillera&&NF.colinas&&NF.ciudad;const LAY=useN?[[NF.montanas,.015,.08,.1,0,-2],[NF.cordillera,.03,.16,.14,0,0],[NF.colinas,.06,.26,.12,0,4],[NF.ciudad,.2,.4,.16,1,10],...(NF.barrio?[[NF.barrio,.34,.3,.08,1,6]]:[])]:[[FAR.fuji,.015,.1,.5,0,-10],[FAR.r1,.03,.2,.46,0,0],[FAR.r2,.06,.34,.4,0,0],[FAR.r3,.1,.46,.32,0,0],[FAR.town,.2,.5,.34,1,8],[FAR.sakura,.3,.45,.2,2,8]];
   ID(ctx);for(const [im,f,d,a0,zone,off] of LAY){const za=zone===0?1:zone===1?town:shr;if(za<.02)continue;if(zone===2&&sc.interior)continue;
@@ -1311,7 +1312,9 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   const N=sky.night,lo=lampsOn();let _t=performance.now();const tick_=n=>{const q=performance.now();DIAG.add(n,q-_t);_t=q};
   ctx=tgt;for(const c of [tgt,wctx,actx,lctx,tctx]){c.globalAlpha=1;c.globalCompositeOperation='source-over';XF(c)}tctx.imageSmoothingEnabled=false;
   if(sc.parallax||sc.alleySky){drawSky();if(sc.parallax)drawBirds()}else{ctx.fillStyle='#000';ctx.fillRect(0,0,W,H)}
-  if(sc.parallax&&!OFF.far){drawFar(sc);drawParallax()}tick_('cielo y fondos');
+  if(sc.parallax&&!OFF.far){drawFar(sc);drawParallax()}
+  if(sc===OUT&&FOREST.im&&camX+W>2690){const fw=FOREST.w,fh=FOREST.h,x0=2690-camX,sh=(camX-2400)*.15,N=sky.night,col=mix(mix(sky.hor,sky.dark,.55),[10,14,30],N*.5),a=clamp(.12+N*.62+st.rain*.2,0,.9),img=a>.03?tintCache(FOREST.c,col,a,'atop'):FOREST.c;
+    ctx.save();ctx.beginPath();ctx.rect(x0,-40,9999,200);ctx.clip();ctx.imageSmoothingEnabled=true;for(let x=x0+sh-fw*Math.ceil(sh/fw+1);x<W;x+=fw)if(x+fw>x0)ctx.drawImage(img,x,128-fh,fw,fh);ctx.restore()}tick_('cielo y fondos');
   if(!sc.interior&&st.rain>.04&&!OFF.rain){const n=Math.round(90*st.rain*[.3,.6,1][Q]);ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.4),.32);ctx.lineWidth=.5;ctx.beginPath();for(let i=0;i<n;i++){const sp=2.6+(i%5)*.45,x=((i*61.7-camX*.5+st.time*st.wind*1.1)%(W+40)+W+40)%(W+40)-20,y=(i*37.3+st.time*sp)%190;ctx.moveTo(x,y);ctx.lineTo(x-st.wind*1.1,y-3.5)}ctx.stroke()}
   if(sc.interior&&rain.length){ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.55),.6);ctx.lineWidth=.5;ctx.beginPath();for(const d of rain){const x=d.x-camX+.5;ctx.moveTo(x,d.y);ctx.lineTo(x-st.wind*1.6*d.l/4,d.y-d.l)}ctx.stroke()}
   // mundo

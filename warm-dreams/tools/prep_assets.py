@@ -414,6 +414,8 @@ def main():
     yy, xx = np.mgrid[0:h_, 0:w_]; front = (xx < w_ * .58) | (yy < h_ * .16)
     fr[..., 3] = np.where(front, fr[..., 3], 0)
     S_['toriiP'] = {'src': b64(im), 'front': b64(Image.fromarray(fr, 'RGBA')), 'w': w_ / K, 'h': 48}
+    im = load('santuario/bosque.png').convert('RGB'); hh = 140 * K; im = im.resize((round(im.width * hh / im.height), hh), Image.BOX)
+    S_['bosque'] = {'src': b64(im), 'w': im.width / K, 'h': 140}
     A['santuario'] = S_
     src = load('lago/ladera.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
     A['ladera'] = {'src': b64(im), 'w': im.width / K, 'h': 95}
