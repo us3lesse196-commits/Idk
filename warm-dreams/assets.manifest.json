@@ -100,9 +100,16 @@
     "callejon_dia": "3053ccc6-46a4-4f47-9457-4825ca522d98",
     "callejon_dia_alt": "3a42e5fa-6cdf-4f38-9f38-0e454687effd",
     "callejon_noche": "7862a1a9-cfd7-416b-8407-100d07e2d31e",
-    "metodo": "Tramo completo 16:9 (edificios conectados) con style_asset_ids=deptos; noche por edit; archivos en assets.local/tramos y assets.local/noche/tramoCallejon.png"
+    "metodo": "Tramo completo 16:9 (edificios conectados) con style_asset_ids=deptos; noche por edit; archivos en assets.local/tramos y assets.local/noche/tramoCallejon.png",
+    "s1_cafe_dagashiya": "2b1f9b87-9a1e-4602-8f88-052a307d653f",
+    "s1_noche": "8565ddd9-60dd-458d-bdb6-aec7b50bf3eb",
+    "s2_casa_jardin": "ac25bc91-4f70-4c3b-89c8-0fcfe65c2792",
+    "s2_noche": "9d1029b6-b261-4354-a2c6-7d6dae854115",
+    "s3_casa_mori": "76c30a50-6ca9-42c0-b81d-5a40bf891f75",
+    "s3_noche": "0b3e36c2-cf0e-44b8-a8ee-3e18efdac4af"
   },
   "props_nuevos": {
-    "bambu": "6e495db7-4152-4c86-bff3-495ef1a1721a"
+    "bambu": "6e495db7-4152-4c86-bff3-495ef1a1721a",
+    "arce": "5bfcd8c6-0618-4d21-9922-c24ef29af397"
   }
 }

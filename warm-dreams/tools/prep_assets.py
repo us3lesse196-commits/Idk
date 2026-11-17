@@ -196,7 +196,7 @@ def main():
     trees = {}
     for key, f, h_units in [('a', 'fase0/cerezo_a.png', 84), ('b', 'fase0/cerezo_b.png', 84),
                             ('lloron', 'fase1/cerezo_lloron.png', 80), ('joven', 'fase1/cerezo_joven.png', 74),
-                            ('sagrado', 'fase0/sagrado_b.png', 112), ('bambu', 'props/bambu.png', 58)]:
+                            ('sagrado', 'fase0/sagrado_b.png', 112), ('bambu', 'props/bambu.png', 58), ('arce', 'props/arce.png', 46)]:
         im = load(f); im = im.crop(bbox(im)); im = harden(fit_h(im, h_units * K))
         trees[key] = {'src': b64(im), 'w': im.width / K, 'h': h_units}
     A['trees'] = trees
@@ -280,12 +280,12 @@ def main():
         A['buildings'][name] = e
 
     # ---- tramos pintados de una vez (edificios conectados)
-    for name, f, hu in [('tramoCallejon', 'tramos/callejon_a.png', 128)]:
+    for name, f, hu in [('tramoCallejon', 'tramos/callejon_a.png', 128), ('tramoS1', 'tramos/s1.png', 80), ('tramoS2', 'tramos/s2.png', 75), ('tramoS3', 'tramos/s3.png', 72)]:
         src = load(f); im = harden(fit_h(src.crop(bbox(src)), hu * K), 100)
         A['buildings'][name] = {'src': b64(im), 'w': round(im.width / K * 2), 'h': hu * 2, 'lights': []}
 
     # ---- versiones de noche con luces encendidas (interiores reales)
-    NIGHT = {'tramoCallejon': ('tramos/callejon_a.png', 128), 'tiendaCafe': ('fase0/edificio.png', 72), 'dagashiya': ('fase2/dagashiya_sq.png', 70), 'casaN': ('fase2/casaN_sq.png', 76),
+    NIGHT = {'tramoCallejon': ('tramos/callejon_a.png', 128), 'tramoS1': ('tramos/s1.png', 80), 'tramoS2': ('tramos/s2.png', 75), 'tramoS3': ('tramos/s3.png', 72), 'tiendaCafe': ('fase0/edificio.png', 72), 'dagashiya': ('fase2/dagashiya_sq.png', 70), 'casaN': ('fase2/casaN_sq.png', 76),
              'casaMori': ('fase2/casaMori.png', 64), 'casaC': ('fase2/casaC.png', 38), 'deptos': ('fase2/deptos.png', 104),
              'callejonEntrada': ('fase3/callejonEntrada.png', 60)}
     for name, (f, hu) in NIGHT.items():
