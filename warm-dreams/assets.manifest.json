@@ -81,6 +81,9 @@
     "ala_subida": "64b600ac-54b9-4721-868e-2911e4e191b0",
     "ala_luces": "38ee8788-e639-4be1-8611-0d6d38a544a0",
     "centro_subida": "859329ed-824b-4ed6-bac1-b29741a4048b",
-    "centro_luces": "2fb87639-f9cd-4c2f-b63d-b56fc6127f6d"
+    "centro_luces": "2fb87639-f9cd-4c2f-b63d-b56fc6127f6d",
+    "ala_noche_encendida": "7f37bffe-6d32-425c-845d-a9df4942356e",
+    "centro_noche_encendida": "abe2eb15-f8f3-40f3-9bfb-7c66d81003cb",
+    "metodo_luz": "Versión de noche con luces encendidas (edit sobre la subida), alineada por bordes (align_night) y usada solo donde brilla (lit_from_night)."
   }
 }

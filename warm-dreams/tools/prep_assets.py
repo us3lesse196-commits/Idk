@@ -7,7 +7,7 @@ Las imágenes se guardan a 3 px por unidad para verse nítidas.
 Uso: python3 -I tools/prep_assets.py
 """
 import base64, io, json, os, sys
-from PIL import Image
+from PIL import Image, ImageFilter
 import numpy as np
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets.local')
@@ -76,6 +76,45 @@ def register(src_rgba, light_rgb):
     out.paste(big, (ox, oy))
     print('  alineado: escala %.3f  dx %d  dy %d' % (sc, round(dx / k), round(dy / k)))
     return out
+
+
+def align_night(day_rgba, night_rgba):
+    """Alinea la versión de noche (luces encendidas) con la de día comparando bordes."""
+    W, H = day_rgba.size; S = 360; k = S / max(W, H); sw, sh = round(W * k), round(H * k)
+    def edges(im, w, h):
+        g = np.asarray(im.convert('L').resize((w, h), Image.BOX)).astype(float)
+        e = np.abs(np.diff(g, axis=0, prepend=g[:1])) + np.abs(np.diff(g, axis=1, prepend=g[:, :1]))
+        return e / (e.mean() + 1e-6)
+    D = edges(day_rgba, sw, sh)
+    night_full = night_rgba.convert('RGBA').resize((W, H), Image.BOX)
+    best = (-1e9, 1.0, 0, 0)
+    for sc in np.linspace(0.9, 1.1, 41):
+        lw, lh = round(sw * sc), round(sh * sc); N = edges(night_full, lw, lh)
+        for dx in range(-16, 17):
+            for dy in range(-16, 17):
+                ox = (sw - lw) // 2 + dx; oy = (sh - lh) // 2 + dy
+                x0, y0 = max(0, ox), max(0, oy); x1, y1 = min(sw, ox + lw), min(sh, oy + lh)
+                if x1 - x0 < sw * .8 or y1 - y0 < sh * .8: continue
+                sc_ = (N[y0 - oy:y1 - oy, x0 - ox:x1 - ox] * D[y0:y1, x0:x1]).mean()
+                if sc_ > best[0]: best = (sc_, sc, dx, dy)
+    _, sc, dx, dy = best
+    lw, lh = round(W * sc), round(H * sc)
+    out = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    out.paste(night_full.resize((lw, lh), Image.BOX), ((W - lw) // 2 + round(dx / k), (H - lh) // 2 + round(dy / k)))
+    print('  noche alineada: escala %.3f dx %d dy %d' % (sc, round(dx / k), round(dy / k)))
+    return out
+
+
+def lit_from_night(day_crop, night_crop):
+    """Capa emisiva = píxeles de la versión encendida donde brilla (interiores, faroles), con borde suave."""
+    n = np.asarray(night_crop).astype(float); d = np.asarray(day_crop).astype(float)
+    lum = (n[..., 0] * 3 + n[..., 1] * 6 + n[..., 2]) / 10
+    warmth = n[..., 0] - n[..., 2]
+    m = np.clip((lum - 95) / 70, 0, 1) * np.clip((warmth + 40) / 60, 0.35, 1)
+    m = np.asarray(Image.fromarray((m * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.8))).astype(float) / 255
+    m = m * (d[..., 3] > 0)
+    out = np.dstack([n[..., :3], m * 245]).astype(np.uint8)
+    return Image.fromarray(out, 'RGBA')
 
 
 def light_layer(img_rgb, box, size):
@@ -222,12 +261,11 @@ def main():
         A['buildings'][name] = e
 
     # ---- fase 3: prepa y entrada del callejón (luces calculadas por código)
-    for name, f, lf, hu in [('alaA', 'fase3/alaA_up.png', 'fase3/alaA_luces.png', 75), ('alaAm', 'fase3/alaA_up.png', 'fase3/alaA_luces.png', 75),
-                            ('centro', 'fase3/centro_up.png', 'fase3/centro_luces.png', 75)]:
+    for name, f, nf, hu in [('alaA', 'fase3/alaA_up.png', 'fase3/alaA_noche.png', 75), ('alaAm', 'fase3/alaA_up.png', 'fase3/alaA_noche.png', 75),
+                            ('centro', 'fase3/centro_up.png', 'fase3/centro_noche.png', 75)]:
         src = load(f); box = bbox(src); im = harden(fit_h(src.crop(box), hu * K), 100)
-        L = register(src, Image.open(os.path.join(ROOT, lf)))
-        lit = light_layer(L, box, im.size)
-        la = np.asarray(lit).copy(); la[..., 3] = np.where(np.asarray(im)[..., 3] > 0, la[..., 3], 0); lit = Image.fromarray(la, 'RGBA')
+        night = align_night(src, Image.open(os.path.join(ROOT, nf)))
+        lit = lit_from_night(im, fit_h(night.crop(box), hu * K).resize(im.size, Image.BOX))
         if name.endswith('m'): im = im.transpose(Image.FLIP_LEFT_RIGHT); lit = lit.transpose(Image.FLIP_LEFT_RIGHT)
         A['buildings'][name] = {'src': b64(im), 'glow': b64(lit), 'w': round(im.width / K * 2), 'h': hu * 2, 'lights': blobs(lit, 2 / K)}
     for k in ('alaB', 'torre', 'shop', 'house', 'cafe'): A['buildings'].pop(k, None)
