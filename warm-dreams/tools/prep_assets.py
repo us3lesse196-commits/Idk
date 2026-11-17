@@ -416,7 +416,6 @@ def main():
     S_['toriiP'] = {'src': b64(im), 'front': b64(Image.fromarray(fr, 'RGBA')), 'w': w_ / K, 'h': 48}
     A['santuario'] = S_
     src = load('lago/ladera.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
-    _l = np.asarray(im).copy(); _w = _l.shape[1]; _f = np.clip((_w - np.arange(_w)) / (_w * .14), 0, 1); _l[..., 3] = (_l[..., 3] * _f[None, :]).astype(np.uint8); im = Image.fromarray(_l, 'RGBA')
     A['ladera'] = {'src': b64(im), 'w': im.width / K, 'h': 95}
     print('  lago w', W_ / K, 'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])
     print('  cruce', X['cruce']['w'], 'vagon', X['vagon']['w'], 'cabina', X['cabina']['w'])

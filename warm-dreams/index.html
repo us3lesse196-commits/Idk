@@ -639,7 +639,7 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
     }
     if(WA.santuario){const SN=WA.santuario;zone(2700,3198,126);zone(3228,3300,126);
       {const d=SN.muro,im=new Image();im.onload=()=>{Ls.save();Ls.beginPath();Ls.rect(2496,150,200,30);Ls.clip();Ls.clearRect(2496,150,200,30);Ls.imageSmoothingEnabled=true;for(let x=2496;x<2696;x+=d.w)Ls.drawImage(im,Math.floor(x),148,d.w+.5,d.h);Ls.restore();Ls.save();Ls.beginPath();Ls.rect(2696,126,604,54);Ls.clip();Ls.imageSmoothingEnabled=true;for(let x=2696;x<3300;x+=d.w)Ls.drawImage(im,Math.floor(x),126,d.w+.5,d.h);Ls.restore();B_._dirty={l:true,e:true}};im.src=d.src}
-      const ld_=s=>new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.src=s});const bgT=[['cedro',2846],['cedro',3128],['pino',3000],['cedro',2690],['cedro',2714]];
+      const ld_=s=>new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.src=s});const bgT=[['cedro',2846],['cedro',3128],['pino',3000]];
       Promise.all([...bgT.map(t=>ld_(WA.trees[t[0]].src)),ld_(SN.haiden.src),ld_(SN.haiden.glow)]).then(ims=>{Ls.imageSmoothingEnabled=true;Es.imageSmoothingEnabled=true;
         bgT.forEach((t,i)=>{const d=WA.trees[t[0]];Ls.globalAlpha=.92;Ls.drawImage(ims[i],t[1]-d.w/2,126-d.h,d.w,d.h);Ls.globalAlpha=1;Es.save();Es.globalCompositeOperation='destination-out';Es.drawImage(ims[i],t[1]-d.w/2,126-d.h,d.w,d.h);Es.restore()});
         const H_=SN.haiden,hx=2935-H_.w/2,hy=126-H_.h;Ls.drawImage(ims[3],hx,hy,H_.w,H_.h);Es.drawImage(ims[4],hx,hy,H_.w,H_.h);roof(ims[3],hx,Math.round(H_.w*Z),Math.round(H_.h*Z),hy,hx+3,hx+H_.w-3);B_._dirty={l:true,e:true}});
@@ -649,8 +649,8 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
         const im=new Image(),fi=new Image();const ent={c:mk(1,1),ox:tx-T.w/2,oy:tb-T.h,GW:T.w,GH:T.h,ph:0,k:ZL,stiff:0};Bs.treeSpr.push(ent);im.onload=()=>{const c2=mk(Math.round(T.w*ZL),Math.round(T.h*ZL));c2.getContext('2d').drawImage(im,0,0,c2.width,c2.height);ent.c=c2};im.src=T.src;
         fi.onload=()=>{const c2=mk(Math.round(T.w*ZL),Math.round(T.h*ZL));c2.getContext('2d').drawImage(fi,0,0,c2.width,c2.height);(Bs.fronts||(Bs.fronts=[])).push({c:c2,x:tx-T.w/2,y:tb-T.h,w:T.w,h:T.h})};fi.src=T.front}deco('temizuya',2826,0,126);deco('kitsuneR',2890,0,126);deco('kitsuneL',2980,0,126);deco('ema',3014,0,126);deco('omikuji',3036,0,126);
       for(const bx of [3238,3262,3286])deco('barandal',bx,0,126);
-      tree(2724,126,80,10,0,'leaf','#4a3a30','arceRojo');tree(3172,126,60,10,0,'leaf','#4a3a30','pino');
-      deco('juncos',2336,.6,176);deco('boj',2342,.2,172);deco('juncos',2499,.6,176);deco('boj',2492,.2,172);
+      tree(2700,126,80,10,0,'leaf','#4a3a30','cedro');tree(2664,126,80,10,0,'leaf','#4a3a30','pino');tree(2686,126,80,10,0,'leaf','#4a3a30','cedro');tree(2730,126,80,10,0,'leaf','#4a3a30','arceRojo');deco('bambuMaceta',2676,.5,127);deco('azalea',2706,.3,127);tree(3172,126,60,10,0,'leaf','#4a3a30','pino');
+      deco('juncos',2336,.6,176);deco('boj',2342,.2,172);deco('juncos',2499,.6,176);deco('boj',2492,.2,172);deco('boj',2503,.25,151);deco('azalea',2512,.3,151);deco('hierba',2496,.6,151);deco('pampas',2520,.7,151);
     }
 
     if(WA.buildings.alaA&&WA.buildings.centro&&WA.buildings.alaAm){zone(1265,1971);
