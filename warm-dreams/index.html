@@ -785,7 +785,7 @@ if(CI)(()=>{const LW=262,B_=B,Ls=L,Es=E;const top=150-(980*.13);
   R(L,292,146,46,4,'#9a9aa4');R(L,296,138,12,8,'#7a5236');R(L,297,140,4,2,'#c0505a');R(L,302,140,4,2,'#3a3a44');
   R(L,316,128,18,22,'#6a4e3a');R(L,318,130,14,20,'#d8cfb8');for(let y=133;y<150;y+=5)R(L,318,y,14,1,'#b8ae98');
   door(318,130,14,20,'#d8cfb8',{scene:'out'},'Salir');
-  // --- cuarto de Haru (70-200 arriba): cama, escritorio, ventana, repisa
+  // --- cuarto de Angel (70-200 arriba): cama, escritorio, ventana, repisa
   const w2={x:120,y:78,w:22,h:14,fy:106};R(L,w2.x-2,w2.y-2,w2.w+4,w2.h+4,'#7a5a42');L.clearRect(w2.x,w2.y,w2.w,w2.h);R(L,w2.x+10,w2.y,2,w2.h,'#7a5a42');
   R(L,w2.x-3,w2.y+w2.h+2,w2.w+6,2,WOOD);B.windows.push(w2);
   R(L,76,99,30,4,'#7a5236');R(L,77,96,28,3,'#e8e4f0');R(L,77,95,8,2,'#ffffff');R(L,86,96,19,3,'#5a7ac0');R(L,77,103,2,3,'#5a3a26');R(L,103,103,2,3,'#5a3a26');O(76,96,30);
@@ -868,8 +868,8 @@ const found={koi:0,fox:0,cat:0};
     t0:a+(r()-.5)*.04,t1:b+(r()-.5)*.04,umb:r()<.65,ucol:['#e05a6a','#5aa0e0','#f2d36b','#ffffff','#7ad08a','#b08ae0'][Math.floor(r()*6)],a:0,ph:r()*10,shelter:null,
     hair:['#2a2135','#3a2a22','#5a4030','#1e1a24'][Math.floor(r()*4)],y:150,var:r()});
   OUT.npcs.push({kind:'cat',x:1215,y:150,dir:1,sp:0,fixed:1,a:1,outdoor:1});
-  // Aoi, la importante
-  OUT.npcs.push({kind:'aoi',x:1462,y:150,dir:-1,sp:0,a:1,fixed:1,important:1,name:'Aoi'});
+  // Maju, la importante
+  OUT.npcs.push({kind:'aoi',x:1462,y:150,dir:-1,sp:0,a:1,fixed:1,important:1,name:'Maju'});
   // conserje de la prepa y gato de la cafetería (pedazos 2 y 5)
   OUT.npcs.push({kind:'janitor',x:1616,y:150,dir:1,sp:0,fixed:1,a:0,var:.5});
   OUT.npcs.push({kind:'cat',x:60,y:150,dir:1,sp:0,fixed:1,a:0,street:1});
@@ -1279,16 +1279,18 @@ function drawParallax(){const far=mix(mix(sky.hor,sky.mid,.45),sky.dark,.18),cit
       ctx.fillStyle=lo>.1?`rgba(255,232,170,${.5+lo*.5})`:css(mix(tc,[70,90,120],.6));for(let q=3;q<47;q+=5.5)ctx.fillRect(cx+q,ty+2,4,3)}ctx.globalAlpha=1}
   const fg=ctx.createLinearGradient(0,95,0,150);fg.addColorStop(0,css(sky.hor,0));fg.addColorStop(1,css(sky.hor,.35+st.rain*.25));ctx.fillStyle=fg;ctx.fillRect(0,95,W,55);drawMist(false)}
 
-// Haru con sprites de SpriteCook (sentado y de espaldas siguen con el dibujo por código)
-const HS={};function haruSpr(c,p,cx,by,f){// cx,by en px de pantalla (Z por unidad)
-const d=window.WD_ASSETS&&WD_ASSETS.haru,a=p.anim;if(!d||p.back||a==='sit')return false;
-  if(!HS.ok){if(!HS.ld){HS.ld=1;let n=0;for(const k of['idle','walk','run','jump']){const im=new Image();im.onload=()=>{if(++n===4)HS.ok=1};im.src=d[k].src;HS[k]=im}}return false}
+// Angel con sprites de SpriteCook (sentado y de espaldas siguen con el dibujo por código)
+// Personajes de SpriteCook: d={ax,by,fw,u,<anim>:{src,n,fw,u,fps}} (ax/fw en px a K por unidad)
+const SPI=new Map();function sprImg(src){let im=SPI.get(src);if(!im){im=new Image();im.onload=()=>im.ok=1;im.src=src;SPI.set(src,im)}return im.ok?im:null}
+function chrDraw(c,d,k,fr,ox,oy,flip,alpha){const s=d[k],im=s&&sprImg(s.src);if(!im)return false;fr=((fr%s.n)+s.n)%s.n;const U=s.u*Z,dx=(s.fw/2+d.ax-d.fw/2)/s.fw*U;
+  c.save();c.globalAlpha=alpha;c.imageSmoothingEnabled=false;c.translate(ox,0);if(flip)c.scale(-1,1);c.drawImage(im,fr*s.fw,0,s.fw,s.fw,-dx,oy-U+d.by*Z+1,U,U);c.restore();return true}
+// Angel (protagonista). Sentado y de espaldas siguen con el dibujo por código
+function haruSpr(c,p,cx,by,f){const d=window.WD_ASSETS&&WD_ASSETS.haru,a=p.anim;if(!d||p.back||a==='sit')return false;
   const sp=p.auto?p.auto.sp:Math.abs(p.vx);let k='idle',fr=0;
-  if(a==='run'){k=sp<1.25?'walk':'run';fr=Math.floor(p.animT*d[k].fps/60)}
+  if(a==='run'){k=sp<1.25||!d.run?'walk':'run';fr=Math.floor(p.animT*d[k].fps/60)}
   else if(a==='jump')fr=p.vy<-.8?3:4,k='jump';else if(a==='fall'||a==='wall')fr=p.vy<.8?4:5,k='jump';
   else if(a==='crouch'||a==='slide')k='jump',fr=1;else fr=Math.floor(p.animT*d.idle.fps/60);
-  fr%=d[k].n;const u=d.u,fw=d.fw;c.save();c.globalAlpha=p.alpha;c.imageSmoothingEnabled=false;c.translate(cx,0);if(f<0)c.scale(-1,1);
-  const U=u*Z;c.drawImage(HS[k],fr*fw,0,fw,fw,-d.ax/fw*U,by-U+1,U,U);c.restore();return true}
+  return chrDraw(c,d,k,fr,cx,by,f<0,p.alpha)}
 function drawPlayer(c){const p=player;if(p.alpha<=0)return;const cx=Math.round(p.x+p.w/2-camX),by=Math.round(p.y+p.h-(p.lift||0)),f=p.facing;
   const P=(dx,dy,w,h,col)=>{c.fillStyle=col;c.fillRect(f>0?cx+dx:cx-dx-w,by+dy,w,h)};c.globalAlpha=p.alpha;
   const SK='#f3c6a0',SKs='#dba07c',HA='#2a2135',SH='#f6f3ec',SHs='#c5c7d8',PA='#2a3150',PAs='#1f2540',SO='#f1ebe2',SOs='#77748a',BP='#d4553f',BPs='#9a3a2c',PH='#3a3a48';
@@ -1313,11 +1315,9 @@ function drawPlayer(c){const p=player;if(p.alpha<=0)return;const cx=Math.round(p
   c.globalAlpha=1}
 const HUM={student:1,office:1,granny:1,kid:1,dog:1,jogger:1,aoi:1,janitor:1};
 // NPC con sprites de SpriteCook (una variante por tipo; cuadro 0 de caminar = reposo)
-const NS={};function npcSpr(c,n,ox,oy,flip){const D=window.WD_ASSETS&&WD_ASSETS.npc,d=D&&D[n.kind];if(!d)return false;
-  let im=NS[n.kind];if(!im){im=NS[n.kind]=new Image();im.onload=()=>im.ok=1;im.src=d.src}if(!im.ok)return false;
-  const fr=n.walking?Math.floor((n.ph||0)*(n.kind==='granny'?.1:.16))%d.n:0,fw=d.fw,U=d.u*Z;
-  c.save();c.globalAlpha=n.a;c.imageSmoothingEnabled=false;c.translate(ox,0);if(flip)c.scale(-1,1);
-  c.drawImage(im,fr*fw,0,fw,fw,-d.ax/fw*U,oy-U+d.by*Z+1,U,U);c.restore();return true}
+function npcSpr(c,n,ox,oy,flip){const D=window.WD_ASSETS&&WD_ASSETS.npc,d=D&&D[n.kind];if(!d)return false;
+  if(n.walking)return chrDraw(c,d,'walk',Math.floor((n.ph||0)*(n.kind==='granny'?.1:.16)),ox,oy,flip,n.a);
+  return d.idle?chrDraw(c,d,'idle',Math.floor((st.time+(n.var||0)*90)*d.idle.fps/60),ox,oy,flip,n.a):chrDraw(c,d,'walk',0,ox,oy,flip,n.a)}
 function npcVariant(n){const k=n.kind,v=n.var||0;return k==='aoi'?'aoi':k==='janitor'?'office':k==='office'?(v<.4?'officeF':'office'):k==='granny'?'granny':k==='jogger'?'jogger':k==='kid'?'kid':k==='dog'?'walker':v<.3?'girl':v<.55?'girl2':v<.8?'boy':'boy2'}
 function drawNPC(c,n){if(n.a<.02)return;
   if(useSpr()&&HUM[n.kind]){if(n.kind==='dog'){const sx=Math.round(n.x-camX),by=Math.round(n.y),f=n.dir||1,step=n.walking?Math.round(Math.sin(n.ph*.2)*1.5):0;if(sx<-20||sx>W+20)return;c.globalAlpha=n.a;
@@ -1656,20 +1656,20 @@ function aoiLines(){const L=[],n=pzCount();
   L.push(n===0?'¿Ya encontraste algún pedazo de esa carta? Tiene que estar por algún lado.':n<5?'Ya llevas '+n+' de 5 pedazos. ¡Vas muy bien!':'¿La completaste? No me digas qué dice... hay cosas que son solo para una persona.');
   L.push(st.rain>.3?'Me quedo aquí hasta que pare la lluvia. Me gusta su sonido.':'Me gusta leer bajo los cerezos a esta hora.');return L}
 let talkDone=null;
-function startTalk(n){talkOpen=true;player.state='talk';lines=aoiLines().map(t=>({who:'Aoi',text:t}));li=0;talkDone=()=>{player.state='play'};talkEl.hidden=false;n.dir=player.x<n.x?-1:1;showLine()}
+function startTalk(n){talkOpen=true;player.state='talk';lines=aoiLines().map(t=>({who:'Maju',text:t}));li=0;talkDone=()=>{player.state='play'};talkEl.hidden=false;n.dir=player.x<n.x?-1:1;showLine()}
 function sayLines(arr){return new Promise(res=>{talkOpen=true;lines=arr;li=0;talkDone=res;talkEl.hidden=false;showLine()})}
 function showLine(){typed=0;clearInterval(typeTimer);const L=lines[li],s=talkEl.querySelector('.say');talkEl.querySelector('.who').textContent=L.who;drawPortrait(talkEl.querySelector('.face'),L.who);
   s.style.fontStyle=L.text.startsWith('(')?'italic':'normal';s.textContent='';typeTimer=setInterval(()=>{typed++;s.textContent=L.text.slice(0,typed);if(typed%3===0)talkBlip(L.who);if(typed>=L.text.length)clearInterval(typeTimer)},24)}
 talkEl.addEventListener('click',advanceTalk);
 function advanceTalk(){if(!talkOpen||!lines[li])return;const L=lines[li];if(typed<L.text.length){typed=L.text.length;clearInterval(typeTimer);talkEl.querySelector('.say').textContent=L.text;return}li++;if(li>=lines.length){talkEl.hidden=true;talkOpen=false;const d=talkDone;talkDone=null;if(d)d();return}showLine()}
-function talkBlip(who){if(!AC||!soundOn)return;const now=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=who==='Aoi'?620+Math.random()*60:who==='Haru'?420+Math.random()*40:900;
+function talkBlip(who){if(!AC||!soundOn)return;const now=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=who==='Maju'?620+Math.random()*60:who==='Angel'?420+Math.random()*40:900;
   g.gain.setValueAtTime(.025,now);g.gain.exponentialRampToValueAtTime(.0001,now+.05);o.connect(g);g.connect(sfxOut);o.start(now);o.stop(now+.06)}
 function drawPortrait(c,who){const g=c.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,64,64);g.imageSmoothingEnabled=false;
   g.setTransform(2,0,0,2,0,0);const P=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h)};
-  const bg=g.createLinearGradient(0,0,0,32);bg.addColorStop(0,who==='Aoi'?'#5a3a5a':who==='Haru'?'#3a3a5e':'#1d3a4a');bg.addColorStop(1,'#1d1733');g.fillStyle=bg;g.fillRect(0,0,32,32);
+  const bg=g.createLinearGradient(0,0,0,32);bg.addColorStop(0,who==='Maju'?'#5a3a5a':who==='Angel'?'#3a3a5e':'#1d3a4a');bg.addColorStop(1,'#1d1733');g.fillStyle=bg;g.fillRect(0,0,32,32);
   if(who==='Kitsune'){P(8,14,16,10,'#9ffff0');P(10,8,4,7,'#9ffff0');P(18,8,4,7,'#9ffff0');P(11,10,2,4,'#4fc8d8');P(19,10,2,4,'#4fc8d8');P(12,17,2,2,'#1d4a5a');P(18,17,2,2,'#1d4a5a');P(15,21,2,1,'#4fc8d8');P(6,22,20,10,'#c8fff6');return}
   const SK='#f3c6a0',SKs='#dba07c';
-  if(who==='Aoi'){P(6,6,20,26,'#3a2230');P(9,8,14,16,SK);P(9,22,14,2,SKs);P(8,5,16,6,'#3a2230');P(8,10,3,14,'#3a2230');P(21,10,3,14,'#3a2230');P(11,10,10,2,'#4a2a3a');
+  if(who==='Maju'){P(6,6,20,26,'#3a2230');P(9,8,14,16,SK);P(9,22,14,2,SKs);P(8,5,16,6,'#3a2230');P(8,10,3,14,'#3a2230');P(21,10,3,14,'#3a2230');P(11,10,10,2,'#4a2a3a');
     P(12,15,3,3,'#2a1e26');P(18,15,3,3,'#2a1e26');P(13,15,1,1,'#fff');P(19,15,1,1,'#fff');P(11,19,2,1,'#f08f88');P(20,19,2,1,'#f08f88');P(15,20,3,1,'#c0606a');
     P(7,25,18,7,'#f6f3ec');P(7,25,18,2,'#2a3466');P(10,27,4,3,'#2a3466');P(18,27,4,3,'#2a3466');P(14,27,4,3,'#e0455a');P(24,7,2,2,'#ff8fa3')}
   else{P(9,8,14,16,SK);P(9,22,14,2,SKs);P(7,5,18,6,'#2a2135');P(7,9,3,10,'#2a2135');P(22,9,2,6,'#2a2135');P(13,9,4,3,'#2a2135');P(19,9,2,2,'#2a2135');
@@ -1767,19 +1767,19 @@ async function prologueIntro(){
   $('#title').classList.remove('show');bell();await wait(150);
   for(let i=0;i<30;i++){player.alpha=i/29;await wait(1)}}
 async function prologueRest(){
-  {const d=st.dayT,night=d>.8||d<.22;await sayLines([T('Haru',night?'(Otra vez se me hizo de noche... el barrio se ve distinto a esta hora.)':d>.62?'(Otra vez me quedé hasta el atardecer... el barrio se ve distinto a esta hora.)':'(Por fin salí de la prepa... el barrio se ve tranquilo a esta hora.)')])}
+  {const d=st.dayT,night=d>.8||d<.22;await sayLines([T('Angel',night?'(Otra vez se me hizo de noche... el barrio se ve distinto a esta hora.)':d>.62?'(Otra vez me quedé hasta el atardecer... el barrio se ve distinto a esta hora.)':'(Por fin salí de la prepa... el barrio se ve tranquilo a esta hora.)')])}
   st.wind=-1.8;for(let i=0;i<70;i++)leaves.push({x:1500+(Math.random()-.5)*50,y:80+Math.random()*30,vy:.25+Math.random()*.2,ph:Math.random()*6,col:Math.random()<.5?'#ffe2ea':'#f4c4d4',land:0});
   await wait(40);cine.book={x:1500,y:88,vy:0};player.facing=1;chime();
   await waitUntil(()=>cine.book&&cine.book.landed);for(let i=0;i<24;i++)sparks.push({x:cine.book.x,y:cine.book.y-2,vx:(Math.random()-.5)*1.4,vy:-Math.random()*1.2,life:50,col:'gold'});
-  await wait(40);await sayLines([T('Haru','¿Un cuaderno? Cayó del cerezo... y está brillando.')]);
+  await wait(40);await sayLines([T('Angel','¿Un cuaderno? Cayó del cerezo... y está brillando.')]);
   await walkTo(Math.round(cine.book.x)-8,.6);player.pose='crouch';await wait(36);cine.book=null;chime();
   for(let i=0;i<30;i++)sparks.push({x:player.x+4,y:player.y,vx:(Math.random()-.5)*1.6,vy:-Math.random()*1.5,life:60,col:'gold'});player.pose=null;await wait(40);
   cine.aoi={x:1530,a:1,face:-1};await wait(10);player.facing=1;await waitUntil(()=>{const n=OUT.npcs.find(n=>n.kind==='aoi');return n&&!n.walking});
-  await sayLines([T('Aoi','¡Oye! ¿Tú también viste esa luz? Salió del cerezo.'),T('Haru','Cayó este cuaderno. Parece muy viejo.'),
-    T('Aoi','Déjame ver... casi todas las páginas están vacías. Menos esta: dice "La carta"... pero solo quedan marcas de cinta.'),
-    T('Aoi','Como si alguien hubiera pegado una carta aquí... y se hubiera roto en pedazos.'),
-    T('Haru','(Es extraño. Siento que tengo que encontrar esos pedazos... todos.)'),
-    T('Aoi','Si encuentras algo, cuéntame. Estaré aquí bajo el cerezo. Me encantan los misterios.')]);
+  await sayLines([T('Maju','¡Oye! ¿Tú también viste esa luz? Salió del cerezo.'),T('Angel','Cayó este cuaderno. Parece muy viejo.'),
+    T('Maju','Déjame ver... casi todas las páginas están vacías. Menos esta: dice "La carta"... pero solo quedan marcas de cinta.'),
+    T('Maju','Como si alguien hubiera pegado una carta aquí... y se hubiera roto en pedazos.'),
+    T('Angel','(Es extraño. Siento que tengo que encontrar esos pedazos... todos.)'),
+    T('Maju','Si encuentras algo, cuéntame. Estaré aquí bajo el cerezo. Me encantan los misterios.')]);
   cine.aoi={x:1462,a:1,face:1};await wait(60);
   save.prologue=1;writeSave();cineEnd();toast('✦ Conseguiste el cuaderno · tócalo arriba para ver la carta');
 }
@@ -1787,12 +1787,12 @@ let endingRun=false;
 async function ending(){endingRun=true;cineStart();cine.fox={a:0};fox.x=2930;fox.y=126;fox.tx=null;fox.dir=-1;fox.hide=0;st.weather=0;st.auroraForce=1;
   cine.camX=2840-W/2;await walkTo(2800,.7);player.facing=1;await wait(30);
   cine.fox.a=1;for(let i=0;i<30;i++)sparks.push({x:fox.x+6,y:fox.y-6,vx:(Math.random()-.5)*1.4,vy:-Math.random()*1.4,life:60,col:'cyan'});chime();await wait(70);
-  await sayLines([T('Haru','...Eres tú. El guardián blanco de la colina.'),T('Kitsune','( . . . )')]);
+  await sayLines([T('Angel','...Eres tú. El guardián blanco de la colina.'),T('Kitsune','( . . . )')]);
   fox.tx=2752;await waitUntil(()=>Math.abs(fox.x-2752)<1);fox.dir=1;await wait(30);
   cine.camX=2760-W/2;await walkTo(2790,.6);player.facing=-1;
   for(let i=0;i<60;i++){cine.aur=1+i/60*1.2;await wait(1)}
   for(let k=0;k<3;k++){chime();for(let i=0;i<26;i++)sparks.push({x:player.x+4,y:player.y+4,vx:(Math.random()-.5)*1.8,vy:-Math.random()*1.6,life:70,col:'gold'});await wait(50)}
-  await sayLines([T('Haru','(Las páginas... se están dibujando solas.)'),T('Haru','(¿Esto es lo que querías mostrarme?)')]);
+  await sayLines([T('Angel','(Las páginas... se están dibujando solas.)'),T('Angel','(¿Esto es lo que querías mostrarme?)')]);
   fox.tx=2700;await wait(70);for(let i=0;i<40;i++)sparks.push({x:fox.x+6,y:fox.y-6,vx:(Math.random()-.5)*2,vy:-Math.random()*2,life:70,col:'cyan'});cine.fox.a=0;
   cine.fadeCol=[255,250,240];cine.fadeK=.012;cine.fadeT=1;await wait(110);
   const tt=$('#title');tt.querySelector('h1').textContent='Continuará...';tt.querySelector('p').textContent='Fin de la demo de Warm Dreams · gracias por jugar';tt.style.color='#3b2f3f';tt.classList.add('show');
@@ -1830,7 +1830,7 @@ let newArm=0;$('#mNew').addEventListener('pointerup',e=>{e.stopPropagation();if(
   try{localStorage.removeItem(SAVE_KEY)}catch(err){}location.reload()});
 $('#mSet').addEventListener('pointerup',e=>{e.stopPropagation();wake();startEl.style.visibility='hidden';$('#btnSet').click()});
 $('#setClose').addEventListener('click',()=>{if(menu)startEl.style.visibility=''});
-// escena del menú: Haru sentado en la banca (la del cerezo la primera vez, si no la última que usó)
+// escena del menú: Angel sentado en la banca (la del cerezo la primera vez, si no la última que usó)
 let menu=true;const mNotes=[];
 function menuScene(){const b=save.bench||{scene:'out',x:1443};let sc=SCENES[b.scene]||OUT,it=sc.inter.find(i=>i.type==='bench'&&Math.abs(i.x-b.x)<2);
   if(!it){sc=OUT;it=OUT.inter.find(i=>i.type==='bench'&&Math.abs(i.x-1443)<2)}goScene(sc.name,it.x,1);const p=player;p.state='sit';p.sitAt=it;p.x=it.x-4;p.y=(it.y||150)-16;p.vx=0;p.facing=1;

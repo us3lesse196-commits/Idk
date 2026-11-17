@@ -444,30 +444,31 @@ def main():
     A['casaInt'] = {'src': b64(im), 'glow': b64(lit_from_night(im, nim)), 'w': im.width / K2, 'h': im.height / K2}
     src = load('lago/ladera.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
     A['ladera'] = {'src': b64(im), 'w': im.width / K, 'h': 95}
-    # ---- Haru (hojas de animación de SpriteCook, cuadros de 202 px con los pies abajo)
-    HU = 18 / 185  # unidades por px de origen (Haru mide ~18 unidades, como los NPC)
-    FW = round(202 * HU * K); H_ = {'fw': FW, 'u': FW / K}
-    i0 = load('chars/haru_idle.png').crop((0, 0, 202, 202)); b0 = bbox(i0)
-    H_['ax'] = round((b0[0] + b0[2]) / 2 * HU * K)  # ancla x (centro del cuerpo) en px del cuadro
-    for nm, fps in [('idle', 6), ('walk', 10), ('run', 14), ('jump', 10)]:
-        sh = load('chars/haru_%s.png' % nm); n = sh.width // 202; out = Image.new('RGBA', (FW * n, FW))
-        for j in range(n):
-            fr = sh.crop((j * 202, 0, j * 202 + 202, 202)).resize((FW, FW), Image.LANCZOS)
-            out.paste(harden(fr, 110), (j * FW, 0))
-        H_[nm] = {'src': b64(out), 'n': n, 'fps': fps}
-    A['haru'] = H_
-    # ---- NPC (solo caminar; el cuadro 0 sirve de reposo). alto en unidades del juego
-    NP = {}
-    for nm, hu in [('student', 17), ('office', 18.5), ('granny', 15), ('janitor', 18)]:
-        f = os.path.join(ROOT, 'chars/npc_%s_walk.png' % nm)
-        if not os.path.exists(f): continue
-        sh = load('chars/npc_%s_walk.png' % nm); fh = sh.height; n = sh.width // fh
-        b = bbox(sh.crop((0, 0, fh, fh))); s_ = hu * K / (b[3] - b[1]); FW = round(fh * s_)
-        out = Image.new('RGBA', (FW * n, FW))
+    # ---- personajes de SpriteCook: hojas horizontales de cuadros cuadrados con los pies abajo
+    def sheet(path, s_):
+        sh = load(path); fh = sh.height; n = sh.width // fh; FW = round(fh * s_); out = Image.new('RGBA', (FW * n, FW))
         for j in range(n):
             fr = sh.crop((j * fh, 0, j * fh + fh, fh)).resize((FW, FW), Image.LANCZOS)
             out.paste(harden(fr, 110), (j * FW, 0))
-        NP[nm] = {'src': b64(out), 'n': n, 'fw': FW, 'u': FW / K, 'ax': (b[0] + b[2]) / 2 * s_, 'by': (fh - b[3]) * s_ / K}
+        return {'src': b64(out), 'n': n, 'fw': FW, 'u': FW / K}
+
+    def char(pre, anims, hu):
+        """pre: prefijo de archivo; anims: [(nombre, fps)]; hu: alto en unidades (medido en el 1er cuadro del 1er anim)."""
+        sh = load('chars/%s_%s.png' % (pre, anims[0][0])); fh = sh.height
+        b = bbox(sh.crop((0, 0, fh, fh))); s_ = hu * K / (b[3] - b[1])
+        d = {'ax': (b[0] + b[2]) / 2 * s_, 'by': (fh - b[3]) * s_ / K}
+        for nm, fps in anims:
+            if os.path.exists(os.path.join(ROOT, 'chars/%s_%s.png' % (pre, nm))): d[nm] = dict(sheet('chars/%s_%s.png' % (pre, nm), s_), fps=fps)
+        d['fw'] = d[anims[0][0]]['fw']; d['u'] = d[anims[0][0]]['u']
+        return d
+
+    # Angel (protagonista; la clave 'haru' se conserva en el código)
+    A['haru'] = char('angel', [('idle', 6), ('walk', 10), ('run', 14), ('jump', 10)], 17)
+    # NPC: estudiante, oficinista, abuelita, conserje (solo caminar) y Maju (reposo + caminar)
+    NP = {}
+    for nm, hu in [('student', 17), ('office', 18.5), ('granny', 15), ('janitor', 18)]:
+        if os.path.exists(os.path.join(ROOT, 'chars/npc_%s_walk.png' % nm)): NP[nm] = char('npc_' + nm, [('walk', 8)], hu)
+    if os.path.exists(os.path.join(ROOT, 'chars/maju_walk.png')): NP['aoi'] = char('maju', [('idle', 6), ('walk', 8)], 15.5)
     A['npc'] = NP
     print('  haru fw', FW, 'ax', H_['ax'])
     print('  lago w', W_ / K,'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])
