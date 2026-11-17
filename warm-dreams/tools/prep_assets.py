@@ -498,7 +498,7 @@ def main():
     NP = {}
     for nm, hu in [('student', 17), ('office', 18.5), ('granny', 15), ('janitor', 18)]:
         if os.path.exists(os.path.join(ROOT, 'chars/npc_%s_walk.png' % nm)): NP[nm] = char('npc_' + nm, [('walk', 8)], hu)
-    if os.path.exists(os.path.join(ROOT, 'chars/maju_walk.png')): NP['aoi'] = char('maju', [('idle', 6), ('walk', 8)], 15.5)
+    if os.path.exists(os.path.join(ROOT, 'chars/maju_walk.png')): NP['aoi'] = char('maju', [('idle', 6), ('walk', 8)], 13.5)
     A['npc'] = NP
     # gatos (sprites fijos; respiran por código). alto en unidades
     CT = {}
