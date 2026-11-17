@@ -593,8 +593,8 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
         if(glow){const c=mk(w,h),g=c.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,w,h),q=d.data;for(let i=0;i<q.length;i+=4){if(!(q[i]>175&&q[i+1]>115&&q[i]>q[i+2]+60))q[i+3]=0}g.putImageData(d,0,0);Es.imageSmoothingEnabled=false;Es.drawImage(c,x,y,ww,hh)}};im.src=src};
     const recut=(x0,x1)=>{for(const t of Bs.treeSpr)if(t.k&&t.ox<x1&&t.ox+t.GW>x0){Es.save();Es.globalCompositeOperation='destination-out';Es.drawImage(t.c,t.ox,t.oy,t.GW,t.GH);Es.restore()}};
     const bld=(name,x,after)=>{const b=WA.buildings[name];if(!b)return;if(b.glow){const gi=new Image();gi.onload=()=>{const ww=b.w/Z,hh=b.h/Z,y=150-hh+.5;Es.imageSmoothingEnabled=false;Es.drawImage(gi,x,y,ww,hh);recut(x,x+ww);B_._dirty={l:true,e:true}};gi.src=b.glow}place(b.src,x,b.w,b.h,1,!b.glow,150,(im,y0)=>{roof(im,x,b.w,b.h,y0,x+2,x+b.w/Z-2);if(after)after()});const top=150-b.h/Z;
-      const ls=[...b.lights].sort((p,q)=>q[2]-p[2]),pick=[];for(const l of ls){if(pick.length>=5)break;if(pick.every(o=>Math.hypot(o[0]-l[0],o[1]-l[1])>16))pick.push(l)}
-      for(const [lx,ly,n] of pick)Bs.lights.push({x:x+lx/Z,y:top+ly/Z,r:clamp(14+n*.6,16,40),kind:'warm',s:.95});Bs.drips.push({x:x+2,y:top+6},{x:x+b.w/Z-2,y:top+6})};
+      const ls=[...b.lights].filter(l=>top+l[1]/Z>124).sort((p,q)=>q[2]-p[2]),pick=[];for(const l of ls){if(pick.length>=4)break;if(pick.every(o=>Math.hypot(o[0]-l[0],o[1]-l[1])>24))pick.push(l)}
+      for(const [lx,ly,n] of pick)Bs.lights.push({x:x+lx/Z,y:top+ly/Z,r:clamp(10+n*.15,10,22),kind:'warm',s:.6});Bs.drips.push({x:x+2,y:top+6},{x:x+b.w/Z-2,y:top+6})};
     const prop=(name,x,sc=1)=>{const p=WA.props[name];if(p)place(p.src,x,p.w,p.h,sc,name==='vending')};
     if(WA.buildings.tiendaCafe)bld('tiendaCafe',16);else bld('cafe',6);prop('vending',82);if(WA.buildings.dagashiya)bld('dagashiya',98);else bld('shop',96);prop('mailbox',173,.75);if(WA.buildings.casaN)bld('casaN',182);else bld('house',182);prop('bike',250);prop('trash',273);prop('plant',283,.85);prop('flower',295);prop('stop',305);prop('mirror',418);
     Bs.lights.push({x:88,y:132,r:22,kind:'cool',s:.9});
