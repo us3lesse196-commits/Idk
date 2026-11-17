@@ -51,5 +51,21 @@
       "cerezo_sagrado": "b",
       "cerezos": "a, b, lloron, joven"
     }
+  },
+  "fase2_calle": {
+    "casaMori": "cf8e54d4-70a3-4340-9e78-18de2874a2a9",
+    "casaMori_luces": "adfaa5be-99d2-4dbb-951d-136112bcd2de",
+    "casaC": "8ff40b5c-4dcd-467e-8d63-20a3d96312ee",
+    "casaC_luces": "3d2631b4-afc6-48b6-ae9e-6ce070d1ff27",
+    "deptos": "e930377e-7667-4afc-986f-27c494bf26e9",
+    "deptos_luces": "b308cd9a-c7af-4181-9956-8131cd5a7bbb",
+    "parada": "bb0ed327-9e74-48e4-bf93-0ba767c6562a",
+    "dagashiya": "76b78ce4-a0d3-4202-8c9e-1483356aa1b2",
+    "dagashiya_subida": "1d2c8538-a9f3-4b20-a245-302acf91f1b9",
+    "dagashiya_luces": "b634d04d-2b3e-4a6b-b8c6-4451110b2c2d",
+    "casa_neutra": "e5c5fd92-b7a9-4aab-bdf9-3cbaf32bda77",
+    "casa_neutra_subida": "1c772859-4b1c-4221-8ea1-aa21e41454c1",
+    "casa_neutra_luces": "beda0e8d-8ef2-4929-8f26-6ed19a1d7c61",
+    "nota": "Las imágenes de luces de dagashiya y casa neutra se hicieron sobre la versión subida (raw recortado y cuadrado) porque el editor deformaba la versión pixel."
   }
 }

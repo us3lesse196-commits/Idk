@@ -127,6 +127,24 @@ def main():
     A['buildings']['tiendaCafe'] = {'src': b64(im), 'glow': b64(lit), 'w': round(im.width / K * 2), 'h': hu * 2,
                                     'lights': blobs(lit, 2 / K)}
 
+    # ---- fase 2: calle
+    for name, f, lf, hu in [('dagashiya', 'fase2/dagashiya_sq.png', 'fase2/dagashiya_luces.png', 70),
+                            ('casaN', 'fase2/casaN_sq.png', 'fase2/casaN_luces.png', 76),
+                            ('casaMori', 'fase2/casaMori.png', 'fase2/casaMori_luces.png', 64),
+                            ('casaC', 'fase2/casaC.png', 'fase2/casaC_luces.png', 38),
+                            ('deptos', 'fase2/deptos.png', 'fase2/deptos_luces.png', 104),
+                            ('parada', 'fase2/parada.png', None, 34)]:
+        src = load(f); box = bbox(src); im = harden(fit_h(src.crop(box), hu * K), 100)
+        e = {'src': b64(im), 'w': round(im.width / K * 2), 'h': hu * 2, 'lights': []}
+        if lf:
+            L = Image.open(os.path.join(ROOT, lf)).convert('RGB').resize(src.size, Image.BOX)
+            lit = light_layer(L, box, im.size)
+            la = np.asarray(lit).copy(); la[..., 3] = np.where(np.asarray(im)[..., 3] > 0, la[..., 3], 0)
+            warm = (la[..., 0].astype(int) > la[..., 2].astype(int) + 25)
+            la[..., 3] = np.where(warm, la[..., 3], 0); lit = Image.fromarray(la, 'RGBA')
+            e['glow'] = b64(lit); e['lights'] = blobs(lit, 2 / K)
+        A['buildings'][name] = e
+
     open(path, 'w').write('window.WD_ASSETS=' + json.dumps(A) + ';')
     print('ok', {k: (list(v.keys()) if isinstance(v, dict) else len(v)) for k, v in A.items()},
           round(os.path.getsize(path) / 1024), 'KB')
