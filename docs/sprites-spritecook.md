@@ -39,3 +39,12 @@ Las imágenes generadas traen **la iluminación del atardecer pintada** (cielo c
 - Final: *"Building only, standing on a flat baseline, no ground, no sky, no people."*
 - Estilo: *"cozy lo-fi pixel art, … soft shading, 2D side-scroller game background asset"* (cambiar "warm lantern light" por la iluminación neutra del punto 1).
 - Cada imagen de referencia cuesta 8 créditos extra; si hay presupuesto, usar `style_asset_ids` con 1 o 2 edificios aprobados para mantener el estilo.
+
+## Proceso nuevo (desde la versión 3.0)
+- **Resolución:** el juego dibuja a 1.5x (360 px de alto). Las imágenes se guardan a **3 px por unidad** (`ZL=3`); el mapa (`levelC`/`emisC`) también va a 3 px por unidad.
+- **Estilo:** detallado y acogedor (lo-fi). Referencias de estilo propias en `assets.manifest.json` → `fase0_guia_estilo` (edificio tienda-cafetería, cerezos, montañas, botón).
+- **Modelo:** `gpt-image-2.5-flare`, calidad media, 1K cuadrado (8 créditos; 16:9 cuesta 14; cada imagen de referencia +8). Usar siempre `raw_url`.
+- **Luz inteligente:** cada edificio se genera con luz neutra y además una **imagen de luces** (`edit_asset_id`, fondo negro, solo lo que brilla). `tools/prep_assets.py` la convierte en capa emisiva (solo tonos cálidos) y calcula los puntos de luz.
+- **Fondos:** capas anchas (16:9) que el juego repite en espejo para que no se note la unión; el juego las tiñe según la hora (`tintCache`). La ciudad tiene su imagen de luces para la noche.
+- **Árboles:** un sprite por árbol; el juego los corta en franjas para mecerlos con el viento (`drawTrees_`). El Cerezo Sagrado se mece menos (`stiff`).
+- **Convertir:** `python3 -I warm-dreams/tools/prep_assets.py` lee `assets.local/fase*/` y actualiza `assets.local/assets.js`.

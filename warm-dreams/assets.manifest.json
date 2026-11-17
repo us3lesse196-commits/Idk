@@ -38,5 +38,18 @@
     "cerezo_v2_b": "79fa26fc-b391-41c2-baca-465b3b036ad2",
     "cerezo_sagrado_a": "a0ea0ad9-4973-4bd5-92aa-0ff82cee6cbf",
     "cerezo_sagrado_b": "a01b011f-49f4-44c1-a76e-c880f55417f3"
+  },
+  "fase1_fondos": {
+    "cerezo_lloron": "5f9c26f1-1e95-44c1-b8f9-062c7f4ea033",
+    "cerezo_joven": "bccd819a-7fda-4fc3-a04d-7b0ff23ac36a",
+    "cordillera": "0cbfe018-c8a1-412c-8288-c2bd62f5fcb4",
+    "colinas_pinos": "b7a0b9b5-6851-4267-8d06-bf5f96adff15",
+    "ciudad": "b4d8e94b-e4bb-4135-bfff-742bbfee0849",
+    "ciudad_luces": "eb9483ec-916a-49cf-aa83-a0d62390527f",
+    "nubes": "fcdd8cfb-fc9e-4656-85cc-232ec594b0d3",
+    "elegidos": {
+      "cerezo_sagrado": "b",
+      "cerezos": "a, b, lloron, joven"
+    }
   }
 }
