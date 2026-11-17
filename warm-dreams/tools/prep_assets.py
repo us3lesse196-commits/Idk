@@ -503,6 +503,18 @@ def main():
             im = load(f); im = im.crop(bbox(im, 60)); im = harden(fit_h(im, round(hu * K)), 110)
             CT[nm] = {'src': b64(im), 'w': im.width / K, 'h': im.height / K}
     A['cats'] = CT
+    # retratos de diálogo (bustos con expresiones), 200 px de alto
+    RT = {}
+    for who, exprs in [('angel', ['hablar', 'pensar', 'sorprendido', 'feliz']), ('maju', ['hablar', 'timida', 'sorprendida', 'feliz']), ('zorro', ['tranquilo', 'curioso'])]:
+        for ex in exprs:
+            f = 'retratos/%s_%s.png' % (who, ex)
+            if not os.path.exists(os.path.join(ROOT, f)): continue
+            im = load(f); im = im.crop(bbox(im, 60))
+            a_ = np.asarray(im)[..., 3] > 60; hh = int(im.height * .42); xs = np.where(a_[:hh].any(axis=0))[0]; head = xs.max() - xs.min() + 1
+            if ex == exprs[0]: ref_s = 200 / im.height; ref_head = head * ref_s  # el primero (base) fija la escala
+            s_ = ref_head / head; im = harden(im.resize((round(im.width * s_), round(im.height * s_)), Image.LANCZOS), 100)
+            RT.setdefault(who, {})[ex] = b64(im)
+    A['ret'] = RT
     if os.path.exists(os.path.join(ROOT, 'animals/koi.png')):
         im = load('animals/koi.png'); im = im.crop(bbox(im, 60)); w = round(9 * K); im = harden(im.resize((w, round(im.height * w / im.width)), Image.LANCZOS), 110)
         A['koi'] = {'src': b64(im), 'w': im.width / K, 'h': im.height / K}

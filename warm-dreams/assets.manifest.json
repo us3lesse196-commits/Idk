@@ -230,5 +230,24 @@
     },
     "koi": "144c0be0-f11a-4b32-9b5f-433b656ef74a",
     "archivos": "assets.local/animals/"
+  },
+  "retratos": {
+    "angel": {
+      "hablar": "7be2da93-955d-4a28-89cf-3cc1278f55bc",
+      "pensar": "d0073e77-92c1-4432-9140-3f76e3649cb3",
+      "sorprendido": "741c0576-a5da-4ed1-9583-255cb8a6a9b0 (usar raw_url)",
+      "feliz": "4afabe16-4fdc-4338-989a-f29b50c6827c"
+    },
+    "maju": {
+      "hablar": "b66aa7c6-9b8c-4b0c-ba93-8de31b19f134",
+      "timida": "4b3fc9b7-4fad-49e5-9227-98ada4114f20",
+      "sorprendida": "ceeb3b57-64e8-41c0-bc16-d0917ee9343e",
+      "feliz": "df3cea6c-be88-41f3-a6b3-b0b88482af52"
+    },
+    "zorro": {
+      "tranquilo": "130a0fbe-27e9-411c-b1c1-820f4fd11892",
+      "curioso": "552abf96-76af-4a15-ad1d-3f4560bc6ba1"
+    },
+    "archivos": "assets.local/retratos/<quien>_<expresion>.png"
   }
 }

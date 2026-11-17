@@ -81,6 +81,17 @@ body.seated #zone{display:none}
 #talk{display:flex;gap:12px;align-items:flex-start}
 #talk .face{width:56px;height:56px;flex:none;image-rendering:pixelated;background:#2a2240;border:2px solid var(--edge);border-radius:2px}
 #talk .tx{flex:1;min-width:0}
+#talk .bust{display:none}
+body.ret #talk{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);width:min(600px,calc(100vw - 300px));min-width:min(420px,calc(100vw - 24px));padding:16px 18px 10px;overflow:visible;
+  background:linear-gradient(#2c2040,#1b1530);border:3px solid #c9a46a;border-radius:8px;box-shadow:inset 0 0 0 2px #4b3358,0 6px 0 rgba(0,0,0,.45)}
+body.ret #talk .face{display:none}
+body.ret #talk .who{position:absolute;top:-15px;left:14px;margin:0;padding:3px 12px 2px;background:#3a2850;border:2px solid #c9a46a;border-radius:4px;color:#ffd79a;font-size:11px;letter-spacing:.2em;box-shadow:0 2px 0 rgba(0,0,0,.4)}
+body.ret #talk .bust{display:block;position:absolute;bottom:calc(100% - 14px);height:150px;image-rendering:pixelated;pointer-events:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.35));transition:transform .18s}
+body.ret #talk .bust.r{right:8px}body.ret #talk .bust.l{left:auto;right:8px;transform:scaleX(-1)}
+body.ret #talk .bust.pop{transform:translateY(3px)}body.ret #talk .bust.l.pop{transform:scaleX(-1) translateY(3px)}
+body.ret #talk .bust[hidden]{display:none}
+body.ret #talk .tx{padding-right:min(120px,22vw)}
+body.talking .pad{opacity:0;pointer-events:none;transition:opacity .25s}
 #title{position:fixed;inset:0;z-index:8;display:grid;place-items:center;pointer-events:none;opacity:0;transition:opacity 2.2s ease;text-align:center;padding:0 16px}
 #title.show{opacity:1}
 #title h1{font-size:clamp(34px,8vw,66px);letter-spacing:.06em;margin:0;font-weight:600;text-shadow:0 3px 0 #7a3555,0 0 24px rgba(20,10,40,.75)}
@@ -226,7 +237,7 @@ body.ui2 #zone{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <div class="credits">Arte, música y efectos hechos para <b>Warm Dreams</b>.</div>
 </div>
 <pre id="diag" hidden></pre><div id="diagT" hidden></div>
-<div id="talk" hidden><canvas class="face" width="64" height="64"></canvas><div class="tx"><div class="who"></div><div class="say"></div><div class="more">Toca para seguir ▸</div></div></div>
+<div id="talk" hidden><img class="bust" alt=""><canvas class="face" width="64" height="64"></canvas><div class="tx"><div class="who"></div><div class="say"></div><div class="more">Toca para seguir ▸</div></div></div>
 
 <div class="sheet" id="music" hidden role="dialog" aria-label="Música">
   <h2>🎵 Música <button class="x" id="musicClose" type="button">Cerrar</button></h2>
@@ -1132,7 +1143,9 @@ function update(){st.time++;const p=player;
   updatePieces();
   if(scene===OUT&&cine.fox){fox.t++;if(fox.van){if(++fox.van>95){fox.van=0;fox.a=0}}else fox.a+=(cine.fox.a-fox.a)*.05;if(fox.tx!=null){const d=fox.tx-fox.x;if(Math.abs(d)>.6){fox.x+=Math.sign(d)*.6;fox.dir=Math.sign(d)}}}
   else if(scene===OUT){fox.t++;const fv=foxOn()&&fox.hide<=0?1:0;fox.paper=!save.letter[2]&&!save.drop3&&st.aurora>.35;if(fox.van){if(++fox.van>95){fox.van=0;fox.a=0}}else fox.a+=((fv&&fox.hide<=0?1:0)-fox.a)*.03;if(fox.hide>0)fox.hide--;
-    if(!fox.van&&fox.a>.4&&Math.abs(cx-fox.x-6)<26&&p.state==='play'){fox.hide=900;fox.van=FXS()?1:0;fox.dir=cx<fox.x+6?-1:1;for(let i=0;i<(fox.van?14:34);i++)sparks.push({x:fox.x+6,y:fox.y-5,vx:(Math.random()-.5)*1.6,vy:-Math.random()*1.6,life:50+Math.random()*30,col:'cyan'});if(fox.paper){save.drop3=1;save.p3x=Math.round(fox.x+6);fox.paper=false;writeSave();toast('El zorro dejó caer algo...')}}}
+    if(!fox.van&&!fox.talk&&fox.a>.4&&Math.abs(cx-fox.x-6)<26&&p.state==='play'&&!(fox.paper?save.foxMet:fox.metNP)){fox.talk=1;fox.dir=cx<fox.x+6?-1:1;p.state='talk';p.vx=0;p.facing=-fox.dir;const pp=fox.paper;
+      sayLines([T('Angel',pp?'...¿Un zorro blanco? Y lleva algo en la boca...':'...¿Un zorro blanco?','sorprendido'),T('Zorro','( . . . )','curioso')]).then(()=>{p.state='play';fox.talk=0;if(pp){save.foxMet=1;writeSave()}else fox.metNP=1;if(pp)setTimeout(()=>{if(player.state==='play'){player.state='talk';sayLines([T('Angel','(Dejó caer un papel...)','pensar')]).then(()=>{player.state='play'})}},1300)})}
+    if(!fox.van&&!fox.talk&&fox.a>.4&&Math.abs(cx-fox.x-6)<26&&p.state==='play'){fox.hide=900;fox.van=FXS()?1:0;fox.dir=cx<fox.x+6?-1:1;for(let i=0;i<(fox.van?14:34);i++)sparks.push({x:fox.x+6,y:fox.y-5,vx:(Math.random()-.5)*1.6,vy:-Math.random()*1.6,life:50+Math.random()*30,col:'cyan'});if(fox.paper){save.drop3=1;save.p3x=Math.round(fox.x+6);fox.paper=false;writeSave();toast('El zorro dejó caer algo...')}}}
   if(Math.random()<.06&&scene===OUT)sparks.push({x:2880+Math.random()*110,y:60+Math.random()*40,vx:(Math.random()-.5)*.1,vy:-.12-Math.random()*.15,life:70,col:'cyan',faint:1});
   for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.x+=s.vx;s.y+=s.vy;s.vx*=.98;s.vy*=.99;if(--s.life<=0)sparks.splice(i,1)}}
 
@@ -1671,12 +1684,20 @@ $('#thanks').addEventListener('click',()=>{$('#thanks').hidden=true});
 // diálogo
 const talkEl=$('#talk');let talkOpen=false,lines=[],li=0,typed=0,typeTimer=null;
 function aoiLines(){const L=[],n=pzCount();
-  L.push(n===0?'¿Ya encontraste algún pedazo de esa carta? Tiene que estar por algún lado.':n<5?'Ya llevas '+n+' de 5 pedazos. ¡Vas muy bien!':'¿La completaste? No me digas qué dice... hay cosas que son solo para una persona.');
-  L.push(st.rain>.3?'Me quedo aquí hasta que pare la lluvia. Me gusta su sonido.':'Me gusta leer bajo los cerezos a esta hora.');return L}
+  if(n===0)L.push(['¿...Ya encontraste alguno? No tienes que apurarte.','timida']);
+  else if(n<5){L.push(['Ya llevas '+n+'... gracias, Angel.','feliz']);L.push(['No los leas todavía... ¿sí?','timida'])}
+  else{L.push(['¿Ya... están todos?','sorprendida']);L.push(['Entonces... ya sabes lo que quería decirte. Es que... por escrito me sale mejor.','timida'])}
+  L.push(st.rain>.3?['Me quedo hasta que pare. Me gusta su sonido... y que estés aquí.','hablar']:['Me gusta esperar bajo los cerezos. Sobre todo si vas a venir tú.','feliz']);return L}
 let talkDone=null;
-function startTalk(n){talkOpen=true;player.state='talk';lines=aoiLines().map(t=>({who:'Maju',text:t}));li=0;talkDone=()=>{player.state='play'};talkEl.hidden=false;n.dir=player.x<n.x?-1:1;showLine()}
+function startTalk(n){talkOpen=true;player.state='talk';lines=aoiLines().map(([t,ex])=>({who:'Maju',text:t,ex}));li=0;talkDone=()=>{player.state='play'};talkEl.hidden=false;n.dir=player.x<n.x?-1:1;showLine()}
+// retratos de diálogo: Angel, Maju y el zorro con expresiones; los demás sin retrato
+const RET=window.WD_ASSETS&&WD_ASSETS.ret;if(RET)document.body.classList.add('ret');
+new MutationObserver(()=>document.body.classList.toggle('talking',!talkEl.hidden)).observe(talkEl,{attributes:true,attributeFilter:['hidden']});
+function setBust(L){const b=talkEl.querySelector('.bust');if(!RET)return;const k=L.who==='Angel'?'angel':L.who==='Maju'?'maju':(L.who==='Zorro'||L.who==='Kitsune')?'zorro':null,set=k&&RET[k];
+  if(!set){b.hidden=true;return}const ex=L.ex||(k==='zorro'?'tranquilo':k==='angel'&&L.text.startsWith('(')?'pensar':'hablar'),src=set[ex]||Object.values(set)[0];
+  b.hidden=false;b.className='bust '+(k==='angel'?'r':'l');if(b.getAttribute('src')!==src){b.onload=()=>{b.style.height=Math.round(b.naturalHeight*Math.min(.75,innerHeight*.38/200))+'px'};b.src=src;b.classList.add('pop');setTimeout(()=>b.classList.remove('pop'),120)}}
 function sayLines(arr){return new Promise(res=>{talkOpen=true;lines=arr;li=0;talkDone=res;talkEl.hidden=false;showLine()})}
-function showLine(){typed=0;clearInterval(typeTimer);const L=lines[li],s=talkEl.querySelector('.say');talkEl.querySelector('.who').textContent=L.who;drawPortrait(talkEl.querySelector('.face'),L.who);
+function showLine(){typed=0;clearInterval(typeTimer);const L=lines[li],s=talkEl.querySelector('.say');talkEl.querySelector('.who').textContent=L.who;drawPortrait(talkEl.querySelector('.face'),L.who);setBust(L);
   s.style.fontStyle=L.text.startsWith('(')?'italic':'normal';s.textContent='';typeTimer=setInterval(()=>{typed++;s.textContent=L.text.slice(0,typed);if(typed%3===0)talkBlip(L.who);if(typed>=L.text.length)clearInterval(typeTimer)},24)}
 talkEl.addEventListener('click',advanceTalk);
 function advanceTalk(){if(!talkOpen||!lines[li])return;const L=lines[li];if(typed<L.text.length){typed=L.text.length;clearInterval(typeTimer);talkEl.querySelector('.say').textContent=L.text;return}li++;if(li>=lines.length){talkEl.hidden=true;talkOpen=false;const d=talkDone;talkDone=null;if(d)d();return}showLine()}
@@ -1769,7 +1790,7 @@ function cineStart(){cine.on=true;document.body.classList.add('cine');player.sta
 function cineEnd(){cine.lbT=0;cine.pan=null;cine.camX=null;cine.aoi=null;cine.fox=null;cine.book=null;cine.aur=1;player.pose=null;player.alpha=1;player.state='play';document.body.classList.remove('cine');cine.on=false}
 function bell(){if(!AC)return;const now=AC.currentTime;[64,60,62,55,55,62,64,60].forEach((m,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=mf(m+12);const t=now+i*.55;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+1.6);o.connect(g);g.connect(sfxOut);g.connect(conv);o.start(t);o.stop(t+1.7)})}
-const T=(who,text)=>({who,text});
+const T=(who,text,ex)=>({who,text,ex});
 async function prologue(fromBench){
   if(fromBench){cineStart();player.phones=0;player.state='cine';cine.aoi={x:1700,a:0};{const n=OUT.npcs.find(n=>n.kind==='aoi');n.x=1700;n.a=0}cine.camX=1490-W/2;
     st.mode='normal';st.wxTimer=60*150;await wait(40)}
@@ -1785,19 +1806,22 @@ async function prologueIntro(){
   $('#title').classList.remove('show');bell();await wait(150);
   for(let i=0;i<30;i++){player.alpha=i/29;await wait(1)}}
 async function prologueRest(){
-  {const d=st.dayT,night=d>.8||d<.22;await sayLines([T('Angel',night?'(Otra vez se me hizo de noche... el barrio se ve distinto a esta hora.)':d>.62?'(Otra vez me quedé hasta el atardecer... el barrio se ve distinto a esta hora.)':'(Por fin salí de la prepa... el barrio se ve tranquilo a esta hora.)')])}
+  {const d=st.dayT,night=d>.8||d<.22;await sayLines([T('Angel',night||d>.62?'(Otra vez se me hizo tarde... Maju dijo que me esperaría por aquí.)':'(Por fin salí de la prepa... Maju dijo que me esperaría por aquí.)','pensar')])}
   st.wind=-1.8;for(let i=0;i<70;i++)leaves.push({x:1500+(Math.random()-.5)*50,y:80+Math.random()*30,vy:.25+Math.random()*.2,ph:Math.random()*6,col:Math.random()<.5?'#ffe2ea':'#f4c4d4',land:0});
   await wait(40);cine.book={x:1500,y:88,vy:0};player.facing=1;chime();
   await waitUntil(()=>cine.book&&cine.book.landed);for(let i=0;i<24;i++)sparks.push({x:cine.book.x,y:cine.book.y-2,vx:(Math.random()-.5)*1.4,vy:-Math.random()*1.2,life:50,col:'gold'});
-  await wait(40);await sayLines([T('Angel','¿Un cuaderno? Cayó del cerezo... y está brillando.')]);
+  await wait(40);await sayLines([T('Angel','¿Un cuaderno? Cayó del cerezo... y está brillando.','sorprendido')]);
   await walkTo(Math.round(cine.book.x)-8,.6);player.pose='crouch';await wait(36);cine.book=null;chime();
   for(let i=0;i<30;i++)sparks.push({x:player.x+4,y:player.y,vx:(Math.random()-.5)*1.6,vy:-Math.random()*1.5,life:60,col:'gold'});player.pose=null;await wait(40);
   cine.aoi={x:1530,a:1,face:-1};await wait(10);player.facing=1;await waitUntil(()=>{const n=OUT.npcs.find(n=>n.kind==='aoi');return n&&!n.walking});
-  await sayLines([T('Maju','¡Oye! ¿Tú también viste esa luz? Salió del cerezo.'),T('Angel','Cayó este cuaderno. Parece muy viejo.'),
-    T('Maju','Déjame ver... casi todas las páginas están vacías. Menos esta: dice "La carta"... pero solo quedan marcas de cinta.'),
-    T('Maju','Como si alguien hubiera pegado una carta aquí... y se hubiera roto en pedazos.'),
-    T('Angel','(Es extraño. Siento que tengo que encontrar esos pedazos... todos.)'),
-    T('Maju','Si encuentras algo, cuéntame. Estaré aquí bajo el cerezo. Me encantan los misterios.')]);
+  await sayLines([T('Maju','¡...! Eso... es mío.','sorprendida'),
+    T('Angel','¿Tuyo? Casi todas las páginas están vacías. Esta tiene marcas de cinta... como si aquí hubiera algo pegado.','hablar'),
+    T('Maju','Había... algo que hice. Lo pegué ahí. Pero el viento... se lo llevó en pedazos.','timida'),
+    T('Angel','¿Qué era?','hablar'),
+    T('Maju','...No te lo puedo decir. Todavía no.','timida'),
+    T('Maju','¿Me ayudas a encontrar los pedazos? Son cinco. Yo... te espero aquí, bajo el cerezo.','hablar'),
+    T('Angel','Claro. Los encontraré todos.','feliz'),
+    T('Angel','(Está más roja de lo normal... ¿qué será?)','pensar')]);
   cine.aoi={x:1462,a:1,face:1};await wait(60);
   save.prologue=1;writeSave();cineEnd();toast('✦ Conseguiste el cuaderno · tócalo arriba para ver la carta');
 }
@@ -1805,7 +1829,7 @@ let endingRun=false;
 async function ending(){endingRun=true;cineStart();cine.fox={a:0};fox.x=2930;fox.y=126;fox.tx=null;fox.dir=-1;fox.hide=0;st.weather=0;st.auroraForce=1;
   cine.camX=2840-W/2;await walkTo(2800,.7);player.facing=1;await wait(30);
   cine.fox.a=1;for(let i=0;i<30;i++)sparks.push({x:fox.x+6,y:fox.y-6,vx:(Math.random()-.5)*1.4,vy:-Math.random()*1.4,life:60,col:'cyan'});chime();await wait(70);
-  await sayLines([T('Angel','...Eres tú. El guardián blanco de la colina.'),T('Kitsune','( . . . )')]);
+  await sayLines([T('Angel','...Eres tú. El guardián blanco de la colina.'),T('Zorro','( . . . )','curioso')]);
   fox.tx=2752;await waitUntil(()=>Math.abs(fox.x-2752)<1);fox.dir=1;await wait(30);
   cine.camX=2760-W/2;await walkTo(2790,.6);player.facing=-1;
   for(let i=0;i<60;i++){cine.aur=1+i/60*1.2;await wait(1)}
