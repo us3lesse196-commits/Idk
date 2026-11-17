@@ -113,5 +113,13 @@
   "props_nuevos": {
     "bambu": "6e495db7-4152-4c86-bff3-495ef1a1721a",
     "arce": "5bfcd8c6-0618-4d21-9922-c24ef29af397"
+  },
+  "tren": {
+    "vagon": "5207b730-1f00-4154-b90f-16ded0677e2c",
+    "vagon_noche": "f6c59013-6b64-49f3-b61e-670cbf2a6590",
+    "cabina": "c6350f7d-9333-476c-bc6b-5caeee79b320",
+    "cabina_noche": "b932eb59-e3bd-44ac-8623-400c76e44f19",
+    "cruce": "60a983e1-e1bb-4cd2-bc03-a199e5b84aab",
+    "nota": "Logo real borrado en *_ok.png; barreras pintadas borradas del cruce (se dibujan por código)."
   }
 }

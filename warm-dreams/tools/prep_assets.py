@@ -312,6 +312,17 @@ def main():
         lit = lit_from_night(im, night.resize(im.size, Image.BOX))
         A['buildings'][name].update({'glow': b64(lit), 'lights': blobs(lit, 2 / K)})
 
+    # ---- cruce del tren (vista de lado) y tren
+    X = {}
+    src = load('tren/cruce_ok.png'); im = fit_h(src.crop(bbox(src, 30)), 65 * K)
+    X['cruce'] = {'src': b64(im), 'w': im.width / K, 'h': 65}
+    for name in ('vagon', 'cabina'):
+        src = load('tren/%s_ok.png' % name); box = bbox(src, 30); im = harden(fit_h(src.crop(box), 34 * K), 100)
+        nim = Image.open(os.path.join(ROOT, 'tren/%s_noche_ok.png' % name)).convert('RGBA').crop(box).resize(im.size, Image.BOX)
+        X[name] = {'src': b64(im), 'glow': b64(lit_from_night(im, nim)), 'w': im.width / K, 'h': 34}
+    A['xing'] = X
+    print('  cruce', X['cruce']['w'], 'vagon', X['vagon']['w'], 'cabina', X['cabina']['w'])
+
     open(path, 'w').write('window.WD_ASSETS=' + json.dumps(A) + ';')
     print('ok', {k: (list(v.keys()) if isinstance(v, dict) else len(v)) for k, v in A.items()},
           round(os.path.getsize(path) / 1024), 'KB')
