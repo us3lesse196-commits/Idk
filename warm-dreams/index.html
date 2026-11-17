@@ -697,11 +697,22 @@ const ALLEY=newScene('alley',560,{zones:[[0,560,'Callejón de los farolillos','C
   // macetas, bici, gato
   for(let i=0;i<5;i++){R(L,20+i*9,140,7,10,'#9a5a3e');disc(L,23+i*9,136,4,['#4f9a4a','#6fb05a'][i%2])}
   R(L,200,140,18,1,'#2a2a33');disc(L,203,144,4,'#2a2a33');disc(L,215,144,4,'#2a2a33');disc(L,203,144,3,'#47404f');disc(L,215,144,3,'#47404f');R(L,206,138,6,1,'#c83a3a');
-  R(L,440,128,24,22,'#7a6a5a');R(L,440,128,24,2,'#9a8a7a');S(440,128,24,22);
+  R(L,440,128,24,22,'#6a5440');R(L,440,128,24,1.5,'#8a7058');for(let k=0;k<3;k++)R(L,440,133+k*6,24,.8,'#4a3a2c');S(440,128,24,22);
   R(L,0,150,LW,2,'#7a7480');R(L,0,152,LW,28,'#3a3640');for(let x=0;x<LW;x+=16)R(L,x,152,1,28,'rgba(0,0,0,.2)');S(0,150,LW,30,1);
   for(const [x,m] of [[100,24],[250,30],[400,20],[520,16]])B.puddles.push({x,y:150,m,rip:[]});
   B.inter.push({type:'exitAlley',x:40,y:150,label:'Volver a la calle'});
   B.npcs.push({kind:'cat',x:470,y:128,dir:-1,sp:0,fixed:1,a:1});
+  if(window.WD_ASSETS&&WD_ASSETS.alley){const AL=WD_ASSETS.alley,La=L,Ea=E,Bs=B;
+    const redraw=()=>{const oL=L;L=La;
+      for(const [x,y] of [[60,118],[150,100],[270,92],[420,110],[505,96]]){R(L,x,y,22,14,'#8f9198');R(L,x,y,22,1,'#b4b6bc');R(L,x+2,y+2,13,10,'#6f7179');disc(L,x+8.5,y+7,4,'#55575f');disc(L,x+8.5,y+7,1.2,'#8f9198');for(let k=0;k<4;k++)R(L,x+16,y+3+k*2.5,4,1,'#6f7179');R(L,x,y+13,22,1,'#4a4c54')}
+      for(const [x,y,w] of [[450,86,18],[476,66,18],[500,48,18]]){R(L,x,y,w,2,'#5a5866');R(L,x,y-6,1,6,'#5a5866');R(L,x+w-1,y-6,1,6,'#5a5866');R(L,x,y-6,w,1,'#6d6a78');for(let k=3;k<w-2;k+=4)R(L,x+k,y-5,1,5,'#4a4856')}
+      R(L,478,28,82,3,'#2a2533');R(L,478,28,82,1,'#5a5466');R(L,440,128,24,22,'#6a5440');R(L,440,128,24,1.5,'#8a7058');for(let k=0;k<3;k++)R(L,440,133+k*6,24,.8,'#4a3a2c');L=oL;ALLEY._dirty={l:true,e:true}};
+    Bs.oneways=Bs.oneways.filter(o=>!(o.x===288&&o.y===100));Bs.flags=Bs.flags.filter(f=>f.type!=='lantern');Bs.wireList=[];Bs.lights=Bs.lights.filter(l=>l.y<74);
+    const pos=[[0,0,false],[1,0,false],[0,0,true]];let ld=0;const ims=[];
+    AL.forEach((d,i)=>{const a=new Image(),g=new Image();ims[i]={a,g,d};let n=0;const ok=()=>{if(++n===2&&++ld===AL.length)paint()};a.onload=ok;g.onload=ok;a.src=d.src;g.src=d.glow});
+    const paint=()=>{La.clearRect(0,0,LW,150);Ea.clearRect(0,0,LW,150);let x=0;La.imageSmoothingEnabled=true;Ea.imageSmoothingEnabled=true;
+      for(const [i,,flip] of pos){const {a,g,d}=ims[i];const y=150-d.h;for(const [c,im] of [[La,a],[Ea,g]]){c.save();if(flip){c.translate(x+d.w,0);c.scale(-1,1);c.drawImage(im,0,y,d.w,d.h)}else c.drawImage(im,x,y,d.w,d.h);c.restore()}
+        if(i===1)LT(x+d.w/2,130,40,'warm',1,{alwaysOn:1});x+=d.w-2}redraw()}}
   B.parallax=false;B.alleySky=1;finalize(ALLEY);
 })();
 

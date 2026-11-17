@@ -417,6 +417,12 @@ def main():
     im = load('santuario/bosque.png').convert('RGB'); hh = 140 * K; im = im.resize((round(im.width * hh / im.height), hh), Image.BOX)
     S_['bosque'] = {'src': b64(im), 'w': im.width / K, 'h': 140}
     A['santuario'] = S_
+    AL = []
+    for f, nf in [('callejon/a1.png', 'callejon/a1n.png'), ('callejon/a2.png', 'callejon/a2n.png')]:
+        src = load(f); box = bbox(src, 30); im = harden(fit_h(src.crop(box), 128 * K), 100)
+        nim = load(nf).crop(box).resize(im.size, Image.BOX)
+        AL.append({'src': b64(im), 'glow': b64(lit_from_night(im, nim)), 'w': im.width / K, 'h': 128})
+    A['alley'] = AL
     src = load('lago/ladera.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
     A['ladera'] = {'src': b64(im), 'w': im.width / K, 'h': 95}
     print('  lago w', W_ / K, 'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])

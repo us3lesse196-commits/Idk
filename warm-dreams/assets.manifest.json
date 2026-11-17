@@ -148,5 +148,11 @@
     "torii_perspectiva": "11ab60e2-c263-4d66-b6c0-e76644de1226",
     "torii_perfil": "6b7186db-186a-4ed1-ac4e-fbad325cbbc3",
     "bosque_fondo": "151a06ad-d8a4-451a-838d-926aa1386ac6"
+  },
+  "callejon": {
+    "a1": "9423b158-8410-4274-af5b-b7bb37b2770f",
+    "a1_noche": "54ee5a78-2d2a-4a8d-b532-3a53ba0636af",
+    "a2_izakaya": "90fb2e83-d595-458e-9276-523b18c4dc7b",
+    "a2_noche": "97364af5-256d-4282-ae73-9ed088e7d670"
   }
 }
