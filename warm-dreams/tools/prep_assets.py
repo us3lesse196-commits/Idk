@@ -444,7 +444,20 @@ def main():
     A['casaInt'] = {'src': b64(im), 'glow': b64(lit_from_night(im, nim)), 'w': im.width / K2, 'h': im.height / K2}
     src = load('lago/ladera.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
     A['ladera'] = {'src': b64(im), 'w': im.width / K, 'h': 95}
-    print('  lago w', W_ / K, 'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])
+    # ---- Haru (hojas de animación de SpriteCook, cuadros de 202 px con los pies abajo)
+    HU = 22 / 185  # unidades por px de origen (Haru mide ~22 unidades)
+    FW = round(202 * HU * K); H_ = {'fw': FW, 'u': FW / K}
+    i0 = load('chars/haru_idle.png').crop((0, 0, 202, 202)); b0 = bbox(i0)
+    H_['ax'] = round((b0[0] + b0[2]) / 2 * HU * K)  # ancla x (centro del cuerpo) en px del cuadro
+    for nm, fps in [('idle', 6), ('walk', 10), ('run', 14), ('jump', 10)]:
+        sh = load('chars/haru_%s.png' % nm); n = sh.width // 202; out = Image.new('RGBA', (FW * n, FW))
+        for j in range(n):
+            fr = sh.crop((j * 202, 0, j * 202 + 202, 202)).resize((FW, FW), Image.LANCZOS)
+            out.paste(harden(fr, 110), (j * FW, 0))
+        H_[nm] = {'src': b64(out), 'n': n, 'fps': fps}
+    A['haru'] = H_
+    print('  haru fw', FW, 'ax', H_['ax'])
+    print('  lago w', W_ / K,'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])
     print('  cruce', X['cruce']['w'], 'vagon', X['vagon']['w'], 'cabina', X['cabina']['w'])
 
     open(path, 'w').write('window.WD_ASSETS=' + json.dumps(A) + ';')

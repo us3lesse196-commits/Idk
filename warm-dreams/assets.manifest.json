@@ -164,5 +164,15 @@
   "ui": {
     "iconos": "3a2672aa-ecc1-4abe-9d95-56e246af60cd",
     "boton": "9cbd8426-8fab-4939-bb61-b3d4cb8d2eb1"
+  },
+  "personajes": {
+    "haru": {
+      "base": "a35c5922-c883-4637-9bd3-48e079b85d98",
+      "idle": "1aaba90b-83a1-4a85-837b-427c981121cc",
+      "walk": "52eccea7-02d1-42ad-86cd-36fb4489988d",
+      "run": "28284aa7-92e5-4b9b-99f8-8dbe4ac18aee",
+      "jump": "b7c84c8e-d395-40cf-b09e-b24f8e7885dc",
+      "archivos": "assets.local/chars/haru_*.png (hojas de 202 px por cuadro)"
+    }
   }
 }
