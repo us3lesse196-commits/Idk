@@ -423,6 +423,10 @@ def main():
         nim = load(nf).crop(box).resize(im.size, Image.BOX)
         AL.append({'src': b64(im), 'glow': b64(lit_from_night(im, nim)), 'w': im.width / K, 'h': 128})
     A['alley'] = AL
+    src = load('casa/diag_b.png').convert('RGBA'); K2 = 3; s_ = 0.13 * K2
+    im = src.resize((round(src.width * s_), round(src.height * s_)), Image.BOX)
+    nim = load('casa/diag_noche.png').convert('RGBA').resize(im.size, Image.BOX)
+    A['casaInt'] = {'src': b64(im), 'glow': b64(lit_from_night(im, nim)), 'w': im.width / K2, 'h': im.height / K2}
     src = load('lago/ladera.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
     A['ladera'] = {'src': b64(im), 'w': im.width / K, 'h': 95}
     print('  lago w', W_ / K, 'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])

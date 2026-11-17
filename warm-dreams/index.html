@@ -721,7 +721,20 @@ const ALLEY=newScene('alley',560,{zones:[[0,560,'Callejón de los farolillos','C
 })();
 
 // ============================================================ INTERIOR CASA
-const HOUSE=newScene('house',340,{zones:[[0,340,'Casa de la familia Mori','Interior']],interior:true,fixY:52});
+const CI=window.WD_ASSETS&&WD_ASSETS.casaInt;const HOUSE=newScene('house',CI?262:340,{zones:[[0,CI?262:340,'Casa de la familia Mori','Interior']],interior:true,fixY:CI?36:52});
+if(CI)(()=>{const LW=262,B_=B,Ls=L,Es=E;const top=150-(980*.13);
+  R(L,0,0,LW,H,'#2a2028');const im=new Image(),gl=new Image();im.onload=()=>{Ls.imageSmoothingEnabled=true;Ls.drawImage(im,-2,top,CI.w,CI.h);B_._dirty={l:true,e:true}};im.src=CI.src;
+  gl.onload=()=>{Es.imageSmoothingEnabled=true;Es.drawImage(gl,-2,top,CI.w,CI.h);B_._dirty={l:true,e:true}};gl.src=CI.glow;
+  S(0,150,LW,30,1);S(-10,0,12,H);S(LW-4,0,14,H);
+  for(let x=22;x<112;x+=2){const y=89.9+(x-22)*(60/90);B.oneways.push({x,y,w:2.5,h:3})}
+  O(2,89.9,72);S(74,89.9,LW-78,6);
+  door(213,113,24,37,'#d8cfb8',{scene:'out'},'Salir');
+  B.windows.push({x:65,y:107,w:38,h:25,fy:150},{x:50,y:46,w:38,h:20,fy:90});
+  LT(140,60,60,'warm',.9,{alwaysOn:1});LT(140,103,60,'warm',.9,{alwaysOn:1});LT(36,58,40,'warm',.7,{alwaysOn:1});LT(225,103,40,'warm',.7,{alwaysOn:1});LT(40,128,26,'tv',.6,{alwaysOn:1});
+  B.npcs.push({kind:'cat',x:118,y:150,dir:1,sp:0,fixed:1,a:1,house:1});
+  B.inter.push({type:'bench',x:74,y:150,label:'Sentarse',name:'cojín',low:1});
+  B.parallax=true;finalize(HOUSE);
+})();else
 (()=>{lr=rng(33);const LW=340,WL='#e8dcc4',WD='#d6c8ae',WOOD='#8a6a4e',DK='#5a4636',PIL='#b89a70';
   // estructura: planta baja (techo 112), losa 106-112, planta alta (techo 70), tejado 52-70
   R(L,0,52,LW,98,WL);R(L,0,52,LW,18,DK);for(let x=0;x<LW;x+=24)R(L,x,52,2,18,'#4a382c');R(L,0,68,LW,2,WOOD);
@@ -988,7 +1001,7 @@ function updateTrans(){const T=trans,p=player;T.t++;const t=T.t;
     if(t<16){p.x+=(T.it.dx-4-p.x)*.2;p.anim='run';p.animT+=.6}else if(t<18){p.back=1;p.anim='idle'}
     else if(t<40){if(d)d.open=Math.min(1,d.open+.06);if(t===19)doorSfx()}else if(t<62){p.lift=(t-40)/22*3;p.alpha=1-(t-40)/22;p.anim='run';p.animT+=.4}
     T.fade=t<60?0:t<84?(t-60)/24:t<86?1:Math.max(0,1-(t-86)/26);
-    if(t===85){if(d)d.open=0;const tg=T.it.target.scene;if(tg==='house'){goScene('house',322,-1);trans.door=HOUSE.doors[0];trans.door.open=1}else{goScene('out',449,1);trans.door=OUT.doors[0];trans.door.open=1}p.back=0;p.alpha=1;p.lift=0}
+    if(t===85){if(d)d.open=0;const tg=T.it.target.scene;if(tg==='house'){goScene('house',CI?225:322,-1);trans.door=HOUSE.doors[0];trans.door.open=1}else{goScene('out',449,1);trans.door=OUT.doors[0];trans.door.open=1}p.back=0;p.alpha=1;p.lift=0}
     if(t>86&&t<110&&trans.door)trans.door.open=Math.max(0,trans.door.open-.05);
     if(t>=112){p.state='play';trans=null}}
   else if(T.kind==='alleyIn'){
@@ -1273,7 +1286,7 @@ function drawNPC(c,n){if(n.a<.02)return;
       const dx=(f>0?6:-11);c.fillStyle='#c89a6a';c.fillRect(sx+dx,by-4,6,3);c.fillRect(sx+dx+(f>0?5:-1),by-6,3,3);c.fillRect(sx+dx+1+step,by-1,1,1);c.fillRect(sx+dx+4-step,by-1,1,1);c.fillStyle='#8a5a3a';c.fillRect(sx+dx+(f>0?6:0),by-6,1,1);c.globalAlpha=1}return}const sx=Math.round(n.x-camX),by=Math.round(n.y);if(sx<-20||sx>W+20)return;c.globalAlpha=n.a;
   const f=n.dir||1,P=(dx,dy,w,h,col)=>{c.fillStyle=col;c.fillRect(f>0?sx+dx:sx-dx-w,by+dy,w,h)};const step=n.walking?Math.round(Math.sin(n.ph*.2)*1.5):0;
   if(n.kind==='cat')return;
-  if(n.kind==='cat'){const sleep=n.house&&st.rain>.3;const cx=n.house&&st.rain>.3?118:n.x;const X=Math.round(cx-camX),Y=n.house&&st.rain>.3?136:by;
+  if(n.kind==='cat'){const sleep=n.house&&st.rain>.3;const cx=n.house&&st.rain>.3?(CI?84:118):n.x;const X=Math.round(cx-camX),Y=n.house&&st.rain>.3?(CI?133:136):by;
     c.fillStyle='#e8a35a';if(sleep){c.fillRect(X,Y-4,9,4);c.fillRect(X+7,Y-6,4,3);c.fillRect(X+7,Y-7,1,1);c.fillRect(X+10,Y-7,1,1);c.fillStyle='#c07a3a';c.fillRect(X+2,Y-3,1,2);c.fillRect(X+5,Y-3,1,2);c.fillRect(X-2,Y-2,3,1);
       if(Math.sin((n.ph||0)*.03)>0){c.fillStyle='#fff';c.globalAlpha=.6*n.a;c.fillRect(X+12,Y-11,2,1);c.fillRect(X+13,Y-12,1,1)}}
     else{c.fillRect(X,Y-5,8,4);c.fillRect(X-1,Y-8,4,4);c.fillRect(X-1,Y-9,1,1);c.fillRect(X+2,Y-9,1,1);c.fillRect(X+1,Y-1,1,1);c.fillRect(X+6,Y-1,1,1);c.fillRect(X+8,Y-7+Math.round(Math.sin((n.ph||0)*.05)),1,3);c.fillStyle='#2a2a33';c.fillRect(X,Y-7,1,1)}
@@ -1378,7 +1391,7 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   // luces del paso del tren
   if(sc===OUT&&!XNI.cruce&&XG.ph!=='idle'&&XG.ph!=='raise')for(const cr of [OUT.crossing,OUT.crossing2]){const on=(st.time>>4)%2,sx=cr.x-camX;ctx.globalCompositeOperation='lighter';ctx.fillStyle='#ff5a3a';ctx.fillRect(sx-6+(on?0:10),cr.ly-2,5,5);ctx.globalAlpha=.6;ctx.drawImage(GL.red,sx-14+(on?0:10),cr.ly-10,22,22);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
   // emisivo
-  const eA=sc.interior||sc.alleySky?Math.max(lo,.6):lo;
+  const eA=sc===HOUSE&&CI?.12+lo*.88:sc.interior||sc.alleySky?Math.max(lo,.6):lo;
   if(eA>.02&&!OFF.emis){const wA=sc.interior||sc.alleySky?eA:eA*(.45+.55*N);ID(ctx);ctx.globalAlpha=wA*.92;blitCh(ctx,sc,'e',camX*ZL,camY*ZL,OW*ZL/Z,OH*ZL/Z,0,0,OW,OH);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=wA*.18;blitCh(ctx,sc,'e',camX*ZL,camY*ZL,OW*ZL/Z,OH*ZL/Z,0,0,OW,OH);
     if(true){const bw=bloomB.width,bh=bloomB.height;bctx.setTransform(1,0,0,1,0,0);bctx.globalCompositeOperation='source-over';bctx.globalAlpha=1;bctx.clearRect(0,0,bw,bh);bctx.imageSmoothingEnabled=true;blitCh(bctx,sc,'e',camX*ZL,camY*ZL,OW*ZL/Z,OH*ZL/Z,0,0,bw,bh);ctx.imageSmoothingEnabled=true;ctx.globalAlpha=wA*.34;ctx.drawImage(bloomB,0,0,bw,bh,0,0,OW,OH);ctx.globalAlpha=wA*.18;ctx.drawImage(bloomB,0,0,bw,bh,-6,-4,OW+12,OH+8)}
     XF(ctx);
@@ -1463,7 +1476,7 @@ function smap(c,name,x,y,flip,ol){const m=SMAP[name],w=m[0].length,h=m.length;co
   for(let j=0;j<h;j++)for(let i=0;i<w;i++){const ch=m[j][flip?w-1-i:i];if(ch!=='.'){c.fillStyle=SPAL[ch];c.fillRect(x+i,y+j-h,1,1)}}}
 function shadow(c,ox,oy,w,a){c.fillStyle=`rgba(20,14,34,${a})`;c.fillRect(ox-w,oy,w*2,2);c.fillRect(ox-w+2,oy+2,w*2-4,1);c.fillRect(ox-w-2,oy,2,1);c.fillRect(ox+w,oy,2,1)}
 function drawHiActors(c,sc,cur){if(!A)return;ID(c);c.imageSmoothingEnabled=false;const sA=sc.interior?.2:.26*(1-sky.night*.5);
-  for(const n of sc.npcs){if(n.kind!=='cat'||n.a<.02)continue;const nap=n.house&&st.rain>.3,wx=nap?118:n.x,wy=nap?136:n.y,ox=Math.round((wx-camX)*Z),oy=Math.round((wy-camY)*Z);c.globalAlpha=n.a;
+  for(const n of sc.npcs){if(n.kind!=='cat'||n.a<.02)continue;const nap=n.house&&st.rain>.3,wx=nap?(CI?84:118):n.x,wy=nap?(CI?133:136):n.y,ox=Math.round((wx-camX)*Z),oy=Math.round((wy-camY)*Z);c.globalAlpha=n.a;
     if(nap){smap(c,'catNap',ox,oy,false,'#241c2e');if(Math.sin((n.ph||0)*.03)>0){c.fillStyle='rgba(255,255,255,.7)';c.fillRect(ox+17,oy-12,3,1);c.fillRect(ox+19,oy-13,1,1);c.fillRect(ox+21,oy-17,4,1);c.fillRect(ox+24,oy-18,1,1)}}
     else{shadow(c,ox+6,oy,6,sA);smap(c,'catSit',ox,oy,n.dir>0,'#241c2e');if(n.street&&!n.fled){const b=Math.round(Math.abs(Math.sin(st.time*.11))*9);c.fillStyle='#f4ecd8';c.fillRect(ox+19,oy-5-b,6,4);c.fillStyle='#8aa0cc';c.fillRect(ox+19,oy-5-b,2,4)}const tw=Math.round(Math.sin((n.ph||0)*.05)*1.5);c.fillStyle='#241c2e';c.fillRect(ox+(n.dir>0?-3:12)+tw,oy-6,3,4);c.fillStyle='#c9803c';c.fillRect(ox+(n.dir>0?-2:13)+tw,oy-5,1,3)}c.globalAlpha=1}
   for(const n of sc.npcs){if(n.kind!=='dog'||n.a<.02)continue;const f=n.dir||1,ox=Math.round((n.x-camX)*Z)+(f>0?16:-30),oy=Math.round((n.y-camY)*Z)+(n.walking&&Math.sin(n.ph*.3)>0?-1:0);c.globalAlpha=n.a;shadow(c,ox+7,Math.round((n.y-camY)*Z),7,sA);smap(c,'dog',ox,oy,f<0,'#241c2e');

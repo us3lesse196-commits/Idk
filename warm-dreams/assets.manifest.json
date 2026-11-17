@@ -154,5 +154,11 @@
     "a1_noche": "54ee5a78-2d2a-4a8d-b532-3a53ba0636af",
     "a2_izakaya": "90fb2e83-d595-458e-9276-523b18c4dc7b",
     "a2_noche": "97364af5-256d-4282-ae73-9ed088e7d670"
+  },
+  "casa_interior": {
+    "final_diagonal": "1ed097bf-cf04-4a79-8d56-99191938decb",
+    "final_noche": "aeaf2294-7d24-4d29-a7a9-3d6b821fd807",
+    "base": "3498cd42-8f35-447c-b61c-522087581afb",
+    "hueco_escalera": "f1d2ba75-1281-4136-a545-0d208f29b555"
   }
 }
