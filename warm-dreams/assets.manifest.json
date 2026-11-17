@@ -50,7 +50,9 @@
     "elegidos": {
       "cerezo_sagrado": "b",
       "cerezos": "a, b, lloron, joven"
-    }
+    },
+    "barrio_fondo": "1ecf3bbd-174a-4481-bb75-324e8bd36906",
+    "barrio_fondo_noche": "c67cf19b-b4be-4479-abbf-6cb0d0417239"
   },
   "fase2_calle": {
     "casaMori": "cf8e54d4-70a3-4340-9e78-18de2874a2a9",

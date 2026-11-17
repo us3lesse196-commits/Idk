@@ -500,7 +500,7 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
   houseA(214,110,'#efe6d4','#3c4152');
   win(224,100,22,14,'#6a5a4a','#88a8c4',.7,'#ffd08a');win(262,100,22,14,'#6a5a4a','#88a8c4',.7,'#ffd08a');R(L,220,113,72,1,'#55505a');for(let x=222;x<292;x+=3)R(L,x,108,1,5,'#55505a');
   R(L,226,130,30,20,'#8a6a4e');R(L,228,132,12,18,'#e9e2cc');R(L,242,132,12,18,'#e9e2cc');R(E,228,132,26,18,'rgba(255,220,160,.6)');R(L,296,136,10,14,'#4a6a8a');R(L,297,138,8,4,'#9fc1db');
-  bush(300,148,20,['#3f7b3f','#5fa24f']);
+  0;
   // parada de autobús con banca (asiento 1)
   R(L,340,112,70,3,'#3f5c78');R(L,340,115,70,1,'#2a3f55');R(L,343,115,2,35,'#6c7584');R(L,405,115,2,35,'#6c7584');R(L,348,118,52,18,'rgba(170,210,230,.4)');O(340,112,70);
   for(let x=342;x<410;x+=10)B.drips.push({x,y:115});bench(361,150,'parada');R(L,416,108,2,42,'#6c7584');disc(L,417,104,5,'#3f5c78');disc(L,417,104,3,'#e8eef4');
@@ -538,9 +538,9 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
   R(L,960,104,3,46,'#3a3a44');R(L,956,110,5,5,'#5a2222');R(L,966,110,5,5,'#5a2222');B.crossing2={x:961,ly:112};
   for(let x=870;x<955;x+=6)R(L,x,149,4,1,'#6d5a4a');R(L,868,148,90,1,'#8e8a96');
   polJ(1000,36);streetLamp(1000,58);wires(562,1001,[[44,10],[48,13],[52,8]]);
-  bush(1030,148,50,['#3f7b3f','#5fa24f']);
+  0;
   // ---------- escuela ----------
-  R(L,1100,128,90,22,'#cfcac2');R(L,1100,126,90,3,'#e2ddd4');for(let x=1100;x<1190;x+=10)R(L,x,129,1,21,'rgba(0,0,0,.08)');bush(1104,126,80,['#3f7b3f','#5fa24f']);S(1100,126,90,24);
+  R(L,1100,128,90,22,'#cfcac2');R(L,1100,126,90,3,'#e2ddd4');for(let x=1100;x<1190;x+=10)R(L,x,129,1,21,'rgba(0,0,0,.08)');0;S(1100,126,90,24);
   R(L,1196,96,10,54,'#cfcac2');R(L,1196,94,10,3,'#e2ddd4');R(L,1252,96,10,54,'#cfcac2');R(L,1252,94,10,3,'#e2ddd4');R(L,1197,108,8,24,'#b8a888');for(let y=111;y<130;y+=3)R(L,1198,y,6,1,'#3a3a44');
   const sx=1270,sw=700,st=46;
   R(L,sx,st,sw,104,'#efeae0');for(let i=0;i<200;i++)R(L,sx+lr()*sw,st+lr()*100,2,1,'rgba(120,110,100,.07)');
@@ -611,7 +611,7 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
     if(WA.buildings.casaC&&!tramoC){zone(576,680);bld('casaC',580)}
     if(WA.buildings.callejonEntrada&&!tramoC){zone(676,714);bld('callejonEntrada',678);const ai=Bs.inter.find(i=>i.type==='alley');if(ai)ai.x=696}
     // ---- fase 3: prepa
-    if(WA.buildings.porton){zone(1095,1238);Bs.solids=Bs.solids.filter(o=>!(o.x>=1095&&o.x<1238));bld('porton',1100)}
+    if(WA.buildings.porton){zone(1002,1264);Bs.solids=Bs.solids.filter(o=>!(o.x>=1095&&o.x<1238));streetLamp(1240,70);R(L,1243,70,2,80,'#9a9ca6')}
     if(WA.buildings.alaA&&WA.buildings.centro&&WA.buildings.alaAm){zone(1265,1971);
       const redrawBench=()=>{const oL=L,oB=B;L=Ls;B={inter:[]};bench(1430,150,'cerezo');L=oL;B=oB;B_._dirty={l:true,e:true}};
       const wA=WA.buildings.alaA.w/Z,wC=WA.buildings.centro.w/Z,x0=1617.5-wC/2;let done=0;const fin=()=>{if(++done===2)bld('centro',x0)};bld('alaA',x0-wA+4,()=>{redrawBench();fin()});bld('alaAm',x0+wC-4,fin)}
@@ -1156,7 +1156,7 @@ function drawFar(sc){const cam=sc.name+'|'+camX.toFixed(2)+'|'+camY.toFixed(2)+'
 const FARN={};if(window.WD_ASSETS&&WD_ASSETS.far)for(const k in WD_ASSETS.far){const d=WD_ASSETS.far[k],im=new Image();im.onload=()=>{const c=mk(im.width,im.height);c.getContext('2d').drawImage(im,0,0);c.lw=d.lw;c.lh=d.lh;FARN[k]=c};im.src=d.src}
 function tileX(img,ox,iw,ih,gy,n0){for(let x=ox,k=0;x<OW;x+=iw,k++){const X=Math.round(x);if((n0+k)&1){ctx.save();ctx.translate(X+iw,0);ctx.scale(-1,1);ctx.drawImage(img,0,gy-ih,iw,ih);ctx.restore()}else ctx.drawImage(img,X,gy-ih,iw,ih)}}
 function drawFar_(sc){const N=sky.night,town=sc===OUT?clamp((2050-camX)/250,0,1):1,shr=sc===OUT?clamp((camX-1900)/250,0,1):0,lo=lampsOn();
-  const NF=FARN,useN=NF.montanas&&NF.cordillera&&NF.colinas&&NF.ciudad;const LAY=useN?[[NF.montanas,.015,.08,.1,0,-2],[NF.cordillera,.03,.16,.14,0,0],[NF.colinas,.06,.26,.12,0,4],[NF.ciudad,.2,.4,.16,1,10],[FAR.sakura,.3,.45,.2,2,8]]:[[FAR.fuji,.015,.1,.5,0,-10],[FAR.r1,.03,.2,.46,0,0],[FAR.r2,.06,.34,.4,0,0],[FAR.r3,.1,.46,.32,0,0],[FAR.town,.2,.5,.34,1,8],[FAR.sakura,.3,.45,.2,2,8]];
+  const NF=FARN,useN=NF.montanas&&NF.cordillera&&NF.colinas&&NF.ciudad;const LAY=useN?[[NF.montanas,.015,.08,.1,0,-2],[NF.cordillera,.03,.16,.14,0,0],[NF.colinas,.06,.26,.12,0,4],[NF.ciudad,.2,.4,.16,1,10],...(NF.barrio?[[NF.barrio,.34,.3,.08,1,6]]:[]),[FAR.sakura,.3,.45,.2,2,8]]:[[FAR.fuji,.015,.1,.5,0,-10],[FAR.r1,.03,.2,.46,0,0],[FAR.r2,.06,.34,.4,0,0],[FAR.r3,.1,.46,.32,0,0],[FAR.town,.2,.5,.34,1,8],[FAR.sakura,.3,.45,.2,2,8]];
   ID(ctx);for(const [im,f,d,a0,zone,off] of LAY){const za=zone===0?1:zone===1?town:shr;if(za<.02)continue;if(zone===2&&sc.interior)continue;
     const iw=im.lw||im.width,ih=im.lh||240,gy=Math.round(196+(52-camY)*Z*(.35+f)+off),n0=Math.floor(camX*Z*f/iw);
     let ox=-(((camX*Z*f)%iw)+iw)%iw;const c=mix(mix(sky.hor,sky.mid,.3),sky.dark,d),a=clamp(a0+N*.5+st.rain*.28,0,.95),tl=tintCache(im,c,a,'atop');
@@ -1164,13 +1164,13 @@ function drawFar_(sc){const N=sky.night,town=sc===OUT?clamp((2050-camX)/250,0,1)
     if(zone===0&&im!==FAR.fuji&&im!==FARN.montanas&&Q>=1){const mc=mix(sky.hor,[255,255,255],.25*(1-N)),ma=(.22+st.rain*.25+clamp(1-Math.abs(st.dayT-.29)/.1,0,1)*.25)*(1-N*.4),gt=im.lw?gy-Math.round(ih*.42):gy-(im===FAR.r3?28:im===FAR.r2?40:52);
       const mg=ctx.createLinearGradient(0,gt,0,gt+30);mg.addColorStop(0,css(mc,0));mg.addColorStop(.6,css(mc,ma));mg.addColorStop(1,css(mc,ma*.6));ctx.fillStyle=mg;ctx.fillRect(0,gt,OW,30);
       ctx.fillStyle=css(mix(mc,[255,255,255],.3),ma*.5);for(let k=0;k<5;k++){const sx=((k*173-camX*Z*f*1.3+st.time*.08*(k%2?1:-1))%(OW+200)+OW+200)%(OW+200)-100;ctx.fillRect(Math.round(sx),gt+12+k*3,90+k*20,1)}}
-    if(zone===1&&lo>.05){ctx.globalCompositeOperation='lighter';if(im.lw&&FARN.ciudadLuz){ctx.globalAlpha=za*lo*.9;tileX(FARN.ciudadLuz,ox,iw,ih,gy,n0)}else{ctx.globalAlpha=za*lo*.5;for(let x=ox;x<OW;x+=iw)ctx.drawImage(FAR.townW,Math.round(x),gy-240)}ctx.globalCompositeOperation='source-over'}
+    if(zone===1&&lo>.05){ctx.globalCompositeOperation='lighter';const lz=im===FARN.barrio?FARN.barrioLuz:FARN.ciudadLuz;if(im.lw&&lz){ctx.globalAlpha=za*lo*.9;tileX(lz,ox,iw,ih,gy,n0)}else{ctx.globalAlpha=za*lo*.5;for(let x=ox;x<OW;x+=iw)ctx.drawImage(FAR.townW,Math.round(x),gy-240)}ctx.globalCompositeOperation='source-over'}
     ctx.globalAlpha=1}
   XF(ctx)}
 function drawParallax(){const far=mix(mix(sky.hor,sky.mid,.45),sky.dark,.18),city=mix(sky.hor,sky.dark,.45),hill=mix(sky.hor,sky.dark,.68),lo=lampsOn();
   const townA=scene===OUT?clamp((2050-camX)/250,0,1):1;
   // tren en el viaducto
-  if(st.train&&townA>0){const tx=st.train.x-camX*.2,ty=150+4-(70/Z)-11+(52-camY)*(.35+.2)-(52-camY);ctx.globalAlpha=townA;const tc=mix(mix(sky.hor,[235,236,240],.5),sky.dark,.25+sky.night*.5);
+  if(st.train&&townA>0&&!FARN.ciudad){const tx=st.train.x-camX*.2,ty=150+4-(70/Z)-11+(52-camY)*(.35+.2)-(52-camY);ctx.globalAlpha=townA;const tc=mix(mix(sky.hor,[235,236,240],.5),sky.dark,.25+sky.night*.5);
     for(let k=0;k<3;k++){const cx=tx+k*52;ctx.fillStyle=css(tc);ctx.fillRect(cx,ty,50,10);ctx.fillStyle=css(mix(tc,[60,90,160],.6));ctx.fillRect(cx,ty+6,50,1.5);ctx.fillStyle=css(mix(tc,[0,0,0],.3));ctx.fillRect(cx,ty+9,50,1);ctx.fillRect(cx+3,ty+10,6,1);ctx.fillRect(cx+40,ty+10,6,1);
       ctx.fillStyle=lo>.1?`rgba(255,232,170,${.5+lo*.5})`:css(mix(tc,[70,90,120],.6));for(let q=3;q<47;q+=5.5)ctx.fillRect(cx+q,ty+2,4,3)}ctx.globalAlpha=1}
   const fg=ctx.createLinearGradient(0,95,0,150);fg.addColorStop(0,css(sky.hor,0));fg.addColorStop(1,css(sky.hor,.35+st.rain*.25));ctx.fillStyle=fg;ctx.fillRect(0,95,W,55);drawMist(false)}

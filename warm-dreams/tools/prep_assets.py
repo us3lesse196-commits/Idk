@@ -219,6 +219,10 @@ def main():
         if key == 'ciudad':
             lit = light_layer(Image.open(os.path.join(ROOT, 'fase1/ciudad_luces.png')), box, im.size)
             far['ciudadLuz'] = {'src': b64(lit), 'lw': im.width / 1.5, 'lh': lh}
+    src = load('fase1/barrio.png'); box = bbox(src, 30); im = fit_h(src.crop(box), round(120 * 1.5))
+    far['barrio'] = {'src': b64(im), 'lw': im.width / 1.5, 'lh': 120}
+    nim = Image.open(os.path.join(ROOT, 'fase1/barrio_noche.png')).convert('RGBA').resize(src.size, Image.BOX).crop(box).resize(im.size, Image.BOX)
+    far['barrioLuz'] = {'src': b64(lit_from_night(im, nim)), 'lw': im.width / 1.5, 'lh': 120}
     A['far'] = far
 
     # ---- nubes: separar las 5 de la hoja
