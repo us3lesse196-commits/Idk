@@ -41,6 +41,43 @@ def b64(im):
     return 'data:image/png;base64,' + base64.b64encode(buf.getvalue()).decode()
 
 
+def register(src_rgba, light_rgb):
+    """Alinea la imagen de luces con el edificio (la IA a veces la desplaza o la escala).
+    Busca escala y desplazamiento que mejor ponen la luz sobre los vidrios oscuros."""
+    S = 320
+    W, H = src_rgba.size; k = S / max(W, H)
+    sw, sh = round(W * k), round(H * k)
+    a = np.asarray(src_rgba.resize((sw, sh), Image.BOX)).astype(float)
+    lum = (a[..., 0] * 3 + a[..., 1] * 6 + a[..., 2]) / 10
+    glass = ((a[..., 3] > 100) & (lum < 110) & (a[..., 2] >= a[..., 0] - 6)).astype(float)
+    lit_full = light_rgb.convert('RGB').resize((W, H), Image.BOX)
+    best = (-1, 1.0, 0, 0)
+    for sc in np.linspace(0.9, 1.1, 21):
+        lw, lh = round(sw * sc), round(sh * sc)
+        L = np.asarray(lit_full.resize((lw, lh), Image.BOX)).astype(float).max(axis=2) > 80
+        for dx in range(-24, 25, 2):
+            for dy in range(-24, 25, 2):
+                ox = (sw - lw) // 2 + dx; oy = (sh - lh) // 2 + dy
+                x0, y0 = max(0, ox), max(0, oy); x1, y1 = min(sw, ox + lw), min(sh, oy + lh)
+                if x1 <= x0 or y1 <= y0: continue
+                lm = L[y0 - oy:y1 - oy, x0 - ox:x1 - ox]
+                gm = glass[y0:y1, x0:x1]
+                hit = (lm * gm).sum() - 0.6 * (lm * (1 - gm)).sum()
+                if hit > best[0]: best = (hit, sc, dx, dy)
+    L0 = np.asarray(lit_full.resize((sw, sh), Image.BOX)).astype(float).max(axis=2) > 80
+    ident = (L0 * glass).sum() - 0.6 * (L0 * (1 - glass)).sum()
+    _, sc, dx, dy = best
+    if best[0] < ident * 1.04 + 4 or abs(dy) > 14:
+        sc, dx, dy = 1.0, 0, 0
+    lw, lh = round(W * sc), round(H * sc)
+    big = lit_full.resize((lw, lh), Image.BOX)
+    out = Image.new('RGB', (W, H), (0, 0, 0))
+    ox = (W - lw) // 2 + round(dx / k); oy = (H - lh) // 2 + round(dy / k)
+    out.paste(big, (ox, oy))
+    print('  alineado: escala %.3f  dx %d  dy %d' % (sc, round(dx / k), round(dy / k)))
+    return out
+
+
 def light_layer(img_rgb, box, size):
     """Imagen de luces (fondo negro) -> RGBA con alfa según brillo."""
     a = np.asarray(img_rgb.convert('RGB').crop(box).resize(size, Image.BOX)).astype(float)
@@ -158,7 +195,7 @@ def main():
     # ---- edificio tienda-cafetería con su imagen de luces
     im = load('fase0/edificio.png'); box = bbox(im); im = im.crop(box)
     hu = 72; im = harden(fit_h(im, hu * K), 100)
-    lit = light_layer(Image.open(os.path.join(ROOT, 'fase0/edificio_luces.png')), box, im.size)
+    lit = light_layer(register(load('fase0/edificio.png'), Image.open(os.path.join(ROOT, 'fase0/edificio_luces.png'))), box, im.size)
     la = np.asarray(lit).copy(); la[..., 3] = np.where(np.asarray(im)[..., 3] > 0, la[..., 3], 0)
     # solo tonos cálidos (quita la ropa y el aire acondicionado)
     warm = (la[..., 0].astype(int) > la[..., 2].astype(int) + 25)
@@ -176,7 +213,7 @@ def main():
         src = load(f); box = bbox(src); im = harden(fit_h(src.crop(box), hu * K), 100)
         e = {'src': b64(im), 'w': round(im.width / K * 2), 'h': hu * 2, 'lights': []}
         if lf:
-            L = Image.open(os.path.join(ROOT, lf)).convert('RGB').resize(src.size, Image.BOX)
+            L = register(src, Image.open(os.path.join(ROOT, lf)))
             lit = light_layer(L, box, im.size)
             la = np.asarray(lit).copy(); la[..., 3] = np.where(np.asarray(im)[..., 3] > 0, la[..., 3], 0)
             warm = (la[..., 0].astype(int) > la[..., 2].astype(int) + 25)
@@ -188,7 +225,7 @@ def main():
     for name, f, lf, hu in [('alaA', 'fase3/alaA_up.png', 'fase3/alaA_luces.png', 75), ('alaAm', 'fase3/alaA_up.png', 'fase3/alaA_luces.png', 75),
                             ('centro', 'fase3/centro_up.png', 'fase3/centro_luces.png', 75)]:
         src = load(f); box = bbox(src); im = harden(fit_h(src.crop(box), hu * K), 100)
-        L = Image.open(os.path.join(ROOT, lf)).convert('RGB').resize(src.size, Image.BOX)
+        L = register(src, Image.open(os.path.join(ROOT, lf)))
         lit = light_layer(L, box, im.size)
         la = np.asarray(lit).copy(); la[..., 3] = np.where(np.asarray(im)[..., 3] > 0, la[..., 3], 0); lit = Image.fromarray(la, 'RGBA')
         if name.endswith('m'): im = im.transpose(Image.FLIP_LEFT_RIGHT); lit = lit.transpose(Image.FLIP_LEFT_RIGHT)
