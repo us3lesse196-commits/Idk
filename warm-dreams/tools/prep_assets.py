@@ -503,6 +503,12 @@ def main():
             im = load(f); im = im.crop(bbox(im, 60)); im = harden(fit_h(im, round(hu * K)), 110)
             CT[nm] = {'src': b64(im), 'w': im.width / K, 'h': im.height / K}
     A['cats'] = CT
+    # sol y luna (discos; el sol de día salió ovalado: se recorta y se fuerza a círculo)
+    SK = {}
+    for nm, f, d in [('luna', 'cielo/luna.png', 16), ('sol', 'cielo/sol.png', 20), ('solT', 'cielo/sol_tarde.png', 22)]:
+        if os.path.exists(os.path.join(ROOT, f)):
+            im = load(f); im = im.crop(bbox(im, 60)).resize((d * K, d * K), Image.NEAREST); SK[nm] = {'src': b64(im), 'd': d}
+    A['sky'] = SK
     # retratos de diálogo (bustos con expresiones), 200 px de alto
     RT = {}
     for who, exprs in [('angel', ['hablar', 'pensar', 'sorprendido', 'feliz']), ('maju', ['hablar', 'timida', 'sorprendida', 'feliz']), ('zorro', ['tranquilo', 'curioso'])]:
