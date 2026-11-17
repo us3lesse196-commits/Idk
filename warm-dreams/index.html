@@ -765,7 +765,7 @@ const found={koi:0,fox:0,cat:0};
   for(const [kind,n,[a,b],[x0,x1]] of kinds)for(let i=0;i<n;i++)OUT.npcs.push({kind,x:x0+r()*(x1-x0),x0,x1,dir:r()<.5?-1:1,sp:kind==='granny'?.25:kind==='jogger'?1.1:kind==='kid'?.55:.4+r()*.15,
     t0:a+(r()-.5)*.04,t1:b+(r()-.5)*.04,umb:r()<.65,ucol:['#e05a6a','#5aa0e0','#f2d36b','#ffffff','#7ad08a','#b08ae0'][Math.floor(r()*6)],a:0,ph:r()*10,shelter:null,
     hair:['#2a2135','#3a2a22','#5a4030','#1e1a24'][Math.floor(r()*4)],y:150,var:r()});
-  OUT.npcs.push({kind:'cat',x:1150,y:126,dir:1,sp:0,fixed:1,a:1,outdoor:1});
+  OUT.npcs.push({kind:'cat',x:1215,y:150,dir:1,sp:0,fixed:1,a:1,outdoor:1});
   // Aoi, la importante
   OUT.npcs.push({kind:'aoi',x:1462,y:150,dir:-1,sp:0,a:1,fixed:1,important:1,name:'Aoi'});
   // conserje de la prepa y gato de la cafetería (pedazos 2 y 5)
@@ -833,7 +833,7 @@ function audioTick(){if(!AC)return;const now=AC.currentTime;
   const inside=scene.interior,surf=rainSurface();rainGain.gain.setTargetAtTime(st.rain*(inside?.22:surf==='techo'?.3:.38),now,.6);rainLP.frequency.setTargetAtTime(inside?360:surf==='techo'?650:surf==='pasto'?800:1100,now,.5);
   rainLoops(surf,now);
   // campana del paso del tren
-  if(XG.ph!=='idle'&&XG.ph!=='raise'&&scene===OUT&&st.time%26===0){const d=Math.abs(player.x-910);const v=clamp(1-d/500,0,1)*.05;if(v>.004){const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=(st.time/26)%2?740:880;
+  if(!XNI.cruce&&XG.ph!=='idle'&&XG.ph!=='raise'&&scene===OUT&&st.time%26===0){const d=Math.abs(player.x-910);const v=clamp(1-d/500,0,1)*.05;if(v>.004){const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=(st.time/26)%2?740:880;
     g.gain.setValueAtTime(v,now);g.gain.exponentialRampToValueAtTime(.0001,now+.25);const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=1800;o.connect(f);f.connect(g);g.connect(sfxOut);o.start(now);o.stop(now+.26)}}}
 function thunder(delay){if(!AC)return;const t=AC.currentTime+delay,s=AC.createBufferSource();s.buffer=noiseBuf;const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=220+Math.random()*200;
   const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(scene.interior?.4:.9,t+.08);g.gain.exponentialRampToValueAtTime(.001,t+3.5);s.connect(f);f.connect(g);g.connect(sfxOut);s.start(t);s.stop(t+3.6)}
@@ -1296,7 +1296,7 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   if(sc===OUT&&koiOn()){const pd=OUT.koiPuddle,w=puddleW(pd);ctx.globalCompositeOperation='lighter';for(let i=0;i<4;i++){const ph=st.time*.02+i*1.7,fx=pd.x-camX+Math.sin(ph)*(w/2-4),fy=pd.y-3-Math.abs(Math.sin(ph*1.7+i))*6-i;
     const dir=Math.cos(ph)>0?1:-1;ctx.globalAlpha=.5;ctx.drawImage(GL.koi,fx-6,fy-6,12,12);ctx.globalAlpha=.95;ctx.fillStyle=i%2?'#ffd2a0':'#ffffff';ctx.fillRect(Math.round(fx)-1,Math.round(fy),3,1);ctx.fillRect(Math.round(fx-dir*2),Math.round(fy)-1,1,3)}ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
   // luces del paso del tren
-  if(sc===OUT&&XG.ph!=='idle'&&XG.ph!=='raise')for(const cr of [OUT.crossing,OUT.crossing2]){const on=(st.time>>4)%2,sx=cr.x-camX;ctx.globalCompositeOperation='lighter';ctx.fillStyle='#ff5a3a';ctx.fillRect(sx-6+(on?0:10),cr.ly-2,5,5);ctx.globalAlpha=.6;ctx.drawImage(GL.red,sx-14+(on?0:10),cr.ly-10,22,22);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
+  if(sc===OUT&&!XNI.cruce&&XG.ph!=='idle'&&XG.ph!=='raise')for(const cr of [OUT.crossing,OUT.crossing2]){const on=(st.time>>4)%2,sx=cr.x-camX;ctx.globalCompositeOperation='lighter';ctx.fillStyle='#ff5a3a';ctx.fillRect(sx-6+(on?0:10),cr.ly-2,5,5);ctx.globalAlpha=.6;ctx.drawImage(GL.red,sx-14+(on?0:10),cr.ly-10,22,22);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
   // emisivo
   const eA=sc.interior||sc.alleySky?Math.max(lo,.6):lo;
   if(eA>.02&&!OFF.emis){const wA=sc.interior||sc.alleySky?eA:eA*(.45+.55*N);ID(ctx);ctx.globalAlpha=wA*.92;blitCh(ctx,sc,'e',camX*ZL,camY*ZL,OW*ZL/Z,OH*ZL/Z,0,0,OW,OH);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=wA*.18;blitCh(ctx,sc,'e',camX*ZL,camY*ZL,OW*ZL/Z,OH*ZL/Z,0,0,OW,OH);
@@ -1712,9 +1712,9 @@ $('#btnFS').addEventListener('click',()=>{if(fsOn()){(document.exitFullscreen||d
 const fsSync=()=>{$('#btnFS span').textContent=fsOn()?'✕':'⛶'};document.addEventListener('fullscreenchange',fsSync);document.addEventListener('webkitfullscreenchange',fsSync);
 // ============================================================ paso a nivel
 const XG={ph:'idle',t:0,next:60*25,arm:0,gates:[{x:857,y:96,w:3,h:54},{x:964,y:96,w:3,h:54}],on:false,inside:false,snd:null};
-const XDUR={warn:240,approach:120,pass:70,leave:30,raise:70};if(window.WD_ASSETS&&WD_ASSETS.xing)XDUR.pass=260;
+const XDUR={warn:240,approach:120,pass:70,leave:30,raise:70};if(window.WD_ASSETS&&WD_ASSETS.xing){XDUR.warn=1;XDUR.approach=60;XDUR.pass=1150;XDUR.raise=1}
 function setGates(on){if(on===XG.on)return;XG.on=on;for(const g of XG.gates){const i=OUT.solids.indexOf(g);if(on&&i<0)OUT.solids.push(g);if(!on&&i>=0)OUT.solids.splice(i,1)}}
-function xvol(){return scene===OUT?clamp(1-Math.abs(player.x-910)/520,0,1):scene===ALLEY?.15:.08}
+function xvol(){if(scene===OUT&&XNI.cruce){const c=trainCars();if(!c)return .15;const m=(c[0][1]+c[c.length-1][1])/2;return clamp(1-Math.abs(player.x-m)/600,0,1)*.9+.08}return scene===OUT?clamp(1-Math.abs(player.x-910)/520,0,1):scene===ALLEY?.15:.08}
 function updXing(){const X=XG;X.t++;
   if(X.ph==='idle'){if(--X.next<=0){X.ph='warn';X.t=0;X.inside=player.x+4>858&&player.x+4<966&&scene===OUT}}
   else if(X.ph==='warn'){X.arm=Math.min(1,X.arm+1/70);if(X.t>=XDUR.warn){X.ph='approach';X.t=0;trainSound('start')}}
@@ -1722,7 +1722,7 @@ function updXing(){const X=XG;X.t++;
   else if(X.ph==='pass'){st.gustT=Math.max(st.gustT,1.4);st.shake=Math.max(st.shake,1.3*xvol());if(X.t%10===0)trainSound('clack');if(X.t>=XDUR.pass){X.ph='leave';X.t=0;trainSound('end')}}
   else if(X.ph==='leave'){if(X.t>=XDUR.leave){X.ph='raise';X.t=0}}
   else if(X.ph==='raise'){X.arm=Math.max(0,X.arm-1/60);if(X.t>=XDUR.raise){X.ph='idle';X.t=0;X.next=60*(60+Math.random()*60)}}
-  const closed=X.ph!=='idle'&&X.ph!=='raise';if(X.inside&&!(player.x+4>858&&player.x+4<966&&scene===OUT))X.inside=false;setGates(closed&&!X.inside)}
+  const closed=X.ph!=='idle'&&X.ph!=='raise';if(X.inside&&!(player.x+4>858&&player.x+4<966&&scene===OUT))X.inside=false;setGates(closed&&!X.inside&&!XNI.cruce)}
 function trainSound(k){if(!AC)return;const now=AC.currentTime,v=xvol();
   if(k==='start'){const s=AC.createBufferSource();s.buffer=noiseBuf;s.loop=true;const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=260;const g=AC.createGain();g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.55*v,now+XDUR.approach/60);s.connect(f);f.connect(g);g.connect(sfxOut);s.start(now);XG.snd={s,g,f}}
   else if(k==='horn'){for(const fr of [466,587]){const o=AC.createOscillator(),g=AC.createGain(),lp=AC.createBiquadFilter();o.type='sawtooth';o.frequency.value=fr;lp.type='lowpass';lp.frequency.value=1400;g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.05*v,now+.05);g.gain.setValueAtTime(.05*v,now+.7);g.gain.linearRampToValueAtTime(0,now+.95);o.connect(lp);lp.connect(g);g.connect(sfxOut);o.start(now);o.stop(now+1)}}
@@ -1732,14 +1732,19 @@ function trainSound(k){if(!AC)return;const now=AC.currentTime,v=xvol();
 // capa 0: vías y tren (detrás del escenario); 1: barreras; 2: luces
 function drawXing(c,sc,layer){c.save();c.translate(-camX,0);drawXing_(c,sc,layer);c.restore()}
 const XNI={};if(window.WD_ASSETS&&WD_ASSETS.xing)for(const k in WD_ASSETS.xing){const d=WD_ASSETS.xing[k];XNI[k]={w:d.w,h:d.h};const a=new Image();a.src=d.src;XNI[k].im=a;if(d.glow){const g=new Image();g.src=d.glow;XNI[k].gl=g}}
-const XGAP=[834,1262];
-function trainCars(){const X=XG;if(X.ph!=='pass')return null;const cab=XNI.cabina,vg=XNI.vagon,len=cab.w*2+vg.w*3,x0=1320,x1=XGAP[0]-len-40,lead=x0+(x1-x0)*(X.t/XDUR.pass);
+const XGAP=[-200,2760];
+function trainCars(){const X=XG;if(X.ph!=='pass')return null;const cab=XNI.cabina,vg=XNI.vagon,len=cab.w*2+vg.w*3,x0=2780,x1=-len-60,lead=x0+(x1-x0)*(X.t/XDUR.pass);
   const out=[];let x=lead;out.push([cab,x,false]);x+=cab.w;for(let i=0;i<3;i++){out.push([vg,x,false]);x+=vg.w}out.push([cab,x,true]);return out}
-function drawXingNew(c,sc,layer){const X=XG;if(camX>XGAP[1]+20||camX+W<XGAP[0]-20)return;const lo=lampsOn();
-  if(layer===0){const cars=trainCars();if(!cars)return;c.save();c.beginPath();c.rect(XGAP[0],0,XGAP[1]-XGAP[0],150);c.clip();c.imageSmoothingEnabled=true;
+function drawXingNew(c,sc,layer){const X=XG;const lo=lampsOn();
+  if(layer===0){const xa=Math.max(camX-4,0),xb=Math.min(camX+W+4,2760);
+    if(xb>xa){c.fillStyle='#4a4650';c.fillRect(xa,146,xb-xa,4);c.fillStyle='#6a6470';for(let x=Math.floor(xa/3)*3;x<xb;x+=3)c.fillRect(x,146.5,1.5,.8);c.fillStyle='#8a8a96';c.fillRect(xa,145.6,xb-xa,.6);
+      c.fillStyle='#55525e';for(let x=Math.ceil(xa/14)*14;x<xb;x+=14)c.fillRect(x,139,.6,7);c.fillRect(xa,140,xb-xa,.4);c.fillRect(xa,143,xb-xa,.4);
+      for(let x=Math.ceil(xa/90)*90+20;x<xb;x+=90){c.fillStyle='#6d6a76';c.fillRect(x,100,1.6,46);c.fillRect(x-6,104,8,1)}c.strokeStyle='#2a2833';c.lineWidth=.4;c.beginPath();c.moveTo(xa,105.5);c.lineTo(xb,105.5);c.stroke();
+      if(xb>2700){c.fillStyle='#2b2630';c.fillRect(2742,108,24,42);c.fillStyle='#1a161e';c.beginPath();c.arc(2754,128,11,Math.PI,0);c.lineTo(2765,147);c.lineTo(2743,147);c.closePath();c.fill()}}
+    const cars=trainCars();if(!cars)return;c.save();c.beginPath();c.rect(XGAP[0],0,XGAP[1]-XGAP[0],150);c.clip();c.imageSmoothingEnabled=true;
     for(const [d,x,flip] of cars){if(!d.im.complete)continue;const y=147-d.h;if(flip){c.save();c.translate(x+d.w,y);c.scale(-1,1);c.drawImage(d.im,0,0,d.w,d.h);c.restore()}else c.drawImage(d.im,x,y,d.w,d.h)}
     c.restore();return}
-  if(layer===1){const cr=XNI.cruce;if(cr&&cr.im.complete){c.imageSmoothingEnabled=true;c.drawImage(cr.im,836.5,150-cr.h,cr.w,cr.h)}
+  if(layer===1)return;if(layer===-1){const cr=XNI.cruce;if(cr&&cr.im.complete){c.imageSmoothingEnabled=true;c.drawImage(cr.im,836.5,150-cr.h,cr.w,cr.h)}
     for(const [px,dir] of [[861,1],[964,-1]]){const ang=-Math.PI/2+dir*(Math.PI/2)*X.arm;c.save();c.translate(px+.5,136);c.rotate(ang);
       for(let i=0;i<40;i+=2){c.fillStyle=(i/2)%2?'#1e1e24':'#f2c42a';c.fillRect(i,-.75,2,1.5)}c.fillStyle='#e04a3a';c.fillRect(38,-1,2,2);c.restore()}return}
   if(layer===2){const cars=trainCars();if(!cars||lo<.05)return;c.save();c.beginPath();c.rect(XGAP[0],0,XGAP[1]-XGAP[0],150);c.clip();c.globalCompositeOperation='source-over';c.globalAlpha=Math.min(1,lo*1.1);c.imageSmoothingEnabled=true;
@@ -1794,7 +1799,7 @@ function drawXing_(c,sc,layer){if(sc===OUT&&XNI.cruce)return drawXingNew(c,sc,la
     if(X.head&&X.ph==='approach'){const sc=D/(D+X.head[2]);for(const h of [X.head[0],X.head[1]]){const s2=Math.max(6,sc*40);c.globalAlpha=.9;c.drawImage(GL.warm,h[0]-s2/2,h[1]-s2/2,s2,s2)}c.globalAlpha=.25;const s3=sc*110;c.drawImage(GL.warm,(X.head[0][0]+X.head[1][0])/2-s3/2,X.head[0][1]-s3/2,s3,s3)}
     c.globalAlpha=1;c.globalCompositeOperation='source-over'}}
 // NPC: esperan en la barrera
-function npcXing(n){if(XG.on&&n.x>850&&n.x<972&&!n.fixed){n.x=n.x<911?850:972;n.walking=0}}
+function npcXing(n){if(!XNI.cruce&&XG.on&&n.x>850&&n.x<972&&!n.fixed){n.x=n.x<911?850:972;n.walking=0}}
 // ============================================================ bucle
 let fpsN=0,fpsT=performance.now(),slowFor=0,fastFor=0,skipF=0,paused=false;
 document.addEventListener('visibilitychange',()=>{if(document.hidden){paused=true;try{AC&&AC.suspend()}catch(e){}}else if(paused){paused=false;try{AC&&AC.resume()}catch(e){}last=performance.now();requestAnimationFrame(frame)}});
