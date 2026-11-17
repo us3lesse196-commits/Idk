@@ -406,7 +406,7 @@ function vend(x){R(L,x,122,13,28,'#e9edf2');R(L,x,122,13,1,'#ffffff');R(L,x+2,12
 function polJ(x,top){R(L,x,top,4,150-top,'#9a9ca6');R(L,x+1,top,1,150-top,'#b3b5bf');for(let y=top+20;y<140;y+=7)R(L,x+4,y,2,1,'#6d6f78');
   R(L,x-9,top+4,22,2,'#6d6f78');R(L,x-8,top+2,1,2,'#d6d6dc');R(L,x+11,top+2,1,2,'#d6d6dc');R(L,x+5,top+14,7,9,'#7d808a');R(L,x+6,top+15,1,7,'#9a9ca6')}
 function wires(x0,x1,ys){(B.wireList||(B.wireList=[])).push({x0,x1,ys})}
-function deco(key,x,sw,base=150){const WA=window.WD_ASSETS;if(!WA||!WA.deco||!WA.deco[key])return null;const d=WA.deco[key],w=d.w,h=d.h,ent={c:mk(1,1),ox:x-w/2,oy:base-h,GW:w,GH:h,ph:x*.37,k:ZL,stiff:sw||0};B.treeSpr.push(ent);
+function deco(key,x,sw,base=150){const WA=window.WD_ASSETS;if(!WA||!WA.deco||!WA.deco[key])return null;const d=WA.deco[key],w=d.w,h=d.h,ent={c:mk(1,1),ox:x-w/2,oy:base-h,GW:w,GH:h,ph:x*.37,k:ZL,stiff:sw||0,fg:base>156};B.treeSpr.push(ent);
   const im=new Image();im.onload=()=>{const c2=mk(Math.round(w*ZL),Math.round(h*ZL)),g=c2.getContext('2d');g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(im,0,0,c2.width,c2.height);ent.c=c2;ent.sil=null};im.src=d.src;return ent}
 function litLantern(x,b){const t=b-13;(B.lanterns||(B.lanterns=[])).push({x,y:t+4.9});LT(x,t+5,30,'warm',1,{lamp:1})}
 function streetLamp(x,top){R(L,x+3,top,8,2,'#55585f');R(L,x+8,top+2,5,2,'#3a3d44');R(L,x+9,top+4,3,1,'#f4ecd0');R(E,x+9,top+4,3,2,'#fff1c8');
@@ -421,7 +421,7 @@ function tree(x,base,top,r,cols,kind,trunk,spr){const T=treeBody(x,base,top,r,ki
   if(WA&&WA.trees&&key&&WA.trees[key]){const d=WA.trees[key],ent=B.treeSpr[B.treeSpr.length-1],lf=B.trees[B.trees.length-1],Es_=E,B_=B;
     const h=spr?d.h:clamp(Math.round((base-top)+r*1.15),58,96),w=d.w*h/d.h,im=new Image();
     im.onload=()=>{const c2=mk(Math.round(w*ZL),Math.round(h*ZL)),g2=c2.getContext('2d');g2.imageSmoothingEnabled=true;g2.imageSmoothingQuality='high';g2.drawImage(im,0,0,c2.width,c2.height);
-      Object.assign(ent,{c:c2,k:ZL,GW:w,GH:h,ox:x-w/2,oy:base-h,sil:null,stiff:spr?.35:1});lf.y=base-h*.66;lf.r=w*.32;
+      Object.assign(ent,{c:c2,k:ZL,GW:w,GH:h,ox:x-w/2,oy:base-h,sil:null,stiff:spr?.35:1,fg:base>156});lf.y=base-h*.66;lf.r=w*.32;
       Es_.save();Es_.globalCompositeOperation='destination-out';Es_.drawImage(im,x-w/2,base-h,w,h);Es_.restore();B_._dirty={l:true,e:true}};im.src=d.src}}
 function treeBody(x0,base,top,r,kind,trunkC){const tr=rng(x0*13+top*7),pk=kind==='sakura'?'sakura':'leaf',P=PALS[pk][Math.floor(tr()*PALS[pk].length)];
   const TK=trunkC?[trunkC,'#6a4f40','#3a2a24','#2a1e1e']:['#5a3a3a','#7a5450','#40282c','#2c1a20'];
@@ -1303,11 +1303,11 @@ function drawGrass(c){if(scene!==OUT)return;const x0=Math.max(2120,camX-4),x1=Ma
     const sx=wx-camX,q=v=>Math.round(v*2)/2;if(inPaddy){if(wx%4)continue;c.fillStyle='#6fb552';c.fillRect(sx+q(sw*.15),top-bh*.5,.5,bh*.5);c.fillStyle='#8ed06a';c.fillRect(sx+q(sw*.3),top-bh,.5,bh*.5);c.fillRect(sx+q(sw*.5)+.5,top-bh-1,.5,1.5);c.fillRect(sx+q(sw*.2)-.5,top-bh+1,.5,1.5);continue}
     c.fillStyle=h%3?'#4f8a3c':'#5f9a46';c.fillRect(sx,top-1.5,.5,1.5);c.fillRect(sx+1,top-1,.5,1);c.fillStyle=h%2?'#78b856':'#8fcf62';c.fillRect(sx+q(sw*.2),top-bh*.5,.5,bh*.5);c.fillRect(sx+q(sw*.5),top-bh+.5,.5,bh*.5);c.fillStyle='#a8dc7c';c.fillRect(sx+q(sw*.8),top-bh,.5,1);
     if(h%23===0){const fc=['#f2a0c0','#f6e070','#ffffff','#b0a0f0'][h%4];c.fillStyle=fc;c.fillRect(sx+q(sw*.8)-.5,top-bh-1,1.5,.5);c.fillRect(sx+q(sw*.8),top-bh-1.5,.5,1.5);c.fillStyle='#f6c04a';c.fillRect(sx+q(sw*.8),top-bh-1,.5,.5)}}}
-function drawTrees(c,sc){c.save();c.translate(-camX,0);drawTrees_(c,sc);c.restore()}
-function drawTrees_(c,sc){c.imageSmoothingEnabled=false;for(const t of sc.treeSpr){if(t.ox>camX+W+4||t.ox+t.GW<camX-4)continue;
-    if(Q<1){c.drawImage(t.c,t.ox,t.oy,t.GW,t.GH);continue}const sw=((Math.sin(st.time*.021+t.ph)*.5+Math.sin(st.time*.053+t.ph*1.7)*.25)*(.3+Math.abs(WE)*.8)+WE*1.3)*(t.stiff||1),kk=t.k||1;let pu=0;if(t.GH<30&&t.stiff&&sc===scene){const cx=t.ox+t.GW/2,d=player.x+4-cx,near=Math.abs(d)<t.GW*.55+3&&Math.abs(player.y+player.h-(t.oy+t.GH))<6;
+function drawTrees(c,sc,front){c.save();c.translate(-camX,0);drawTrees_(c,sc,!!front);c.restore()}
+function drawTrees_(c,sc,front){c.imageSmoothingEnabled=false;const TT=front&&drawTrees_.tint;for(const t of sc.treeSpr){if(!!t.fg!==!!front)continue;if(t.ox>camX+W+4||t.ox+t.GW<camX-4)continue;const SRC=TT&&TT.a>.02?tintCache(t.c,TT.c,TT.a,'atop'):t.c;
+    if(Q<1){c.drawImage(SRC,t.ox,t.oy,t.GW,t.GH);continue}const sw=((Math.sin(st.time*.021+t.ph)*.5+Math.sin(st.time*.053+t.ph*1.7)*.25)*(.3+Math.abs(WE)*.8)+WE*1.3)*(t.stiff||1),kk=t.k||1;let pu=0;if(t.GH<30&&t.stiff&&sc===scene){const cx=t.ox+t.GW/2,d=player.x+4-cx,near=Math.abs(d)<t.GW*.55+3&&Math.abs(player.y+player.h-(t.oy+t.GH))<6;
       t.push=(t.push||0)+(((near?clamp(player.vx*1.6,-3,3)+Math.sign(d||1)*-1.2*(1-Math.abs(d)/(t.GW*.55+3)):0))-(t.push||0))*.15;pu=t.push}
-    for(let y=0;y<t.GH;y+=2){const k=Math.pow(1-y/t.GH,1.6),dx=Math.round((sw+pu*1.6)*k*2)/2;c.drawImage(t.c,0,y*kk,t.GW*kk,Math.min(2*kk,t.c.height-y*kk),t.ox+dx,t.oy+y,t.GW,Math.min(2,t.GH-y))}}c.imageSmoothingEnabled=true}
+    for(let y=0;y<t.GH;y+=2){const k=Math.pow(1-y/t.GH,1.6),dx=Math.round((sw+pu*1.6)*k*2)/2;c.drawImage(SRC,0,y*kk,t.GW*kk,Math.min(2*kk,t.c.height-y*kk),t.ox+dx,t.oy+y,t.GW,Math.min(2,t.GH-y))}}c.imageSmoothingEnabled=true}
 function drawFlags(c,sc){c.save();c.translate(-camX,0);drawFlags_(c,sc);c.restore()}
 function drawLake(c,sc){const lk=sc.lake;if(!lk||lk.x1<camX||lk.x0>camX+W)return;const N=sky.night;c.save();
   for(let k=0;k<14;k++){const h=hash(k*91+7),x=lk.x0+12+(h%Math.round(lk.x1-lk.x0-24))+Math.sin(st.time*.012+k)*4,y=lk.wy+2+(k%5)*3.2;const a=(.12+.1*Math.sin(st.time*.05+k*1.7))*(1-N*.4);c.fillStyle=`rgba(255,255,255,${Math.max(0,a)})`;c.fillRect(Math.round(x*2)/2,y,6+(h%5)*2,.5)}
@@ -1390,6 +1390,7 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
     for(const l of sc.lights){const sx=l.x-camX;if(sx<-l.r||sx>W+l.r)continue;if(l.pool&&!sc.interior){const gy=sc.gmap[clamp(l.x|0,0,sc.LW-1)];ctx.globalAlpha=eA*l.s*.5;ctx.fillStyle='rgba(255,196,120,.5)';ctx.beginPath();ctx.ellipse(sx,gy+.5,l.r*.85,1.8,0,0,7);ctx.fill();ctx.globalAlpha=eA*l.s*.25;ctx.beginPath();ctx.ellipse(sx,gy+.5,l.r*1.4,3,0,0,7);ctx.fill()}ctx.globalAlpha=(l.alwaysOn?Math.max(eA,.5):eA)*l.s*(l.lamp?.42:.3);const r=l.lamp?l.r*.8:l.r*.7;ctx.drawImage(GL[l.kind],sx-r,l.y-r-(l.lamp?6:0),r*2,r*2)}
     ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
   bl(ctx,actorB);
+  {const N=sky.night,dA=sc.interior?0:N*.62+st.rain*.12*(1-N);drawTrees_.tint={c:mix([12,16,48],[30,30,60],st.rain),a:Math.min(.9,dA*1.25)};XF(ctx);drawTrees(ctx,sc,true)}
   if(sc.fronts&&sc.fronts.length){const N=sky.night,dA=sc.interior?0:N*.62+st.rain*.12*(1-N),dc=mix([12,16,48],[30,30,60],st.rain);XF(ctx);ctx.imageSmoothingEnabled=true;
     for(const f of sc.fronts){if(f.x>camX+W||f.x+f.w<camX)continue;ctx.drawImage(dA>.02?tintCache(f.c,dc,Math.min(.9,dA*1.25),'atop'):f.c,f.x-camX,f.y,f.w,f.h)}ctx.imageSmoothingEnabled=false}
   if(!sc.interior&&Q>=2&&!OFF.refl&&(st.wet>.18||sc.puddles.some(p=>p.perm))){const cv=ctx.canvas,fresh=st.time%3===0||refB.sc!==sc||refB.cam!==camX;
@@ -1814,7 +1815,7 @@ function trainSound(k){if(!AC)return;const now=AC.currentTime,v=xvol();
 // capa 0: vías y tren (detrás del escenario); 1: barreras; 2: luces
 function drawXing(c,sc,layer){c.save();c.translate(-camX,0);drawXing_(c,sc,layer);c.restore()}
 const XNI={};if(window.WD_ASSETS&&WD_ASSETS.xing)for(const k in WD_ASSETS.xing){const d=WD_ASSETS.xing[k];XNI[k]={w:d.w,h:d.h};const a=new Image();a.src=d.src;XNI[k].im=a;if(d.glow){const g=new Image();g.src=d.glow;XNI[k].gl=g}}
-const XGAP=[-200,2760];setTimeout(()=>{if(OUT.tunnelX)XGAP[1]=OUT.tunnelX+12},0);
+const XGAP=[-200,2760],TRB={};setTimeout(()=>{if(OUT.tunnelX)XGAP[1]=OUT.tunnelX+12},0);
 function trainCars(){const X=XG;if(X.ph!=='pass')return null;const cab=XNI.cabina,vg=XNI.vagon,len=cab.w*2+vg.w*3,x0=XGAP[1]+10,x1=-len-60,lead=x0+(x1-x0)*(X.t/XDUR.pass);
   const out=[];let x=lead;out.push([cab,x,false]);x+=cab.w;for(let i=0;i<3;i++){out.push([vg,x,false]);x+=vg.w}out.push([cab,x,true]);return out}
 function drawXingNew(c,sc,layer){const X=XG;const lo=lampsOn();
@@ -1829,9 +1830,12 @@ function drawXingNew(c,sc,layer){const X=XG;const lo=lampsOn();
   if(layer===1)return;if(layer===-1){const cr=XNI.cruce;if(cr&&cr.im.complete){c.imageSmoothingEnabled=true;c.drawImage(cr.im,836.5,150-cr.h,cr.w,cr.h)}
     for(const [px,dir] of [[861,1],[964,-1]]){const ang=-Math.PI/2+dir*(Math.PI/2)*X.arm;c.save();c.translate(px+.5,136);c.rotate(ang);
       for(let i=0;i<40;i+=2){c.fillStyle=(i/2)%2?'#1e1e24':'#f2c42a';c.fillRect(i,-.75,2,1.5)}c.fillStyle='#e04a3a';c.fillRect(38,-1,2,2);c.restore()}return}
-  if(layer===2){const cars=trainCars();if(!cars||lo<.05)return;c.save();c.beginPath();c.rect(XGAP[0],0,XGAP[1]-XGAP[0],150);c.clip();c.globalCompositeOperation='source-over';c.globalAlpha=Math.min(1,lo*1.1);c.imageSmoothingEnabled=true;
+  if(layer===2){const cars=trainCars();if(!cars||lo<.05)return;const real=c,cv=c.canvas;if(!TRB.c||TRB.c.width!==cv.width||TRB.c.height!==cv.height)TRB.c=mk(cv.width,cv.height);
+    const g=TRB.c.getContext('2d');g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.clearRect(0,0,cv.width,cv.height);g.setTransform(real.getTransform());c=g;c.save();c.beginPath();c.rect(XGAP[0],0,XGAP[1]-XGAP[0],150);c.clip();c.globalCompositeOperation='source-over';c.globalAlpha=Math.min(1,lo*1.1);c.imageSmoothingEnabled=true;
     for(const [d,x,flip] of cars){if(!d.gl||!d.gl.complete)continue;const y=147-d.h;if(flip){c.save();c.translate(x+d.w,y);c.scale(-1,1);c.drawImage(d.gl,0,0,d.w,d.h);c.restore()}else c.drawImage(d.gl,x,y,d.w,d.h)}
-    c.globalCompositeOperation='lighter';c.globalAlpha=.8*lo;const hx=cars[0][1];c.drawImage(GL.warm,hx-30,147-12-18,40,36);c.restore();c.globalAlpha=1;c.globalCompositeOperation='source-over'}}
+    c.globalCompositeOperation='lighter';c.globalAlpha=.8*lo;const hx=cars[0][1];c.drawImage(GL.warm,hx-30,147-12-18,40,36);c.restore();c.globalAlpha=1;
+    g.globalCompositeOperation='destination-out';g.setTransform(RS,0,0,RS,0,0);g.imageSmoothingEnabled=false;blitCh(g,sc,'l',camX*ZL,camY*ZL,OW*ZL/Z,OH*ZL/Z,0,0,OW,OH);XF(g);drawTrees(g,sc,false);drawTrees(g,sc,true);
+    g.globalCompositeOperation='source-over';real.save();real.setTransform(1,0,0,1,0,0);real.globalAlpha=1;real.globalCompositeOperation='source-over';real.drawImage(TRB.c,0,0);real.restore()}}
 function drawXing_(c,sc,layer){if(sc===OUT&&XNI.cruce)return drawXingNew(c,sc,layer);if(sc!==OUT||camX>1000||camX+W<820)return;const X=XG;
   const VPX=1000,VPY=118,D=40,P=(Xl,Yh,z)=>{const sc=D/(D+Math.max(z,-D*.9));return[VPX+(912+Xl-VPX)*sc,VPY+(150-Yh-VPY)*sc]};
   const quad=(pts,col)=>{c.fillStyle=col;c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.closePath();c.fill()};
