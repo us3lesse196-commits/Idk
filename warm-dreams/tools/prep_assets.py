@@ -72,6 +72,45 @@ def blobs(light_rgba, scale):
     return out
 
 
+def proc_glow(im, mode, seed=0):
+    """Capa de luces calculada: ventanas (vidrio oscuro) encendidas al azar o tonos cálidos."""
+    a = np.asarray(im).astype(int); r, g, bl, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
+    lum = (r * 3 + g * 6 + bl) / 10; out = np.zeros(a.shape, np.uint8)
+    rng = np.random.default_rng(seed)
+    if mode in ('school', 'tower'):
+        glass = (al > 0) & (bl >= r - 4) & (lum < 120) & (lum > 18)
+        h, w = glass.shape; lab = np.zeros((h, w), int); n = 0
+        for y in range(h):
+            for x in range(w):
+                if glass[y, x] and not lab[y, x]:
+                    n += 1; st = [(y, x)]; lab[y, x] = n; pts = []
+                    while st:
+                        cy, cx = st.pop(); pts.append((cy, cx))
+                        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                            ny, nx = cy + dy, cx + dx
+                            if 0 <= ny < h and 0 <= nx < w and glass[ny, nx] and not lab[ny, nx]:
+                                lab[ny, nx] = n; st.append((ny, nx))
+                    if len(pts) > 40:
+                        ys = [p_[0] for p_ in pts]; xs = [p_[1] for p_ in pts]
+                        y0, y1, x0, x1 = min(ys), max(ys), min(xs), max(xs)
+                        fill = len(pts) / max(1, (y1 - y0 + 1) * (x1 - x0 + 1))
+                        if fill > 0.45 and (x1 - x0) > 3 and (y1 - y0) > 3 and rng.random() < (0.5 if mode == 'school' else 0.8):
+                            warm = rng.random() < 0.85
+                            col = (255, 226, 160) if warm else (190, 215, 255)
+                            for (py, px) in pts:
+                                out[py, px] = (*col, 228)
+        if mode == 'tower':
+            top = h // 4
+            face = (al[:top] > 0) & (lum[:top] > 200)
+            out[:top][face] = (255, 246, 220, 220)
+    else:
+        warm = (al > 0) & (r > 150) & (r - bl > 60) & (r >= g)
+        cream = (al > 0) & (lum > 205)
+        m = warm | cream
+        out[m, :3] = a[m, :3]; out[m, 3] = 235
+    return Image.fromarray(out, 'RGBA')
+
+
 def main():
     path = os.path.join(ROOT, 'assets.js')
     s = open(path).read() if os.path.exists(path) else 'window.WD_ASSETS={}'
@@ -142,6 +181,17 @@ def main():
             la = np.asarray(lit).copy(); la[..., 3] = np.where(np.asarray(im)[..., 3] > 0, la[..., 3], 0)
             warm = (la[..., 0].astype(int) > la[..., 2].astype(int) + 25)
             la[..., 3] = np.where(warm, la[..., 3], 0); lit = Image.fromarray(la, 'RGBA')
+            e['glow'] = b64(lit); e['lights'] = blobs(lit, 2 / K)
+        A['buildings'][name] = e
+
+    # ---- fase 3: prepa y entrada del callejón (luces calculadas por código)
+    for name, f, hu, mode in [('alaA', 'fase3/alaA.png', 90, 'school'), ('alaB', 'fase3/alaB.png', 88, 'school'),
+                              ('torre', 'fase3/torre.png', 130, 'tower'), ('porton', 'fase3/porton.png', 47, None),
+                              ('callejonEntrada', 'fase3/callejonEntrada.png', 60, 'warm')]:
+        src = load(f); im = harden(fit_h(src.crop(bbox(src)), hu * K), 100)
+        e = {'src': b64(im), 'w': round(im.width / K * 2), 'h': hu * 2, 'lights': []}
+        if mode:
+            lit = proc_glow(im, mode, seed=len(name))
             e['glow'] = b64(lit); e['lights'] = blobs(lit, 2 / K)
         A['buildings'][name] = e
 

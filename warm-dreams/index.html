@@ -591,7 +591,8 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
       rehmap(B_)};
     const place=(src,x,w,h,sc,glow,base=150,cb)=>{const im=new Image();im.onload=()=>{const ww=w*sc/Z,hh=h*sc/Z,y=base-hh+.5;Ls.imageSmoothingEnabled=false;Ls.drawImage(im,x,y,ww,hh);B_._dirty={l:true,e:true};if(cb)cb(im,y);
         if(glow){const c=mk(w,h),g=c.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,w,h),q=d.data;for(let i=0;i<q.length;i+=4){if(!(q[i]>175&&q[i+1]>115&&q[i]>q[i+2]+60))q[i+3]=0}g.putImageData(d,0,0);Es.imageSmoothingEnabled=false;Es.drawImage(c,x,y,ww,hh)}};im.src=src};
-    const bld=(name,x)=>{const b=WA.buildings[name];if(!b)return;if(b.glow){const gi=new Image();gi.onload=()=>{const ww=b.w/Z,hh=b.h/Z,y=150-hh+.5;Es.imageSmoothingEnabled=false;Es.drawImage(gi,x,y,ww,hh);B_._dirty={l:true,e:true}};gi.src=b.glow}place(b.src,x,b.w,b.h,1,!b.glow,150,(im,y0)=>roof(im,x,b.w,b.h,y0,x+2,x+b.w/Z-2));const top=150-b.h/Z;
+    const recut=(x0,x1)=>{for(const t of Bs.treeSpr)if(t.k&&t.ox<x1&&t.ox+t.GW>x0){Es.save();Es.globalCompositeOperation='destination-out';Es.drawImage(t.c,t.ox,t.oy,t.GW,t.GH);Es.restore()}};
+    const bld=(name,x,after)=>{const b=WA.buildings[name];if(!b)return;if(b.glow){const gi=new Image();gi.onload=()=>{const ww=b.w/Z,hh=b.h/Z,y=150-hh+.5;Es.imageSmoothingEnabled=false;Es.drawImage(gi,x,y,ww,hh);recut(x,x+ww);B_._dirty={l:true,e:true}};gi.src=b.glow}place(b.src,x,b.w,b.h,1,!b.glow,150,(im,y0)=>{roof(im,x,b.w,b.h,y0,x+2,x+b.w/Z-2);if(after)after()});const top=150-b.h/Z;
       const ls=[...b.lights].sort((p,q)=>q[2]-p[2]),pick=[];for(const l of ls){if(pick.length>=5)break;if(pick.every(o=>Math.hypot(o[0]-l[0],o[1]-l[1])>16))pick.push(l)}
       for(const [lx,ly,n] of pick)Bs.lights.push({x:x+lx/Z,y:top+ly/Z,r:clamp(14+n*.6,16,40),kind:'warm',s:.95});Bs.drips.push({x:x+2,y:top+6},{x:x+b.w/Z-2,y:top+6})};
     const prop=(name,x,sc=1)=>{const p=WA.props[name];if(p)place(p.src,x,p.w,p.h,sc,name==='vending')};
@@ -603,6 +604,12 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
     if(WA.buildings.casaMori){zone(428,552);bld('casaMori',437);const d=Bs.doors.find(d=>d.x===465),it=Bs.inter.find(i=>i.type==='door'&&i.target&&i.target.scene==='house');
       if(d){d.x=460;d.y=130;d.w=14;d.h=20}if(it){it.x=467;it.dx=467}}
     if(WA.buildings.casaC){zone(576,680);bld('casaC',580)}
+    if(WA.buildings.callejonEntrada){zone(676,714);bld('callejonEntrada',678);const ai=Bs.inter.find(i=>i.type==='alley');if(ai)ai.x=696}
+    // ---- fase 3: prepa
+    if(WA.buildings.porton){zone(1095,1238);Bs.solids=Bs.solids.filter(o=>!(o.x>=1095&&o.x<1238));bld('porton',1100)}
+    if(WA.buildings.alaA&&WA.buildings.torre&&WA.buildings.alaB){zone(1265,1968);
+      const redrawBench=()=>{const oL=L,oB=B;L=Ls;B={inter:[]};bench(1430,150,'cerezo');L=oL;B=oB;B_._dirty={l:true,e:true}};
+      bld('alaA',1282,redrawBench);bld('torre',1596);bld('alaB',1643)}
     if(WA.buildings.deptos){zone(706,826);bld('deptos',714);for(const f of [.305,.485,.666,.846]){const y=Math.round(46+104*f);O(716,y,78);Bs.drips.push({x:717,y:y+2},{x:792,y:y+2})}}
     const sh=WA.buildings.shrine;if(sh){const w=sh.w/Z,x=2935-w/2,top=126-sh.h/Z;Ls.clearRect(2870,0,130,126);Es.clearRect(2870,0,130,126);
       for(const k of ['lights','oneways','drips'])Bs[k]=Bs[k].filter(o=>o.x<2870||o.x>3000);place(sh.src,x,sh.w,sh.h,1,true,126,(im,y0)=>roof(im,x,sh.w,sh.h,y0,x+4,x+w-4));
