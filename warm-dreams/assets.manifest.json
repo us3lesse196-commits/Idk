@@ -262,5 +262,10 @@
     "archivo": "assets.local/menu/logo.png",
     "titulo": "8d22403e-20ba-49fd-bffa-6c6c29d0b974",
     "boton": "fbf126d6-9b44-40ca-a0a3-00658195760d"
+  },
+  "cuaderno": {
+    "papel_carta": "5a5498ec-9824-4364-9a66-79355df9f2dc",
+    "stickers": "3830e287-8e6f-4dc8-8d20-c5748e73c5f4",
+    "archivos": "assets.local/cuaderno/"
   }
 }

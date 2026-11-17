@@ -508,6 +508,31 @@ def main():
             im = load(f); im = im.crop(bbox(im, 60)); im = harden(fit_h(im, round(hu * K)), 110)
             CT[nm] = {'src': b64(im), 'w': im.width / K, 'h': im.height / K}
     A['cats'] = CT
+    # cuaderno: papel de la carta (solo la tarjeta clara del centro) y stickers
+    if os.path.exists(os.path.join(ROOT, 'cuaderno/papel.png')):
+        im = load('cuaderno/papel.png'); g_ = np.asarray(im.convert('L')).astype(float); fr = g_ > np.percentile(g_, 55)
+        rows = np.where(fr.mean(axis=1) > .55)[0]; cols = np.where(fr.mean(axis=0) > .55)[0]
+        card = im.crop((int(cols.min()), int(rows.min()), int(cols.max()) + 1, int(rows.max()) + 1))
+        CU = {'papel': b64(card)}
+        st_ = load('cuaderno/stickers.png'); al = np.asarray(st_)[..., 3] > 60
+        def runs(v, gap=4):
+            r = []; i = 0
+            while i < len(v):
+                if v[i]:
+                    j = i
+                    while j < len(v) and (v[j] or any(v[j:j + gap])): j += 1
+                    r.append((i, j)); i = j
+                else: i += 1
+            return r
+        boxes = []
+        for ya, yb in runs(al.any(axis=1)):
+            for xa, xb in runs(al[ya:yb].any(axis=0)):
+                sub = al[ya:yb, xa:xb]; ys = np.where(sub.any(axis=1))[0]
+                if sub.sum() > 300: boxes.append((ya + ys.min(), xa, ya + ys.max() + 1, xb))
+        for nm, (y0, x0, y1, x1) in zip(['sello', 'washiR', 'washiL', 'sakura', 'luna', 'angel', 'maju', 'stamp'], boxes):
+            CU[nm] = b64(st_.crop((x0, y0, x1, y1)))
+        print('  cuaderno', card.size, len(boxes))
+        A['cuaderno'] = CU
     if os.path.exists(os.path.join(ROOT, 'menu/logo.png')):
         im = load('menu/logo.png'); A['menu'] = {'logo': b64(im.crop(bbox(im, 20)))}
         for k, f in [('titulo', 'menu/titulo.png'), ('boton', 'menu/boton_menu.png')]:
