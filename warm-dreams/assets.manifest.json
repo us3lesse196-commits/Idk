@@ -172,7 +172,8 @@
       "walk": "52eccea7-02d1-42ad-86cd-36fb4489988d",
       "run": "28284aa7-92e5-4b9b-99f8-8dbe4ac18aee",
       "jump": "b7c84c8e-d395-40cf-b09e-b24f8e7885dc",
-      "archivos": "assets.local/chars/haru_*.png (hojas de 202 px por cuadro)"
+      "archivos": "assets.local/chars/haru_*.png (hojas de 202 px por cuadro)",
+      "nota": "descartado: reemplazado por Angel"
     },
     "npc_student": {
       "base": "58d2c418-c108-41eb-95b1-4975ae567a93",
@@ -190,6 +191,19 @@
       "base": "9a3d65c7-3753-44b1-b9c7-108dd5125a51",
       "walk": "bed6cf4d-540b-4c5b-ad28-69e91fdc5ddd"
     },
-    "npc_archivos": "assets.local/chars/npc_<tipo>_walk.png"
+    "npc_archivos": "assets.local/chars/npc_<tipo>_walk.png",
+    "angel": {
+      "base": "2f1d47e1-8c26-41b7-ad5f-96541c0caf60",
+      "idle": "d9a74b87-a9bc-464a-a980-02c90db458ed",
+      "walk": "b7fa722d-0963-4b1b-aa8d-c6eb51d2ef24",
+      "run": "5e1e580a-adba-4556-8f4a-c266ccec75ab",
+      "jump": "71d037c3-078c-4bac-b316-8b947e49c650"
+    },
+    "maju": {
+      "base": "9b475282-9bf8-48d1-9608-069aacef8dc3",
+      "idle": "575d5661-d765-4604-b21a-ce371ee501c6",
+      "walk": "829a0ea8-9e10-45b2-aa40-edc087948c08",
+      "descartada": "660a5964-f89e-4a2c-9583-d769800158d2"
+    }
   }
 }

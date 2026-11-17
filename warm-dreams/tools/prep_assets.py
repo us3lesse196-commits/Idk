@@ -470,7 +470,7 @@ def main():
         if os.path.exists(os.path.join(ROOT, 'chars/npc_%s_walk.png' % nm)): NP[nm] = char('npc_' + nm, [('walk', 8)], hu)
     if os.path.exists(os.path.join(ROOT, 'chars/maju_walk.png')): NP['aoi'] = char('maju', [('idle', 6), ('walk', 8)], 15.5)
     A['npc'] = NP
-    print('  haru fw', FW, 'ax', H_['ax'])
+    print('  personajes', {k: round(v['u'], 1) for k, v in dict(NP, angel=A['haru']).items()})
     print('  lago w', W_ / K,'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])
     print('  cruce', X['cruce']['w'], 'vagon', X['vagon']['w'], 'cabina', X['cabina']['w'])
 
