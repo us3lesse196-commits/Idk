@@ -187,6 +187,15 @@ def proc_glow(im, mode, seed=0):
     return Image.fromarray(out, 'RGBA')
 
 
+CROPR = {'tramoS3': 0.915}  # recorte por la derecha (quita la pared vecina cortada)
+
+
+def cbox(name, src):
+    b = bbox(src)
+    if name in CROPR: b = (b[0], b[1], b[0] + round((b[2] - b[0]) * CROPR[name]), b[3])
+    return b
+
+
 def main():
     path = os.path.join(ROOT, 'assets.js')
     s = open(path).read() if os.path.exists(path) else 'window.WD_ASSETS={}'
@@ -281,7 +290,7 @@ def main():
 
     # ---- tramos pintados de una vez (edificios conectados)
     for name, f, hu in [('tramoCallejon', 'tramos/callejon_a.png', 128), ('tramoS1', 'tramos/s1.png', 80), ('tramoS2', 'tramos/s2.png', 75), ('tramoS3', 'tramos/s3.png', 72)]:
-        src = load(f); im = harden(fit_h(src.crop(bbox(src)), hu * K), 100)
+        src = load(f); im = harden(fit_h(src.crop(cbox(name, src)), hu * K), 100)
         A['buildings'][name] = {'src': b64(im), 'w': round(im.width / K * 2), 'h': hu * 2, 'lights': []}
 
     # ---- versiones de noche con luces encendidas (interiores reales)
@@ -291,8 +300,10 @@ def main():
     for name, (f, hu) in NIGHT.items():
         nf = os.path.join(ROOT, 'noche', name + '.png')
         if not os.path.exists(nf) or name not in A['buildings']: continue
-        src = load(f); srcC = src.crop(bbox(src)); im = harden(fit_h(srcC, hu * K), 100)
-        nim = Image.open(nf).convert('RGBA'); nim = nim.crop(bbox(nim, 30))
+        src = load(f); srcC = src.crop(cbox(name, src)); im = harden(fit_h(srcC, hu * K), 100)
+        nim = Image.open(nf).convert('RGBA'); nb = bbox(nim, 30)
+        if name in CROPR: nb = (nb[0], nb[1], nb[0] + round((nb[2] - nb[0]) * CROPR[name]), nb[3])
+        nim = nim.crop(nb)
         night = align_night(srcC, nim)
         lit = lit_from_night(im, night.resize(im.size, Image.BOX))
         A['buildings'][name].update({'glow': b64(lit), 'lights': blobs(lit, 2 / K)})
