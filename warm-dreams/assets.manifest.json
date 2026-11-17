@@ -204,7 +204,8 @@
       "fallidos": [
         "0b8fc1cd-653c-435f-923f-2d78fb98b0a8 sit (salió de pie)",
         "185d2fa6-a379-4976-8c5f-da11315fa778 slide (salió corriendo)"
-      ]
+      ],
+      "sleep_pose": "bb0a12c4-541c-45db-9268-ac04c9b8417a"
     },
     "maju": {
       "base": "9b475282-9bf8-48d1-9608-069aacef8dc3",

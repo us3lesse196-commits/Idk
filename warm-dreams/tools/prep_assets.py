@@ -478,7 +478,7 @@ def main():
 
     ish = load('chars/angel_idle.png'); fh = ish.height; f0 = ish.crop((0, 0, fh, fh)); b0 = bbox(f0); sc0 = 17 * K / (b0[3] - b0[1])
     hw0 = hair_w(f0)
-    for nm, f in [('sit', 'chars/angel_sitpose.png'), ('slide', 'chars/slide_raw.png')]:
+    for nm, f in [('sit', 'chars/angel_sitpose.png'), ('sleep', 'chars/angel_sleeppose.png'), ('slide', 'chars/slide_raw.png')]:
         if os.path.exists(os.path.join(ROOT, f)): A['haru'][nm] = pose(f, hw0, sc0)
     # NPC: estudiante, oficinista, abuelita, conserje (solo caminar) y Maju (reposo + caminar)
     NP = {}

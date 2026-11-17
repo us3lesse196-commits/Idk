@@ -39,7 +39,7 @@ button{font-family:var(--ui);color:var(--ink)}
 #sitbar{position:fixed;z-index:6;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);display:flex;gap:6px}
 #sitbar .chip{font-size:12px;padding:8px 9px;white-space:nowrap}
 body.seated #zone{display:none}
-/* panel de audífonos */
+/* panel de dormir (antes audífonos) */
 .sheet{position:fixed;z-index:12;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow:auto;
   background:var(--panel-solid);border:2px solid var(--edge);border-radius:4px;box-shadow:0 6px 0 rgba(0,0,0,.4);padding:14px 16px}
 .sheet h2{margin:0 0 10px;font-size:17px;font-weight:600;letter-spacing:.04em;display:flex;align-items:center;justify-content:space-between}
@@ -177,7 +177,7 @@ body.ui2 #zone{text-shadow:0 1px 3px rgba(0,0,0,.6)}
   <button class="chip" id="btnSet" type="button" aria-label="Ajustes"><small>Ajustes</small><span>⚙</span></button>
 </div>
 <div id="sitbar" hidden>
-  <button class="chip" id="btnPhones" type="button">🎧</button>
+  <button class="chip" id="btnPhones" type="button" aria-label="Dormir">💤</button>
   <button class="chip tl" id="btnMusic" type="button" hidden>🎵 Música</button>
   <button class="chip tl" id="btnDraw" type="button" hidden>✏️ Dibujar</button>
   <button class="chip tl" id="btnStopTL" type="button" hidden aria-label="Detener timelapse">⏹</button>
@@ -188,8 +188,8 @@ body.ui2 #zone{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 <div class="pad" id="dpad"><div class="btn" data-k="left" aria-label="Izquierda">◀</div><div class="btn" data-k="right" aria-label="Derecha">▶</div></div>
 <div class="pad" id="acts"><div class="btn" data-k="down" aria-label="Agacharse">▼</div><div class="btn" id="bJump" data-k="jump" aria-label="Saltar">▲</div></div>
 
-<div class="sheet" id="phones" hidden role="dialog" aria-label="Audífonos">
-  <h2>🎧 Audífonos <button class="x" id="phonesClose" type="button">Cerrar</button></h2>
+<div class="sheet" id="phones" hidden role="dialog" aria-label="Dormir">
+  <h2>💤 Dormir <button class="x" id="phonesClose" type="button">Cerrar</button></h2>
   <div class="tabs" role="tablist">
     <button class="tab" id="tabMusic" role="tab" aria-selected="true" type="button">Timelapse libre</button>
     <button class="tab" id="tabSky" role="tab" aria-selected="false" type="button">Clima y hora</button>
@@ -1288,7 +1288,7 @@ function chrDraw(c,d,k,fr,ox,oy,flip,alpha){const s=d[k],im=s&&sprImg(s.src);if(
 function haruSpr(c,p,cx,by,f){const d=window.WD_ASSETS&&WD_ASSETS.haru,a=p.anim;if(!d)return false;
   const sp=p.auto?p.auto.sp:Math.abs(p.vx);let k='idle',fr=0;
   if(p.back){if(!d.back)return false;k='back';fr=a==='run'?4+Math.floor(p.animT*6/60)%2:5}
-  else if(a==='sit'){if(!d.sit)return false;k='sit';by+=(p.sitAt&&p.sitAt.low?3:0)+(Math.sin(st.time*.045)>.6?1:0)}
+  else if(a==='sit'){if(!d.sit)return false;k=p.phones&&d.sleep?'sleep':'sit';by+=(p.sitAt&&p.sitAt.low?3:0)+(Math.sin(st.time*.045)>.6?1:0)}
   else if(a==='slide'&&d.slide)k='slide';
   else if(a==='run'){k=sp<1.25||!d.run?'walk':'run';fr=Math.floor(p.animT*d[k].fps/60)}
   else if(a==='jump')fr=p.vy<-.8?3:4,k='jump';else if(a==='fall'||a==='wall')fr=p.vy<.8?4:5,k='jump';
@@ -1536,7 +1536,7 @@ function drawHiActors(c,sc,cur){if(!A)return;ID(c);c.imageSmoothingEnabled=false
         for(let i=1;i<=5;i++){const dx=(-4+back*i*1.6+WE*i*.4*f)*f,dy=6+i*(1-sp*.6)+Math.sin(st.time*.22+i*.9)*(.3+sp*.8)*i*.35;c.fillStyle=i>3?'#a8303a':'#d8414c';c.fillRect(Math.round(hx+dx),Math.round(hy+dy),3,2)}c.globalAlpha=1}
       if(!nw)sprFrame('haru',fi,ox,oy,p.facing<0,c,p.alpha);
       if(!nw&&!p.back&&st.time%230<7){c.fillStyle='#e0aa86';c.fillRect(hx+(f>0?1:-2),hy,2,2);c.fillRect(hx+(f>0?4:-5),hy,2,2)}
-      if(p.phones&&!p.back){const hx=hx2,hy=hy2;c.fillStyle='#241c2e';c.fillRect(hx-6,hy-7,12,3);c.fillRect(hx-2*f-3,hy-3,6,8);c.fillStyle='#4a4a5c';c.fillRect(hx-5,hy-6,10,1);c.fillRect(hx-2*f-2,hy-2,4,6);c.fillStyle='#ff8fa3';c.fillRect(hx-2*f-1,hy,2,2)}
+      if(p.phones&&!p.back&&!nw){const hx=hx2,hy=hy2;c.fillStyle='#241c2e';c.fillRect(hx-6,hy-7,12,3);c.fillRect(hx-2*f-3,hy-3,6,8);c.fillStyle='#4a4a5c';c.fillRect(hx-5,hy-6,10,1);c.fillRect(hx-2*f-2,hy-2,4,6);c.fillStyle='#ff8fa3';c.fillRect(hx-2*f-1,hy,2,2)}
       if(p.shade){c.globalCompositeOperation='source-atop';c.fillStyle=`rgba(18,15,32,${p.shade*.55})`;c.fillRect(ox-20,oy-44,40,46);c.globalCompositeOperation='source-over'}}}
   c.imageSmoothingEnabled=true;XF(c)}
 function drawFox(){if(fox.a<.02)return;const t=fox.t,a=fox.a,c=ctx,flip=fox.dir<0;ID(c);const ox=Math.round((fox.x-camX)*Z),oy=Math.round((fox.y-camY)*Z+Math.sin(t*.05)),w=20;
@@ -1568,7 +1568,7 @@ function updateActBtn(){const show=!!nearI&&!talkOpen;actBtn.hidden=!show;if(sho
 actBtn.addEventListener('click',()=>interact());
 function showSit(on){$('#sitbar').hidden=!on;document.body.classList.toggle('seated',on)}
 $('#btnStand').addEventListener('click',()=>stand());
-// audífonos
+// dormir (antes audífonos): Angel se duerme en la banca y el tiempo pasa
 const phones=$('#phones');let selHour=null,selWx=null;
 function openPhones(){player.phones=1;phones.hidden=false;renderOpts()}
 function closePhones(){phones.hidden=true}
@@ -1839,8 +1839,8 @@ function menuScene(){const b=save.bench||{scene:'out',x:1443};let sc=SCENES[b.sc
   if(!it){sc=OUT;it=OUT.inter.find(i=>i.type==='bench'&&Math.abs(i.x-1443)<2)}goScene(sc.name,it.x,1);const p=player;p.state='sit';p.sitAt=it;p.x=it.x-4;p.y=(it.y||150)-16;p.vx=0;p.facing=1;
   p.anim='sit';p.animT=0;p.phones=1;st.mode='menu';document.body.classList.add('menu');if(!save.prologue){cine.aoi={x:1700,a:0};const n=OUT.npcs.find(n=>n.kind==='aoi');if(n){n.x=1700;n.a=0}}}
 menuScene();
-function drawNotes(){if(!(menu&&player.phones)&&!mNotes.length)return;if(menu&&player.phones&&st.time%70<3&&(!drawNotes.last||st.time-drawNotes.last>60)){drawNotes.last=st.time;mNotes.push({x:player.x+6,y:player.y+2,t:0,s:Math.random()<.5?'♪':'♫',d:Math.random()<.5?-1:1})}
-  octx.save();octx.font='bold 11px serif';octx.textAlign='center';for(let i=mNotes.length-1;i>=0;i--){const n=mNotes[i];n.t++;if(n.t>150){mNotes.splice(i,1);continue}
+function drawNotes(){const zz=player.phones&&player.anim==='sit'&&(menu||player.state==='sit');if(!zz&&!mNotes.length)return;if(zz&&(!drawNotes.last||st.time-drawNotes.last>55)){drawNotes.last=st.time;mNotes.push({x:player.x+player.facing*5+4,y:player.y+1,t:0,s:mNotes.length%2?'z':'Z',d:player.facing})}
+  octx.save();octx.font='bold 10px monospace';octx.textAlign='center';for(let i=mNotes.length-1;i>=0;i--){const n=mNotes[i];n.t++;if(n.t>150){mNotes.splice(i,1);continue}
     const a=Math.min(1,n.t/20)*Math.min(1,(150-n.t)/40),x=(n.x-camX)*Z+Math.sin(n.t*.05)*6*n.d+n.t*.12*n.d,y=(n.y-camY)*Z-n.t*.35;octx.fillStyle=`rgba(255,240,220,${a*.9})`;octx.fillText(n.s,x,y)}octx.restore()}
 // HUD nuevo
 if(window.WD_ASSETS&&WD_ASSETS.ui){const U=WD_ASSETS.ui,r=document.documentElement.style;for(const k in U)r.setProperty('--i-'+k,`url(${U[k]})`);document.body.classList.add('ui2');
