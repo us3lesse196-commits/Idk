@@ -863,7 +863,7 @@ const found={koi:0,fox:0,cat:0};
 // NPC del exterior
 (()=>{const r=rng(77);const kinds=[
   ['student',10,[.30,.72],[0,2100]],['office',5,[.28,.42],[0,1100]],['office',4,[.70,.86],[0,1100]],['granny',3,[.30,.66],[0,1100]],['granny',2,[.32,.62],[2140,3290]],
-  ['kid',3,[.35,.64],[0,1100]],['dog',3,[.72,.95],[0,1100]],['jogger',2,[.24,.34],[0,3290]],['student',3,[.55,.78],[1100,2100]]];
+  ['student',3,[.55,.78],[1100,2100]]];
   for(const [kind,n,[a,b],[x0,x1]] of kinds)for(let i=0;i<n;i++)OUT.npcs.push({kind,x:x0+r()*(x1-x0),x0,x1,dir:r()<.5?-1:1,sp:kind==='granny'?.25:kind==='jogger'?1.1:kind==='kid'?.55:.4+r()*.15,
     t0:a+(r()-.5)*.04,t1:b+(r()-.5)*.04,umb:r()<.65,ucol:['#e05a6a','#5aa0e0','#f2d36b','#ffffff','#7ad08a','#b08ae0'][Math.floor(r()*6)],a:0,ph:r()*10,shelter:null,
     hair:['#2a2135','#3a2a22','#5a4030','#1e1a24'][Math.floor(r()*4)],y:150,var:r()});
@@ -1312,6 +1312,12 @@ function drawPlayer(c){const p=player;if(p.alpha<=0)return;const cx=Math.round(p
   if(p.shade){c.globalAlpha=p.shade*.55*p.alpha;c.fillStyle='#120f20';c.fillRect(cx-7,by-22,14,23)}
   c.globalAlpha=1}
 const HUM={student:1,office:1,granny:1,kid:1,dog:1,jogger:1,aoi:1,janitor:1};
+// NPC con sprites de SpriteCook (una variante por tipo; cuadro 0 de caminar = reposo)
+const NS={};function npcSpr(c,n,ox,oy,flip){const D=window.WD_ASSETS&&WD_ASSETS.npc,d=D&&D[n.kind];if(!d)return false;
+  let im=NS[n.kind];if(!im){im=NS[n.kind]=new Image();im.onload=()=>im.ok=1;im.src=d.src}if(!im.ok)return false;
+  const fr=n.walking?Math.floor((n.ph||0)*(n.kind==='granny'?.1:.16))%d.n:0,fw=d.fw,U=d.u*Z;
+  c.save();c.globalAlpha=n.a;c.imageSmoothingEnabled=false;c.translate(ox,0);if(flip)c.scale(-1,1);
+  c.drawImage(im,fr*fw,0,fw,fw,-d.ax/fw*U,oy-U+d.by*Z+1,U,U);c.restore();return true}
 function npcVariant(n){const k=n.kind,v=n.var||0;return k==='aoi'?'aoi':k==='janitor'?'office':k==='office'?(v<.4?'officeF':'office'):k==='granny'?'granny':k==='jogger'?'jogger':k==='kid'?'kid':k==='dog'?'walker':v<.3?'girl':v<.55?'girl2':v<.8?'boy':'boy2'}
 function drawNPC(c,n){if(n.a<.02)return;
   if(useSpr()&&HUM[n.kind]){if(n.kind==='dog'){const sx=Math.round(n.x-camX),by=Math.round(n.y),f=n.dir||1,step=n.walking?Math.round(Math.sin(n.ph*.2)*1.5):0;if(sx<-20||sx>W+20)return;c.globalAlpha=n.a;
@@ -1517,7 +1523,7 @@ function drawHiActors(c,sc,cur){if(!A)return;ID(c);c.imageSmoothingEnabled=false
   if(cur&&player.alpha>0&&player.grounded&&!player.lift)shadow(c,Math.round((player.x+4-camX)*Z),Math.round((player.y+player.h-camY)*Z),player.anim==='slide'?11:7,sA*player.alpha);
   const X=wx=>Math.round((wx-camX)*Z),Y=wy=>Math.round((wy-camY)*Z);
   for(const n of sc.npcs){if(!HUM[n.kind]||n.a<.02)continue;const ox=X(n.x),oy=Y(n.y);if(ox<-40||ox>OW+40)continue;const F=A.meta.frames;
-    const fi=n.walking?(n.kind==='jogger'?F.run[Math.floor((n.ph||0)*.2)%8]:F.walk[Math.floor((n.ph||0)*(n.kind==='granny'?.1:.16))%8]):F.idle[Math.floor((st.time+(n.var||0)*90)/26)%4];sprFrame(npcVariant(n),fi,ox,oy,(n.dir||1)<0,c,n.a);if(n.bag){c.globalAlpha=n.a;c.fillStyle='#2a2a33';c.fillRect(ox+(n.dir||1)*7-3,oy-15,7,9);c.fillStyle='#4a4a58';c.fillRect(ox+(n.dir||1)*7-1,oy-17,3,2);c.globalAlpha=1}
+    const fi=n.walking?(n.kind==='jogger'?F.run[Math.floor((n.ph||0)*.2)%8]:F.walk[Math.floor((n.ph||0)*(n.kind==='granny'?.1:.16))%8]):F.idle[Math.floor((st.time+(n.var||0)*90)/26)%4];const ns=npcSpr(c,n,ox,oy,(n.dir||1)<0);if(!ns)sprFrame(npcVariant(n),fi,ox,oy,(n.dir||1)<0,c,n.a);if(n.bag&&!ns){c.globalAlpha=n.a;c.fillStyle='#2a2a33';c.fillRect(ox+(n.dir||1)*7-3,oy-15,7,9);c.fillStyle='#4a4a58';c.fillRect(ox+(n.dir||1)*7-1,oy-17,3,2);c.globalAlpha=1}
     if(n.umbOpen){c.globalAlpha=n.a;c.fillStyle=n.ucol;const uy=oy-40,ut=clamp(WE,-2.2,2.2);for(let r=0;r<6;r++){const w=10+r*3;c.fillRect(ox-w+Math.round(ut*(6-r)*.7),uy+r,w*2,1)}c.fillStyle='rgba(0,0,0,.22)';c.fillRect(ox-25,uy+5,50,1);c.fillStyle='#2a2a33';c.fillRect(ox,uy+6,1,14);c.globalAlpha=1}
     if(n.kind==='aoi'&&n.a>.6&&!n.walking&&!cine.on&&!menu){const b=Math.round(Math.sin(st.time*.08)*2),by=oy-48+b;c.fillStyle='#fff4e2';c.fillRect(ox-8,by,17,9);c.fillRect(ox-1,by+9,3,2);c.fillStyle='#3b2f3f';for(const k of [-4,0,4])c.fillRect(ox+k,by+4,2,2)}}
   if(cur){const p=player;if(p.alpha>0){const ox=X(p.x+p.w/2),oy=Y(p.y+p.h-(p.lift||0)),fi=playerFrame(p),hd=A.meta.heads[fi],f=p.facing,hx=ox+hd[0]*f,hy=oy-hd[1];

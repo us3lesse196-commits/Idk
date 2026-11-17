@@ -456,6 +456,19 @@ def main():
             out.paste(harden(fr, 110), (j * FW, 0))
         H_[nm] = {'src': b64(out), 'n': n, 'fps': fps}
     A['haru'] = H_
+    # ---- NPC (solo caminar; el cuadro 0 sirve de reposo). alto en unidades del juego
+    NP = {}
+    for nm, hu in [('student', 17), ('office', 18.5), ('granny', 15), ('janitor', 18)]:
+        f = os.path.join(ROOT, 'chars/npc_%s_walk.png' % nm)
+        if not os.path.exists(f): continue
+        sh = load('chars/npc_%s_walk.png' % nm); fh = sh.height; n = sh.width // fh
+        b = bbox(sh.crop((0, 0, fh, fh))); s_ = hu * K / (b[3] - b[1]); FW = round(fh * s_)
+        out = Image.new('RGBA', (FW * n, FW))
+        for j in range(n):
+            fr = sh.crop((j * fh, 0, j * fh + fh, fh)).resize((FW, FW), Image.LANCZOS)
+            out.paste(harden(fr, 110), (j * FW, 0))
+        NP[nm] = {'src': b64(out), 'n': n, 'fw': FW, 'u': FW / K, 'ax': (b[0] + b[2]) / 2 * s_, 'by': (fh - b[3]) * s_ / K}
+    A['npc'] = NP
     print('  haru fw', FW, 'ax', H_['ax'])
     print('  lago w', W_ / K,'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])
     print('  cruce', X['cruce']['w'], 'vagon', X['vagon']['w'], 'cabina', X['cabina']['w'])
