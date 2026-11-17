@@ -397,6 +397,19 @@ def main():
     deckEnd = round(float(redrows.max()) / K, 1)
     A['lago'] = {'src': b64(im), 'w': W_ / K, 'h': 95, 'rail': prof, 'x0': round(x0 / K, 1), 'x1': round(x1 / K, 1), 'deckEnd': deckEnd}
     A.pop('tunel', None)
+    # ---- santuario y colina
+    A['buildings'].pop('shrine', None)
+    S_ = {}
+    src = load('santuario/haiden.png'); box = bbox(src, 30); im = harden(fit_h(src.crop(box), 58 * K), 100)
+    nim = load('santuario/haiden_noche.png'); nim = align_night(src.crop(box), nim.crop(bbox(nim, 30))).resize(im.size, Image.BOX)
+    S_['haiden'] = {'src': b64(im), 'glow': b64(lit_from_night(im, nim)), 'w': im.width / K, 'h': 58}
+    im = load('santuario/muro.png').convert('RGB'); hh = 54 * K; im = im.resize((round(im.width * hh / im.height), hh), Image.BOX)
+    S_['muro'] = {'src': b64(im), 'w': im.width / K, 'h': 54}
+    for (nm, hu), part in zip([('torii', 40), ('kitsuneR', 15), ('kitsuneL', 15), ('temizuya', 19), ('ema', 18), ('omikuji', 17), ('barandal', 9)], split_sheet(os.path.join(ROOT, 'santuario/objetos.png'))):
+        im = harden(fit_h(part, hu * K), 100); A['deco'][nm] = {'src': b64(im), 'w': im.width / K, 'h': hu}
+    for (nm, hu), part in zip([('cedro', 104), ('pino', 70), ('arceRojo', 46)], split_sheet(os.path.join(ROOT, 'santuario/arboles.png'))):
+        im = harden(fit_h(part, hu * K), 100); A['trees'][nm] = {'src': b64(im), 'w': im.width / K, 'h': hu}
+    A['santuario'] = S_
     src = load('lago/ladera.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
     A['ladera'] = {'src': b64(im), 'w': im.width / K, 'h': 95}
     print('  lago w', W_ / K, 'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])

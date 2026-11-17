@@ -138,5 +138,12 @@
     "tunel": "e4a4763e-7b6f-4ab6-9b58-035fe1f011ac",
     "ladera": "5a0e924e-7b0e-47b5-b6c0-7c07af6ab524",
     "nota": "Túnel de frente descartado; el tren se mete detrás de la ladera."
+  },
+  "santuario": {
+    "haiden": "f8fe3353-f506-4cdb-9afd-6da117db303d",
+    "haiden_noche": "ddf3fc98-e4b2-4a7e-9031-cf3154d68f6b",
+    "objetos": "9cd54cfb-23db-4de0-ba9a-d187e6e69a68",
+    "muro": "b25d0731-780d-4e28-b1df-8e60a1863eca",
+    "arboles": "52954546-da2b-4c0d-ab57-24d08ef3752f"
   }
 }
