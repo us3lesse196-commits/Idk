@@ -406,6 +406,8 @@ function vend(x){R(L,x,122,13,28,'#e9edf2');R(L,x,122,13,1,'#ffffff');R(L,x+2,12
 function polJ(x,top){R(L,x,top,4,150-top,'#9a9ca6');R(L,x+1,top,1,150-top,'#b3b5bf');for(let y=top+20;y<140;y+=7)R(L,x+4,y,2,1,'#6d6f78');
   R(L,x-9,top+4,22,2,'#6d6f78');R(L,x-8,top+2,1,2,'#d6d6dc');R(L,x+11,top+2,1,2,'#d6d6dc');R(L,x+5,top+14,7,9,'#7d808a');R(L,x+6,top+15,1,7,'#9a9ca6')}
 function wires(x0,x1,ys){(B.wireList||(B.wireList=[])).push({x0,x1,ys})}
+function deco(key,x,sw,base=150){const WA=window.WD_ASSETS;if(!WA||!WA.deco||!WA.deco[key])return null;const d=WA.deco[key],w=d.w,h=d.h,ent={c:mk(1,1),ox:x-w/2,oy:base-h,GW:w,GH:h,ph:x*.37,k:ZL,stiff:sw||0};B.treeSpr.push(ent);
+  const im=new Image();im.onload=()=>{const c2=mk(Math.round(w*ZL),Math.round(h*ZL)),g=c2.getContext('2d');g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(im,0,0,c2.width,c2.height);ent.c=c2;ent.sil=null};im.src=d.src;return ent}
 function streetLamp(x,top){R(L,x+3,top,8,2,'#55585f');R(L,x+8,top+2,5,2,'#3a3d44');R(L,x+9,top+4,3,1,'#f4ecd0');R(E,x+9,top+4,3,2,'#fff1c8');
   B.lamps.push({x:x+10,y:top+5});LT(x+10,top+16,50,'warm',1,{lamp:1})}
 const PALS={sakura:[['#c7637f','#e58aa8','#f4aec3','#fcd3df','#fff0f4'],['#c25a86','#df7fa6','#f0a3c2','#f9cadb','#ffeaf2'],['#b9537a','#d9779b','#ec9bb8','#f7c3d4','#fde4ec'],['#cf8a9e','#ecb5c4','#f7d2dc','#fde8ee','#ffffff']],
@@ -615,7 +617,18 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
     // ---- fase 3: prepa
     zone(2000,2119);
     if(window.WD_ASSETS.xing){zone(834,998);Bs.crossing={x:858,ly:117};Bs.crossing2={x:969,ly:117}}
-    if(WA.buildings.porton){zone(1002,1264);Bs.solids=Bs.solids.filter(o=>!(o.x>=1095&&o.x<1238));streetLamp(1240,70);R(L,1243,70,2,80,'#9a9ca6')}
+    if(WA.buildings.porton){zone(1002,1264);Bs.solids=Bs.solids.filter(o=>!(o.x>=1095&&o.x<1238))}
+    if(WA.deco){
+      // faroles nuevos (reemplazan los viejos)
+      for(const lx of [1000,1240]){zone(lx-4,lx+16);Bs.lamps=Bs.lamps.filter(l=>Math.abs(l.x-lx-10)>6);Bs.lights=Bs.lights.filter(l=>!(l.lamp&&Math.abs(l.x-lx-10)<6));
+        const f=deco('farol',lx+4,0),hx=lx+4+WA.deco.farol.w*.38;Bs.lamps.push({x:hx,y:111});LT(hx,121,50,'warm',1,{lamp:1})}
+      // hueco del tren y frente de la prepa
+      deco('senal',840,0);deco('boj',858,.25);deco('hierba',884,.6);deco('azalea',930,.3);deco('seto',968,.15);deco('jardinera',1070,.2);deco('hierba',1120,.6);deco('boj',1180,.25);deco('hortensia',1214,.3);
+      deco('bicis',1356,0);deco('botes',1688,0);deco('tablon',1772,0);deco('jardinera',1880,.2);deco('pampas',2008,.7);deco('valla',2060,0);
+      // campo
+      deco('juncos',2150,.7);deco('espantapajaros',2236,.15);deco('arroz',2330,.1);deco('pampas',2392,.7);deco('caseta',2440,0);deco('jizo',2512,0);deco('cerca',2548,0);deco('hierba',2580,.6);
+    }
+
     if(WA.buildings.alaA&&WA.buildings.centro&&WA.buildings.alaAm){zone(1265,1971);
       const redrawBench=()=>{const oL=L,oB=B;L=Ls;B={inter:[]};bench(1430,150,'cerezo');L=oL;B=oB;B_._dirty={l:true,e:true}};
       const wA=WA.buildings.alaA.w/Z,wC=WA.buildings.centro.w/Z,x0=1617.5-wC/2;let done=0;const fin=()=>{if(++done===2)bld('centro',x0)};bld('alaA',x0-wA+4,()=>{redrawBench();fin()});bld('alaAm',x0+wC-4,fin)}
@@ -1160,7 +1173,7 @@ function drawFar(sc){const cam=sc.name+'|'+camX.toFixed(2)+'|'+camY.toFixed(2)+'
 const FARN={};if(window.WD_ASSETS&&WD_ASSETS.far)for(const k in WD_ASSETS.far){const d=WD_ASSETS.far[k],im=new Image();im.onload=()=>{const c=mk(im.width,im.height);c.getContext('2d').drawImage(im,0,0);c.lw=d.lw;c.lh=d.lh;FARN[k]=c};im.src=d.src}
 function tileX(img,ox,iw,ih,gy,n0){for(let x=ox,k=0;x<OW;x+=iw,k++){const X=Math.round(x);if((n0+k)&1){ctx.save();ctx.translate(X+iw,0);ctx.scale(-1,1);ctx.drawImage(img,0,gy-ih,iw,ih);ctx.restore()}else ctx.drawImage(img,X,gy-ih,iw,ih)}}
 function drawFar_(sc){const N=sky.night,town=sc===OUT?clamp((2050-camX)/250,0,1):1,shr=sc===OUT?clamp((camX-1900)/250,0,1):0,lo=lampsOn();
-  const NF=FARN,useN=NF.montanas&&NF.cordillera&&NF.colinas&&NF.ciudad;const LAY=useN?[[NF.montanas,.015,.08,.1,0,-2],[NF.cordillera,.03,.16,.14,0,0],[NF.colinas,.06,.26,.12,0,4],[NF.ciudad,.2,.4,.16,1,10],...(NF.barrio?[[NF.barrio,.34,.3,.08,1,6]]:[]),[FAR.sakura,.3,.45,.2,2,8]]:[[FAR.fuji,.015,.1,.5,0,-10],[FAR.r1,.03,.2,.46,0,0],[FAR.r2,.06,.34,.4,0,0],[FAR.r3,.1,.46,.32,0,0],[FAR.town,.2,.5,.34,1,8],[FAR.sakura,.3,.45,.2,2,8]];
+  const NF=FARN,useN=NF.montanas&&NF.cordillera&&NF.colinas&&NF.ciudad;const LAY=useN?[[NF.montanas,.015,.08,.1,0,-2],[NF.cordillera,.03,.16,.14,0,0],[NF.colinas,.06,.26,.12,0,4],[NF.ciudad,.2,.4,.16,1,10],...(NF.barrio?[[NF.barrio,.34,.3,.08,1,6]]:[])]:[[FAR.fuji,.015,.1,.5,0,-10],[FAR.r1,.03,.2,.46,0,0],[FAR.r2,.06,.34,.4,0,0],[FAR.r3,.1,.46,.32,0,0],[FAR.town,.2,.5,.34,1,8],[FAR.sakura,.3,.45,.2,2,8]];
   ID(ctx);for(const [im,f,d,a0,zone,off] of LAY){const za=zone===0?1:zone===1?town:shr;if(za<.02)continue;if(zone===2&&sc.interior)continue;
     const iw=im.lw||im.width,ih=im.lh||240,gy=Math.round(196+(52-camY)*Z*(.35+f)+off),n0=Math.floor(camX*Z*f/iw);
     let ox=-(((camX*Z*f)%iw)+iw)%iw;const c=mix(mix(sky.hor,sky.mid,.3),sky.dark,d),a=clamp(a0+N*.5+st.rain*.28,0,.95),tl=tintCache(im,c,a,'atop');
@@ -1743,7 +1756,7 @@ function drawXingNew(c,sc,layer){const X=XG;const lo=lampsOn();
     if(xb>xa){c.fillStyle='#4a4650';c.fillRect(xa,146,xb-xa,4);c.fillStyle='#6a6470';for(let x=Math.floor(xa/3)*3;x<xb;x+=3)c.fillRect(x,146.5,1.5,.8);c.fillStyle='#8a8a96';c.fillRect(xa,145.6,xb-xa,.6);
       c.fillStyle='#55525e';for(let x=Math.ceil(xa/14)*14;x<xb;x+=14)c.fillRect(x,139,.6,7);c.fillRect(xa,140,xb-xa,.4);c.fillRect(xa,143,xb-xa,.4);
       for(let x=Math.ceil(xa/90)*90+20;x<xb;x+=90){c.fillStyle='#6d6a76';c.fillRect(x,100,1.6,46);c.fillRect(x-6,104,8,1)}c.strokeStyle='#2a2833';c.lineWidth=.4;c.beginPath();c.moveTo(xa,105.5);c.lineTo(xb,105.5);c.stroke();
-      if(xb>2700){c.fillStyle='#2b2630';c.fillRect(2742,108,24,42);c.fillStyle='#1a161e';c.beginPath();c.arc(2754,128,11,Math.PI,0);c.lineTo(2765,147);c.lineTo(2743,147);c.closePath();c.fill()}}
+      }
     const cars=trainCars();if(!cars)return;c.save();c.beginPath();c.rect(XGAP[0],0,XGAP[1]-XGAP[0],150);c.clip();c.imageSmoothingEnabled=true;
     for(const [d,x,flip] of cars){if(!d.im.complete)continue;const y=147-d.h;if(flip){c.save();c.translate(x+d.w,y);c.scale(-1,1);c.drawImage(d.im,0,0,d.w,d.h);c.restore()}else c.drawImage(d.im,x,y,d.w,d.h)}
     c.restore();return}

@@ -196,6 +196,42 @@ def cbox(name, src):
     return b
 
 
+def split_sheet(path, S=512, thr=60, minpx=300):
+    """Separa una hoja de objetos en imágenes sueltas (máscara por componente)."""
+    im = Image.open(path).convert('RGBA'); k = im.width / S
+    a = np.asarray(im.split()[3].resize((S, S), Image.BOX)) > thr
+    lab = np.zeros(a.shape, int); n = 0; comps = []
+    for y in range(S):
+        for x in range(S):
+            if a[y, x] and not lab[y, x]:
+                n += 1; st = [(y, x)]; lab[y, x] = n; xs = []; ys = []
+                while st:
+                    cy, cx = st.pop(); xs.append(cx); ys.append(cy)
+                    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)):
+                        ny, nx = cy + dy, cx + dx
+                        if 0 <= ny < S and 0 <= nx < S and a[ny, nx] and not lab[ny, nx]:
+                            lab[ny, nx] = n; st.append((ny, nx))
+                comps.append({'ids': [n], 'b': [min(xs), min(ys), max(xs) + 1, max(ys) + 1], 'n': len(xs)})
+    comps = [c for c in comps if c['n'] > minpx // 4]; comps.sort(key=lambda c: -c['n']); keep = []
+    for c in comps:
+        b = c['b']; host = None
+        for h in keep:
+            hb = h['b']; ox = min(b[2], hb[2]) - max(b[0], hb[0]); oy = min(b[3], hb[3]) - max(b[1], hb[1])
+            if ox > 0.6 * (b[2] - b[0]) and oy > -4: host = h; break
+        if host:
+            host['ids'] += c['ids']; hb = host['b']; host['b'] = [min(hb[0], b[0]), min(hb[1], b[1]), max(hb[2], b[2]), max(hb[3], b[3])]
+        elif c['n'] > minpx: keep.append(c)
+    keep.sort(key=lambda c: (round(c['b'][3] / 60), c['b'][0]))
+    out = []
+    for c in keep:
+        m = np.isin(lab, c['ids']).astype(np.uint8) * 255
+        mk_ = Image.fromarray(m).filter(ImageFilter.MaxFilter(3)).resize(im.size, Image.NEAREST)
+        part = im.copy(); part.putalpha(Image.fromarray(np.minimum(np.asarray(part.split()[3]), np.asarray(mk_))))
+        bb = [int(v * k) for v in c['b']]; part = part.crop((max(0, bb[0] - 4), max(0, bb[1] - 4), min(im.width, bb[2] + 4), min(im.height, bb[3] + 4)))
+        out.append(part.crop(part.getbbox()))
+    return out
+
+
 def main():
     path = os.path.join(ROOT, 'assets.js')
     s = open(path).read() if os.path.exists(path) else 'window.WD_ASSETS={}'
@@ -329,6 +365,17 @@ def main():
     im = im.resize((round(im.width * hh / im.height), hh), Image.BOX).crop((0, 0, round(im.width * hh / im.height), 30 * K))
     G['campo'] = {'src': b64(im), 'w': im.width / K, 'h': 30}
     A['ground'] = G
+    # ---- decoración (hojas de objetos)
+    D = {}
+    names = {'deco/plantas.png': [('boj', 9), ('seto', 8), ('bambuMaceta', 22), ('hortensia', 9), ('bonsai', 12), ('hierba', 6), ('pampas', 18), ('azalea', 8)],
+             'deco/calle.png': [('farol', 44), ('banca', 9), ('bicis', 11), ('botes', 11), ('tablon', 22), ('jardinera', 8), ('senal', 22), ('valla', 7)],
+             'deco/campo.png': [('espantapajaros', 20), ('jizo', 9), ('cerca', 9), ('caseta', 24), ('juncos', 18), ('arroz', 13), ('linterna', 13)]}
+    for f, lst in names.items():
+        parts = split_sheet(os.path.join(ROOT, f))
+        assert len(parts) == len(lst), (f, len(parts))
+        for (nm, hu), part in zip(lst, parts):
+            im = harden(fit_h(part, hu * K), 100); D[nm] = {'src': b64(im), 'w': im.width / K, 'h': hu}
+    A['deco'] = D
     print('  cruce', X['cruce']['w'], 'vagon', X['vagon']['w'], 'cabina', X['cabina']['w'])
 
     open(path, 'w').write('window.WD_ASSETS=' + json.dumps(A) + ';')

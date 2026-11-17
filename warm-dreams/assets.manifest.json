@@ -125,5 +125,11 @@
   "suelos": {
     "calle": "732d820e-1d2a-4770-b218-cb21e8dd3304",
     "campo": "8e0aa267-3777-47c7-aeac-6b600cafb2d4"
+  },
+  "deco": {
+    "plantas": "cf525431-6c69-47d7-82af-dd041841504d",
+    "calle": "51653b09-d605-4c70-b4be-2f5bea5b6455",
+    "campo": "c9d5eb56-0380-47cc-bad8-d919c7734896",
+    "nota": "Hojas separadas con split_sheet en tools/prep_assets.py"
   }
 }
