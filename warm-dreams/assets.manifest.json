@@ -213,5 +213,22 @@
       "walk": "829a0ea8-9e10-45b2-aa40-edc087948c08",
       "descartada": "660a5964-f89e-4a2c-9583-d769800158d2"
     }
+  },
+  "animales": {
+    "zorro": {
+      "referencia_usuario": "130fa7a6-da94-457f-8a6e-8d80bbaeabb7",
+      "generado": "4435a267-680d-4629-8118-a3401529cbbd (usar raw_url)",
+      "base_subida": "7a61acd3-c03d-4c47-8000-5f97d9b4f567",
+      "idle": "cf7502e9-bcae-4da1-8738-492d8cac9143",
+      "walk": "69d76a6a-c888-41ad-89b6-f56ab9a5b33f",
+      "vanish": "8f5aa069-1aa5-4217-b292-ed0bd67dcbff"
+    },
+    "gatos": {
+      "naranja": "ea0d15a4-9a92-4815-9d09-686288b14723",
+      "negro": "8dd918ac-6831-41b1-b314-da9d3fc65da1",
+      "tricolor": "641aafff-07aa-47cc-af19-c7f86019845d"
+    },
+    "koi": "144c0be0-f11a-4b32-9b5f-433b656ef74a",
+    "archivos": "assets.local/animals/"
   }
 }

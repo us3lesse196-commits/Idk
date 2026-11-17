@@ -727,7 +727,7 @@ const ALLEY=newScene('alley',560,{zones:[[0,560,'Callejón de los farolillos','C
   R(L,0,150,LW,2,'#7a7480');R(L,0,152,LW,28,'#3a3640');for(let x=0;x<LW;x+=16)R(L,x,152,1,28,'rgba(0,0,0,.2)');S(0,150,LW,30,1);
   for(const [x,m] of [[100,24],[250,30],[400,20],[520,16]])B.puddles.push({x,y:150,m,rip:[]});
   B.inter.push({type:'exitAlley',x:40,y:150,label:'Volver a la calle'});
-  B.npcs.push({kind:'cat',x:470,y:128,dir:-1,sp:0,fixed:1,a:1});
+  B.npcs.push({kind:'cat',x:470,y:128,dir:-1,sp:0,fixed:1,a:1,alley:1});
   if(window.WD_ASSETS&&WD_ASSETS.alley){const AL=WD_ASSETS.alley,La=L,Ea=E,Bs=B;
     const redraw=()=>{const oL=L;L=La;
       
@@ -1129,9 +1129,9 @@ function update(){st.time++;const p=player;
   updateNPCs();updateBirds();updateLife();updateCine();checkEnding();
   // carta
   updatePieces();
-  if(scene===OUT&&cine.fox){fox.t++;fox.a+=(cine.fox.a-fox.a)*.05;if(fox.tx!=null){const d=fox.tx-fox.x;if(Math.abs(d)>.6){fox.x+=Math.sign(d)*.6;fox.dir=Math.sign(d)}}}
-  else if(scene===OUT){fox.t++;const fv=foxOn()&&fox.hide<=0?1:0;fox.paper=!save.letter[2]&&!save.drop3&&st.aurora>.35;fox.a+=((fv&&fox.hide<=0?1:0)-fox.a)*.03;if(fox.hide>0)fox.hide--;
-    if(fox.a>.4&&Math.abs(cx-fox.x-6)<26&&p.state==='play'){fox.hide=900;for(let i=0;i<34;i++)sparks.push({x:fox.x+6,y:fox.y-5,vx:(Math.random()-.5)*1.6,vy:-Math.random()*1.6,life:50+Math.random()*30,col:'cyan'});if(fox.paper){save.drop3=1;save.p3x=Math.round(fox.x+6);fox.paper=false;writeSave();toast('El zorro dejó caer algo...')}}}
+  if(scene===OUT&&cine.fox){fox.t++;if(fox.van){if(++fox.van>95){fox.van=0;fox.a=0}}else fox.a+=(cine.fox.a-fox.a)*.05;if(fox.tx!=null){const d=fox.tx-fox.x;if(Math.abs(d)>.6){fox.x+=Math.sign(d)*.6;fox.dir=Math.sign(d)}}}
+  else if(scene===OUT){fox.t++;const fv=foxOn()&&fox.hide<=0?1:0;fox.paper=!save.letter[2]&&!save.drop3&&st.aurora>.35;if(fox.van){if(++fox.van>95){fox.van=0;fox.a=0}}else fox.a+=((fv&&fox.hide<=0?1:0)-fox.a)*.03;if(fox.hide>0)fox.hide--;
+    if(!fox.van&&fox.a>.4&&Math.abs(cx-fox.x-6)<26&&p.state==='play'){fox.hide=900;fox.van=FXS()?1:0;fox.dir=cx<fox.x+6?-1:1;for(let i=0;i<(fox.van?14:34);i++)sparks.push({x:fox.x+6,y:fox.y-5,vx:(Math.random()-.5)*1.6,vy:-Math.random()*1.6,life:50+Math.random()*30,col:'cyan'});if(fox.paper){save.drop3=1;save.p3x=Math.round(fox.x+6);fox.paper=false;writeSave();toast('El zorro dejó caer algo...')}}}
   if(Math.random()<.06&&scene===OUT)sparks.push({x:2880+Math.random()*110,y:60+Math.random()*40,vx:(Math.random()-.5)*.1,vy:-.12-Math.random()*.15,life:70,col:'cyan',faint:1});
   for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.x+=s.vx;s.y+=s.vy;s.vx*=.98;s.vy*=.99;if(--s.life<=0)sparks.splice(i,1)}}
 
@@ -1365,6 +1365,9 @@ function drawTrees_(c,sc,front){c.imageSmoothingEnabled=false;const TT=front&&dr
 function drawFlags(c,sc){c.save();c.translate(-camX,0);drawFlags_(c,sc);c.restore()}
 function drawLake(c,sc){const lk=sc.lake;if(!lk||lk.x1<camX||lk.x0>camX+W)return;const N=sky.night;c.save();
   for(let k=0;k<14;k++){const h=hash(k*91+7),x=lk.x0+12+(h%Math.round(lk.x1-lk.x0-24))+Math.sin(st.time*.012+k)*4,y=lk.wy+2+(k%5)*3.2;const a=(.12+.1*Math.sin(st.time*.05+k*1.7))*(1-N*.4);c.fillStyle=`rgba(255,255,255,${Math.max(0,a)})`;c.fillRect(Math.round(x*2)/2,y,6+(h%5)*2,.5)}
+  {const KD=window.WD_ASSETS&&WD_ASSETS.koi,ki=KD&&sprImg(KD.src);if(ki){const L=lk.x1-lk.x0-40;c.imageSmoothingEnabled=false;// koi de ambiente bajo el agua
+    for(let k=0;k<4;k++){const sp=.0016+k*.00037,ph=st.time*sp+k*2.1,x=lk.x0+20+L*(.5+.5*Math.sin(ph)),dir=Math.cos(ph)>=0?1:-1,y=lk.wy+5+k*2.2+Math.sin(st.time*.02+k)*.8,sq=1+Math.sin(st.time*.18+k)*.06,s_=k===3?.75:1;
+      c.save();c.globalAlpha=(.88-k*.07)*(1-N*.5);c.translate(x,y);c.scale(dir*sq*s_,s_);c.drawImage(ki,-KD.w/2,-KD.h/2,KD.w,KD.h);c.restore()}}}
   if(N>.35){const mx=lk.x0+(lk.x1-lk.x0)*.62;c.globalAlpha=(N-.35)*.9;c.fillStyle='#f4f0d8';for(let i=0;i<5;i++){const w=8-i*1.2+Math.sin(st.time*.06+i)*1.2;c.fillRect(mx-w/2+Math.sin(st.time*.03+i)*1.5,lk.wy+3+i*2.2,w,.6)}}
   c.restore()}
 function drawFlags_(c,sc){const aw=Math.abs(WE);drawLake(c,sc);
@@ -1518,6 +1521,10 @@ function smap(c,name,x,y,flip,ol){const m=SMAP[name],w=m[0].length,h=m.length;co
 function shadow(c,ox,oy,w,a){c.fillStyle=`rgba(20,14,34,${a})`;c.fillRect(ox-w,oy,w*2,2);c.fillRect(ox-w+2,oy+2,w*2-4,1);c.fillRect(ox-w-2,oy,2,1);c.fillRect(ox+w,oy,2,1)}
 function drawHiActors(c,sc,cur){if(!A)return;ID(c);c.imageSmoothingEnabled=false;const sA=sc.interior?.2:.26*(1-sky.night*.5);
   for(const n of sc.npcs){if(n.kind!=='cat'||n.a<.02)continue;const nap=n.house&&st.rain>.3,wx=nap?(CI?84:118):n.x,wy=nap?(CI?133:136):n.y,ox=Math.round((wx-camX)*Z),oy=Math.round((wy-camY)*Z);c.globalAlpha=n.a;
+    const CS=window.WD_ASSETS&&WD_ASSETS.cats,cv=CS&&(n.house?CS.tricolor:n.alley?CS.negro:CS.naranja),ci=cv&&sprImg(cv.src);
+    if(ci){const w=cv.w*Z,h=cv.h*Z,br=1+Math.sin((n.ph||0)*.045)*.025,fl=(n.dir||1)<0;shadow(c,ox+6,oy,Math.round(w*.4),sA);c.save();c.translate(ox+6,oy+1);if(fl)c.scale(-1,1);c.scale(1,br);c.imageSmoothingEnabled=false;c.drawImage(ci,-w/2,-h,w,h);c.restore();
+      if(n.street&&!n.fled){const b=Math.round(Math.abs(Math.sin(st.time*.06))*2),mx=ox+6+(fl?-1:1)*w*.36;c.fillStyle='#f4ecd8';c.fillRect(Math.round(mx-3),Math.round(oy-h*.62-b),6,4);c.fillStyle='#8aa0cc';c.fillRect(Math.round(mx-3),Math.round(oy-h*.62-b),2,4)}
+      if(n.house&&Math.sin((n.ph||0)*.03)>0){c.fillStyle='rgba(255,255,255,.7)';c.fillRect(ox+12,oy-h-2,3,1);c.fillRect(ox+15,oy-h-6,4,1)}c.globalAlpha=1;continue}
     if(nap){smap(c,'catNap',ox,oy,false,'#241c2e');if(Math.sin((n.ph||0)*.03)>0){c.fillStyle='rgba(255,255,255,.7)';c.fillRect(ox+17,oy-12,3,1);c.fillRect(ox+19,oy-13,1,1);c.fillRect(ox+21,oy-17,4,1);c.fillRect(ox+24,oy-18,1,1)}}
     else{shadow(c,ox+6,oy,6,sA);smap(c,'catSit',ox,oy,n.dir>0,'#241c2e');if(n.street&&!n.fled){const b=Math.round(Math.abs(Math.sin(st.time*.11))*9);c.fillStyle='#f4ecd8';c.fillRect(ox+19,oy-5-b,6,4);c.fillStyle='#8aa0cc';c.fillRect(ox+19,oy-5-b,2,4)}const tw=Math.round(Math.sin((n.ph||0)*.05)*1.5);c.fillStyle='#241c2e';c.fillRect(ox+(n.dir>0?-3:12)+tw,oy-6,3,4);c.fillStyle='#c9803c';c.fillRect(ox+(n.dir>0?-2:13)+tw,oy-5,1,3)}c.globalAlpha=1}
   for(const n of sc.npcs){if(n.kind!=='dog'||n.a<.02)continue;const f=n.dir||1,ox=Math.round((n.x-camX)*Z)+(f>0?16:-30),oy=Math.round((n.y-camY)*Z)+(n.walking&&Math.sin(n.ph*.3)>0?-1:0);c.globalAlpha=n.a;shadow(c,ox+7,Math.round((n.y-camY)*Z),7,sA);smap(c,'dog',ox,oy,f<0,'#241c2e');
@@ -1539,8 +1546,15 @@ function drawHiActors(c,sc,cur){if(!A)return;ID(c);c.imageSmoothingEnabled=false
       if(p.phones&&!p.back&&!nw){const hx=hx2,hy=hy2;c.fillStyle='#241c2e';c.fillRect(hx-6,hy-7,12,3);c.fillRect(hx-2*f-3,hy-3,6,8);c.fillStyle='#4a4a5c';c.fillRect(hx-5,hy-6,10,1);c.fillRect(hx-2*f-2,hy-2,4,6);c.fillStyle='#ff8fa3';c.fillRect(hx-2*f-1,hy,2,2)}
       if(p.shade){c.globalCompositeOperation='source-atop';c.fillStyle=`rgba(18,15,32,${p.shade*.55})`;c.fillRect(ox-20,oy-44,40,46);c.globalCompositeOperation='source-over'}}}
   c.imageSmoothingEnabled=true;XF(c)}
-function drawFox(){if(fox.a<.02)return;const t=fox.t,a=fox.a,c=ctx,flip=fox.dir<0;ID(c);const ox=Math.round((fox.x-camX)*Z),oy=Math.round((fox.y-camY)*Z+Math.sin(t*.05)),w=20;
-  c.globalCompositeOperation='lighter';c.globalAlpha=a*.5;c.drawImage(GL.cyan,ox-34,oy-52,96,84);c.globalAlpha=a;
+// zorro espíritu con sprites de SpriteCook: reposo, caminar y desaparecer (fox.van cuenta los ticks de la desaparición)
+const FXS=()=>window.WD_ASSETS&&WD_ASSETS.fox;
+function drawFox(){if(fox.a<.02&&!fox.van)return;const t=fox.t,c=ctx,flip=fox.dir<0,V=fox.van,a=V?(V<62?1:Math.max(0,1-(V-62)/33)):fox.a;ID(c);const ox=Math.round((fox.x-camX)*Z),oy=Math.round((fox.y-camY)*Z+(FXS()?0:Math.sin(t*.05))),w=20;
+  c.globalCompositeOperation='lighter';c.globalAlpha=a*.5*(V?Math.max(0,1-V/70):1);c.drawImage(GL.cyan,ox-34,oy-52,96,84);c.globalAlpha=a;
+  const D=FXS();if(D){c.globalCompositeOperation='source-over';const mv=fox.tx!=null&&Math.abs(fox.tx-fox.x)>.6,k=V?'vanish':mv?'walk':'idle',fr=V?Math.min(D.vanish.n-1,Math.floor(V*D.vanish.fps/60)):Math.floor(t*D[k].fps/60);
+    const ok=chrDraw(c,D,k,fr,ox+w/2,oy,flip,a);
+    if(ok){if(fox.paper&&!V){const U=D.u*Z,px=Math.round(ox+w/2+(flip?-1:1)*U*.3-3),py=Math.round(oy-U*.42+Math.sin(t*.05));c.fillStyle='#f4ecd8';c.fillRect(px,py,7,5);c.fillStyle='#8aa0cc';c.fillRect(px,py,2,5);c.fillStyle='#5a5070';c.fillRect(px+3,py+2,3,1)}
+      if(!V&&Math.random()<.15)sparks.push({x:fox.x+5+(flip?6:-6)+Math.random()*4,y:fox.y-8-Math.random()*10,vx:(Math.random()-.5)*.2,vy:-.2-Math.random()*.2,life:36,col:'cyan'});
+      c.globalAlpha=1;XF(c);return}c.globalCompositeOperation='lighter'}
   for(let k=0;k<3;k++){const bx=flip?ox+w-4:ox+4,by=oy-6;for(let i=0;i<12;i++){const u=i/11,dx=(flip?1:-1)*(i*1.5),dy=-u*u*(10+k*5)+Math.sin(t*.06+k*1.3+u*3)*(2+u*3);c.fillStyle=i>8?'#ffffff':i>4?'#c6fff6':'#7fded8';const z=i>9?2:3;c.fillRect(Math.round(bx+dx),Math.round(by+dy-k*2),z,z)}}
   smap(c,'fox',ox,oy,flip,null);if(fox.paper){c.globalCompositeOperation='source-over';const px=ox+(flip?5:8),py=oy-17+Math.round(Math.sin(t*.05));c.fillStyle='#f4ecd8';c.fillRect(px,py,7,5);c.fillStyle='#8aa0cc';c.fillRect(px,py,2,5);c.fillStyle='#5a5070';c.fillRect(px+3,py+2,3,1);c.globalCompositeOperation='lighter'}if(Math.random()<.2)sparks.push({x:fox.x+3+Math.random()*6,y:fox.y-2-Math.random()*8,vx:(Math.random()-.5)*.2,vy:-.2-Math.random()*.2,life:36,col:'cyan'});
   c.globalAlpha=1;c.globalCompositeOperation='source-over';XF(c)}
@@ -1796,7 +1810,7 @@ async function ending(){endingRun=true;cineStart();cine.fox={a:0};fox.x=2930;fox
   for(let i=0;i<60;i++){cine.aur=1+i/60*1.2;await wait(1)}
   for(let k=0;k<3;k++){chime();for(let i=0;i<26;i++)sparks.push({x:player.x+4,y:player.y+4,vx:(Math.random()-.5)*1.8,vy:-Math.random()*1.6,life:70,col:'gold'});await wait(50)}
   await sayLines([T('Angel','(Las páginas... se están dibujando solas.)'),T('Angel','(¿Esto es lo que querías mostrarme?)')]);
-  fox.tx=2700;await wait(70);for(let i=0;i<40;i++)sparks.push({x:fox.x+6,y:fox.y-6,vx:(Math.random()-.5)*2,vy:-Math.random()*2,life:70,col:'cyan'});cine.fox.a=0;
+  fox.tx=2700;await wait(70);fox.van=FXS()?1:0;for(let i=0;i<(fox.van?16:40);i++)sparks.push({x:fox.x+6,y:fox.y-6,vx:(Math.random()-.5)*2,vy:-Math.random()*2,life:70,col:'cyan'});cine.fox.a=0;
   cine.fadeCol=[255,250,240];cine.fadeK=.012;cine.fadeT=1;await wait(110);
   const tt=$('#title');tt.querySelector('h1').textContent='Continuará...';tt.querySelector('p').textContent='Fin de la demo de Warm Dreams · gracias por jugar';tt.style.color='#3b2f3f';tt.classList.add('show');
   await wait(300);tt.classList.remove('show');await wait(140);tt.style.color='';tt.querySelector('h1').textContent='Warm Dreams';tt.querySelector('p').textContent='Una demo de exploración tranquila';

@@ -486,6 +486,20 @@ def main():
         if os.path.exists(os.path.join(ROOT, 'chars/npc_%s_walk.png' % nm)): NP[nm] = char('npc_' + nm, [('walk', 8)], hu)
     if os.path.exists(os.path.join(ROOT, 'chars/maju_walk.png')): NP['aoi'] = char('maju', [('idle', 6), ('walk', 8)], 15.5)
     A['npc'] = NP
+    # gatos (sprites fijos; respiran por código). alto en unidades
+    CT = {}
+    for nm, hu in [('naranja', 9), ('negro', 5.5), ('tricolor', 6.5)]:
+        f = 'animals/gato_%s.png' % nm
+        if os.path.exists(os.path.join(ROOT, f)):
+            im = load(f); im = im.crop(bbox(im, 60)); im = harden(fit_h(im, round(hu * K)), 110)
+            CT[nm] = {'src': b64(im), 'w': im.width / K, 'h': im.height / K}
+    A['cats'] = CT
+    if os.path.exists(os.path.join(ROOT, 'animals/koi.png')):
+        im = load('animals/koi.png'); im = im.crop(bbox(im, 60)); w = round(9 * K); im = harden(im.resize((w, round(im.height * w / im.width)), Image.LANCZOS), 110)
+        A['koi'] = {'src': b64(im), 'w': im.width / K, 'h': im.height / K}
+    # zorro espíritu: reposo, caminar, desaparecer (alto ~15 unidades con la cola)
+    if os.path.exists(os.path.join(ROOT, 'animals/zorro_idle.png')):
+        A['fox'] = char('../animals/zorro', [('idle', 8), ('walk', 9), ('vanish', 10)], 15)
     print('  personajes', {k: round(v['u'], 1) for k, v in dict(NP, angel=A['haru']).items()})
     print('  lago w', W_ / K,'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])
     print('  cruce', X['cruce']['w'], 'vagon', X['vagon']['w'], 'cabina', X['cabina']['w'])
