@@ -1280,17 +1280,16 @@ function drawParallax(){const far=mix(mix(sky.hor,sky.mid,.45),sky.dark,.18),cit
   const fg=ctx.createLinearGradient(0,95,0,150);fg.addColorStop(0,css(sky.hor,0));fg.addColorStop(1,css(sky.hor,.35+st.rain*.25));ctx.fillStyle=fg;ctx.fillRect(0,95,W,55);drawMist(false)}
 
 // Haru con sprites de SpriteCook (sentado y de espaldas siguen con el dibujo por código)
-const HS={};function haruSpr(c,p,cx,by,f){const d=window.WD_ASSETS&&WD_ASSETS.haru,a=p.anim;if(!d||p.back||a==='sit')return false;
+const HS={};function haruSpr(c,p,cx,by,f){// cx,by en px de pantalla (Z por unidad)
+const d=window.WD_ASSETS&&WD_ASSETS.haru,a=p.anim;if(!d||p.back||a==='sit')return false;
   if(!HS.ok){if(!HS.ld){HS.ld=1;let n=0;for(const k of['idle','walk','run','jump']){const im=new Image();im.onload=()=>{if(++n===4)HS.ok=1};im.src=d[k].src;HS[k]=im}}return false}
   const sp=p.auto?p.auto.sp:Math.abs(p.vx);let k='idle',fr=0;
   if(a==='run'){k=sp<1.25?'walk':'run';fr=Math.floor(p.animT*d[k].fps/60)}
   else if(a==='jump')fr=p.vy<-.8?3:4,k='jump';else if(a==='fall'||a==='wall')fr=p.vy<.8?4:5,k='jump';
   else if(a==='crouch'||a==='slide')k='jump',fr=1;else fr=Math.floor(p.animT*d.idle.fps/60);
   fr%=d[k].n;const u=d.u,fw=d.fw;c.save();c.globalAlpha=p.alpha;c.imageSmoothingEnabled=false;c.translate(cx,0);if(f<0)c.scale(-1,1);
-  c.drawImage(HS[k],fr*fw,0,fw,fw,-d.ax/fw*u,by-u+.4,u,u);c.restore();
-  if(p.shade){c.globalAlpha=p.shade*.55*p.alpha;c.fillStyle='#120f20';c.fillRect(cx-7,by-23,14,24);c.globalAlpha=1}return true}
+  const U=u*Z;c.drawImage(HS[k],fr*fw,0,fw,fw,-d.ax/fw*U,by-U+1,U,U);c.restore();return true}
 function drawPlayer(c){const p=player;if(p.alpha<=0)return;const cx=Math.round(p.x+p.w/2-camX),by=Math.round(p.y+p.h-(p.lift||0)),f=p.facing;
-  if(haruSpr(c,p,cx,by,f))return;
   const P=(dx,dy,w,h,col)=>{c.fillStyle=col;c.fillRect(f>0?cx+dx:cx-dx-w,by+dy,w,h)};c.globalAlpha=p.alpha;
   const SK='#f3c6a0',SKs='#dba07c',HA='#2a2135',SH='#f6f3ec',SHs='#c5c7d8',PA='#2a3150',PAs='#1f2540',SO='#f1ebe2',SOs='#77748a',BP='#d4553f',BPs='#9a3a2c',PH='#3a3a48';
   let drop=0,lf=0,lb=0,legH=6,arm=0,armUp=0;const a=p.anim,t=p.animT;
@@ -1522,12 +1521,13 @@ function drawHiActors(c,sc,cur){if(!A)return;ID(c);c.imageSmoothingEnabled=false
     if(n.umbOpen){c.globalAlpha=n.a;c.fillStyle=n.ucol;const uy=oy-40,ut=clamp(WE,-2.2,2.2);for(let r=0;r<6;r++){const w=10+r*3;c.fillRect(ox-w+Math.round(ut*(6-r)*.7),uy+r,w*2,1)}c.fillStyle='rgba(0,0,0,.22)';c.fillRect(ox-25,uy+5,50,1);c.fillStyle='#2a2a33';c.fillRect(ox,uy+6,1,14);c.globalAlpha=1}
     if(n.kind==='aoi'&&n.a>.6&&!n.walking&&!cine.on&&!menu){const b=Math.round(Math.sin(st.time*.08)*2),by=oy-48+b;c.fillStyle='#fff4e2';c.fillRect(ox-8,by,17,9);c.fillRect(ox-1,by+9,3,2);c.fillStyle='#3b2f3f';for(const k of [-4,0,4])c.fillRect(ox+k,by+4,2,2)}}
   if(cur){const p=player;if(p.alpha>0){const ox=X(p.x+p.w/2),oy=Y(p.y+p.h-(p.lift||0)),fi=playerFrame(p),hd=A.meta.heads[fi],f=p.facing,hx=ox+hd[0]*f,hy=oy-hd[1];
-      if(!p.back){const back=Math.abs(p.vx)>.3?-Math.sign(p.vx)*f:-1,sp=Math.min(1,Math.abs(p.vx)/1.7+Math.abs(p.vy)/4);c.globalAlpha=p.alpha;
+      const nw=haruSpr(c,p,ox,oy,f);const hx2=nw?ox+2*f:hx,hy2=nw?oy-41:hy;
+      if(!p.back&&!nw){const back=Math.abs(p.vx)>.3?-Math.sign(p.vx)*f:-1,sp=Math.min(1,Math.abs(p.vx)/1.7+Math.abs(p.vy)/4);c.globalAlpha=p.alpha;
         for(let i=1;i<=5;i++){const dx=(-4+back*i*1.6+WE*i*.4*f)*f,dy=6+i*(1-sp*.6)+Math.sin(st.time*.22+i*.9)*(.3+sp*.8)*i*.35;c.fillStyle='#241c2e';c.fillRect(Math.round(hx+dx)-1,Math.round(hy+dy)-1,5,4);}
         for(let i=1;i<=5;i++){const dx=(-4+back*i*1.6+WE*i*.4*f)*f,dy=6+i*(1-sp*.6)+Math.sin(st.time*.22+i*.9)*(.3+sp*.8)*i*.35;c.fillStyle=i>3?'#a8303a':'#d8414c';c.fillRect(Math.round(hx+dx),Math.round(hy+dy),3,2)}c.globalAlpha=1}
-      sprFrame('haru',fi,ox,oy,p.facing<0,c,p.alpha);
-      if(!p.back&&st.time%230<7){c.fillStyle='#e0aa86';c.fillRect(hx+(f>0?1:-2),hy,2,2);c.fillRect(hx+(f>0?4:-5),hy,2,2)}
-      if(p.phones&&!p.back){c.fillStyle='#241c2e';c.fillRect(hx-6,hy-7,12,3);c.fillRect(hx-2*f-3,hy-3,6,8);c.fillStyle='#4a4a5c';c.fillRect(hx-5,hy-6,10,1);c.fillRect(hx-2*f-2,hy-2,4,6);c.fillStyle='#ff8fa3';c.fillRect(hx-2*f-1,hy,2,2)}
+      if(!nw)sprFrame('haru',fi,ox,oy,p.facing<0,c,p.alpha);
+      if(!nw&&!p.back&&st.time%230<7){c.fillStyle='#e0aa86';c.fillRect(hx+(f>0?1:-2),hy,2,2);c.fillRect(hx+(f>0?4:-5),hy,2,2)}
+      if(p.phones&&!p.back){const hx=hx2,hy=hy2;c.fillStyle='#241c2e';c.fillRect(hx-6,hy-7,12,3);c.fillRect(hx-2*f-3,hy-3,6,8);c.fillStyle='#4a4a5c';c.fillRect(hx-5,hy-6,10,1);c.fillRect(hx-2*f-2,hy-2,4,6);c.fillStyle='#ff8fa3';c.fillRect(hx-2*f-1,hy,2,2)}
       if(p.shade){c.globalCompositeOperation='source-atop';c.fillStyle=`rgba(18,15,32,${p.shade*.55})`;c.fillRect(ox-20,oy-44,40,46);c.globalCompositeOperation='source-over'}}}
   c.imageSmoothingEnabled=true;XF(c)}
 function drawFox(){if(fox.a<.02)return;const t=fox.t,a=fox.a,c=ctx,flip=fox.dir<0;ID(c);const ox=Math.round((fox.x-camX)*Z),oy=Math.round((fox.y-camY)*Z+Math.sin(t*.05)),w=20;
