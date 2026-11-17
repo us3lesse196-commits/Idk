@@ -857,6 +857,21 @@ function paintCloud(cl,P,key){if(cl.key===key)return;if(cl.key&&_bud.c<=0)return
   if(cl.spr){const g=cl.c.getContext('2d'),w=cl.c.width,h=cl.c.height;g.globalCompositeOperation='copy';g.drawImage(cl.spr,0,0);g.globalCompositeOperation='multiply';g.fillStyle=css(P[5]);g.fillRect(0,0,w,h);
     g.globalCompositeOperation='source-atop';g.fillStyle=css(P[1],.18+sky.night*.25);g.fillRect(0,h*.55,w,h*.45);g.globalCompositeOperation='destination-in';g.drawImage(cl.spr,0,0);g.globalCompositeOperation='source-over';return}const g=cl.c.getContext('2d'),d=g.createImageData(cl.w,cl.h),q=d.data;
   for(let i=0;i<cl.T.length;i++){const t=cl.T[i];if(t===255)continue;const c=P[t];q[i*4]=c[0];q[i*4+1]=c[1];q[i*4+2]=c[2];q[i*4+3]=255}g.putImageData(d,0,0)}
+// ---- cielo: fases de la luna, vía láctea, fugaces, lluvias de meteoros, bólidos y cometas
+const SKY={met:[],comet:null,shower:0,days:Math.floor(Date.now()/864e5),prevT:0,mw:null};
+function moonPhase(){return ((SKY.days%8)+8)%8/8}
+function updateSkyFx(){const t=st.dayT;if(t<SKY.prevT-.5)SKY.days++;SKY.prevT=t;const ok=sky.night>.65&&st.cloud<.45&&!scene.interior,ts=Math.min(st.ts||1,3);
+  if(ok&&!SKY.shower&&Math.random()<.00012)SKY.shower=60*9;if(SKY.shower>0)SKY.shower--;
+  const pr=SKY.shower?.05:.0035;if(ok&&Math.random()<pr*ts){const bol=!SKY.shower&&Math.random()<.12,sh=SKY.shower,ang=sh?.62:.35+Math.random()*.5,sp=bol?1.6:2.6+Math.random()*2.2,x0=sh?W*.75+(Math.random()-.5)*40:Math.random()*W;
+    SKY.met.push({x:x0,y:sh?8+Math.random()*12:Math.random()*55,vx:Math.cos(ang)*sp*(sh?-1:Math.random()<.5?1:-1),vy:Math.sin(ang)*sp,life:bol?70:22+Math.random()*16,max:0,bol,tr:[]})}
+  for(let i=SKY.met.length-1;i>=0;i--){const m=SKY.met[i];if(!m.max)m.max=m.life;m.tr.push([m.x,m.y]);if(m.tr.length>(m.bol?22:12))m.tr.shift();m.x+=m.vx;m.y+=m.vy;
+    if(m.bol&&Math.random()<.25)sparks.push({x:m.x+camX,y:m.y,vx:-m.vx*.2+(Math.random()-.5)*.4,vy:-m.vy*.1+Math.random()*.3,life:24,col:'gold'});if(--m.life<=0)SKY.met.splice(i,1)}
+  if(!SKY.comet&&ok&&Math.random()<.00006*ts)SKY.comet={x:-30,y:18+Math.random()*30,vx:.05+Math.random()*.03,vy:.008,a:0};
+  if(SKY.comet){const c=SKY.comet;c.x+=c.vx*ts;c.y+=c.vy*ts;c.a=Math.min(1,c.a+.01)*(ok?1:.98);if(c.x>W+60||(!ok&&c.a<.02))SKY.comet=null}}
+function milkyWay(){if(SKY.mw)return SKY.mw;const w=520,h=170,c=mk(w,h),g=c.getContext('2d'),d=g.createImageData(w,h),q=d.data,r=rng(11);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const u=x/w,cy=h*(.85-.7*u)+Math.sin(u*9)*8,dist=Math.abs(y-cy)/(h*.22),n=Math.sin(x*.07+y*.11)*.5+Math.sin(x*.023-y*.05)*.5;
+    let a=Math.max(0,1-dist*dist)*(.55+.45*n);a*=BAYER[(y&3)*4+(x&3)]/16<a?1:.35;const i=(y*w+x)*4,dk=Math.max(0,1-Math.abs(y-cy-3)/4)*.5;q[i]=200;q[i+1]=205-dk*60;q[i+2]=255;q[i+3]=Math.round(a*(1-dk)*70)}
+  g.putImageData(d,0,0);for(let i=0;i<500;i++){const u=r(),y=h*(.85-.7*u)+(r()-.5)*h*.35;g.fillStyle=`rgba(255,248,235,${.25+r()*.5})`;g.fillRect(Math.round(u*w),Math.round(y),1,1)}return SKY.mw=c}
 const stars=[];(()=>{const r=rng(3);for(let i=0;i<260;i++)stars.push({x:r()*900,y:r()*120,b:r(),ph:r()*6})})();
 
 // ============================================================ estado
@@ -893,7 +908,7 @@ const found={koi:0,fox:0,cat:0};
 const KEYS=[
   {t:0,top:'#060920',mid:'#111940',hor:'#25305f',tint:[40,50,120,.15],n:1},{t:.20,top:'#1a2150',mid:'#463c70',hor:'#9a6a88',tint:[120,90,160,.22],n:.75},
   {t:.26,top:'#3c5c9c',mid:'#d690a0',hor:'#ffd0a0',tint:[255,170,160,.16],n:.15},{t:.34,top:'#4f9fe2',mid:'#9dcff2',hor:'#e2f3ff',tint:[255,250,240,.02],n:0},
-  {t:.62,top:'#4a96df',mid:'#98c8ec',hor:'#fff0d4',tint:[255,230,190,.06],n:0},{t:.715,top:'#33407f',mid:'#e07a8c',hor:'#ffb862',tint:[255,140,90,.2],n:.05},
+  {t:.6,top:'#4a96df',mid:'#98c8ec',hor:'#fff0d4',tint:[255,230,190,.06],n:0},{t:.665,top:'#4a7fc8',mid:'#e6b48c',hor:'#ffcf86',tint:[255,196,130,.13],n:0},{t:.715,top:'#33407f',mid:'#e07a8c',hor:'#ffb862',tint:[255,140,90,.2],n:.05},
   {t:.79,top:'#1c1f52',mid:'#6a4886',hor:'#e2807a',tint:[150,90,170,.26],n:.5},{t:.86,top:'#080c25',mid:'#141b44',hor:'#283166',tint:[40,50,120,.15],n:1},
   {t:1,top:'#060920',mid:'#111940',hor:'#25305f',tint:[40,50,120,.15],n:1}];
 for(const k of KEYS){k.top=hex(k.top);k.mid=hex(k.mid);k.hor=hex(k.hor)}
@@ -1138,7 +1153,7 @@ function update(){st.time++;const p=player;
   for(const f of flies){f.vx+=(Math.random()-.5)*.04;f.vy+=(Math.random()-.5)*.04;f.vx*=.97;f.vy*=.97;f.x+=f.vx;f.y+=f.vy;if(f.y<64)f.vy+=.02;if(f.y>146)f.vy-=.03;if(f.x<2140)f.vx+=.03;if(f.x>3290)f.vx-=.03}
   if(st.shoot){const q=st.shoot;q.x+=q.vx;q.y+=q.vy;if(--q.life<=0)st.shoot=null}else if(sky.night>.7&&st.cloud<.4&&Math.random()<.0025)st.shoot={x:Math.random()*W,y:Math.random()*50,vx:2.5+Math.random()*2,vy:1+Math.random(),life:26};
   for(let i=rings.length-1;i>=0;i--){rings[i].r+=.14;if(rings[i].r>3.2)rings.splice(i,1)}
-  updateNPCs();updateBirds();updateLife();updateCine();checkEnding();
+  updateNPCs();updateBirds();updateLife();updateSkyFx();updateCine();checkEnding();
   // carta
   updatePieces();
   if(scene===OUT&&cine.fox){fox.t++;if(fox.van){if(++fox.van>95){fox.van=0;fox.a=0}}else fox.a+=(cine.fox.a-fox.a)*.05;if(fox.tx!=null){const d=fox.tx-fox.x;if(Math.abs(d)>.6){fox.x+=Math.sign(d)*.6;fox.dir=Math.sign(d)}}}
@@ -1187,19 +1202,29 @@ function skyBands(){const key=[...sky.top,...sky.mid,...sky.hor].map(v=>v>>2).jo
   for(let y=0;y<360;y++){const t=Math.min(1,y/300),band=t*NB,b0=Math.floor(band),fr=band-b0;for(let x=0;x<8;x++){const th=BAYER[(y&3)*4+(x&3)]/16,bb=Math.min(NB,b0+(fr>th?1:0)),u=bb/NB;
       const c=u<.55?mix(sky.top,sky.mid,u/.55):mix(sky.mid,sky.hor,(u-.55)/.45);const i=(y*8+x)*4;q[i]=c[0];q[i+1]=c[1];q[i+2]=c[2];q[i+3]=255}}g.putImageData(d,0,0)}
 function drawSky(){skyBands();ID(ctx);const pat=ctx.createPattern(skyC,'repeat-x');ctx.save();ctx.translate(0,-camY*Z);ctx.fillStyle=pat;ctx.fillRect(0,0,OW,360);ctx.restore();XF(ctx);
-  const sa=sky.night*(1-st.cloud*.9);if(sa>.02)for(const s of stars){const x=((s.x-camX*.02)%900+900)%900;if(x>W)continue;const tw=.55+.45*Math.sin(st.time*.03+s.ph);ctx.fillStyle=`rgba(255,250,235,${sa*tw*(.4+s.b*.6)})`;const z=s.b>.7?1:.5;ctx.fillRect(Math.round(x*2)/2,Math.round(s.y*2)/2,z,z);if(s.b>.94){ctx.fillRect(Math.round(x*2)/2-.5,Math.round(s.y*2)/2+.25,2,.5);ctx.fillRect(Math.round(x*2)/2+.25,Math.round(s.y*2)/2-.5,.5,2)}}
+  const sa=sky.night*(1-st.cloud*.9);if(sa>.05){ctx.globalAlpha=Math.min(1,sa*1.1)*(1-st.aurora*.5);ctx.drawImage(milkyWay(),-((camX*.02)%40)-20,-10+camY*.9,W+60,(W+60)*170/520);ctx.globalAlpha=1}
+  if(sa>.02)for(const s of stars){const x=((s.x-camX*.02)%900+900)%900;if(x>W)continue;const tw=.55+.45*Math.sin(st.time*.03+s.ph);ctx.fillStyle=`rgba(255,250,235,${sa*tw*(.4+s.b*.6)})`;const z=s.b>.7?1:.5;const sy=Math.round((s.y+camY*.9)*2)/2;ctx.fillRect(Math.round(x*2)/2,sy,z,z);if(s.b>.94){ctx.fillRect(Math.round(x*2)/2-.5,sy+.25,2,.5);ctx.fillRect(Math.round(x*2)/2+.25,sy-.5,.5,2)}}
   if(LIFE.plane){const q=LIFE.plane,a=sky.night*(1-st.cloud*.7),bl=(st.time>>4)%3===0;ctx.fillStyle=`rgba(255,250,235,${a*.8})`;ctx.fillRect(q.x,q.y,.5,.5);if(bl){ctx.fillStyle=`rgba(255,80,80,${a})`;ctx.fillRect(q.x-1,q.y,.5,.5)}ctx.fillStyle=`rgba(200,210,240,${a*.12})`;ctx.fillRect(q.x+(q.vx>0?-14:1),q.y+.25,13,.25)}
-  if(st.shoot){const q=st.shoot;ctx.strokeStyle=`rgba(255,250,235,${clamp(q.life/20,0,1)*sa})`;ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(q.x-q.vx*5,q.y-q.vy*5);ctx.stroke()}
+  if(sa>.02){ctx.save();ctx.translate(0,camY*.9);ctx.globalCompositeOperation='lighter';for(const m of SKY.met){const f=clamp(m.life/12,0,1)*sa,n=m.tr.length;for(let k=0;k<n;k++){const [x,y]=m.tr[k],u=(k+1)/n;ctx.fillStyle=m.bol?`rgba(255,${170+u*70|0},${90+u*80|0},${f*u*.8})`:`rgba(200,225,255,${f*u*.7})`;const z=m.bol?.5+u*1.2:.5+u*.4;ctx.fillRect(x-z/2,y-z/2,z,z)}
+      ctx.globalAlpha=f;ctx.drawImage(m.bol?GL.sun:GL.moon,m.x-(m.bol?9:5),m.y-(m.bol?9:5),m.bol?18:10,m.bol?18:10);ctx.globalAlpha=1;ctx.fillStyle=`rgba(255,255,255,${f})`;ctx.fillRect(m.x-.5,m.y-.5,1,1)}
+    const C=SKY.comet;if(C){const a=C.a*sa;for(let k=0;k<46;k++){const u=k/46,tx=C.x-u*58,ty=C.y-u*16+Math.sin(u*6+st.time*.01)*u*1.5,w=.6+u*3.2;ctx.fillStyle=`rgba(${190-u*40|0},${235-u*30|0},255,${a*(1-u)*.35})`;ctx.fillRect(tx-w/2,ty-w/2,w,w)}
+      ctx.globalAlpha=a;ctx.drawImage(GL.moon,C.x-8,C.y-8,16,16);ctx.globalAlpha=1;ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.fillRect(C.x-.75,C.y-.75,1.5,1.5)}
+    ctx.globalCompositeOperation='source-over';ctx.restore()}
   if(st.aurora>.02){ctx.globalCompositeOperation='lighter';for(const [ph,col,h] of [[0,[80,255,170],34],[2.1,[60,220,230],26],[4.2,[170,110,255],20]]){const strip=auroraStrip(col),stp=Q<2?4:2;for(let x=0;x<W;x+=stp){const wx=x+camX*.04;
     const y=16+Math.sin(wx*.018+st.time*.004+ph)*10+Math.sin(wx*.05+ph*2)*4,hh=h+Math.sin(wx*.07+st.time*.01+ph)*10,a=st.aurora*(cine.aur||1)*(.16+.12*Math.sin(wx*.03+st.time*.006+ph));
     ctx.globalAlpha=clamp(a,0,1);ctx.drawImage(strip,x,y,stp,hh)}}ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
+  if(sky.sunset>.05){const g=ctx.createLinearGradient(0,60,0,150),a=sky.sunset*(1-st.cloud*.8);g.addColorStop(0,'rgba(255,150,110,0)');g.addColorStop(.6,`rgba(255,160,110,${a*.22})`);g.addColorStop(1,`rgba(255,200,140,${a*.35})`);ctx.fillStyle=g;ctx.fillRect(0,60,W,90)}
   const t=st.dayT;if(t>.2&&t<.82){const f=(t-.2)/.62,sx=W*.1+f*W*.8,sy=150-Math.sin(f*Math.PI)*125,c=mix([255,250,226],[255,190,110],clamp(sky.sunset*1.2,0,1));
     ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.55*(1-st.cloud*.9);ctx.drawImage(GL.sun,sx-60,sy-60,120,120);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
     if(sky.sunset>.15&&st.cloud<.6){ctx.globalCompositeOperation='lighter';const ra=sky.sunset*.07*(1-st.cloud);for(let k=0;k<6;k++){const ang=Math.PI*.5+(k-2.5)*.22+Math.sin(st.time*.002+k)*.03;
       ctx.fillStyle=`rgba(255,190,120,${ra})`;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+Math.cos(ang-.05)*260,sy+Math.sin(ang-.05)*260);ctx.lineTo(sx+Math.cos(ang+.05)*260,sy+Math.sin(ang+.05)*260);ctx.closePath();ctx.fill()}ctx.globalCompositeOperation='source-over'}
     ctx.globalAlpha=1-st.cloud*.92;disc(ctx,sx,sy,9,css(c));disc(ctx,sx-2,sy-2,5,css(mix(c,[255,255,255],.5)));ctx.globalAlpha=1}
-  if(t>.74||t<.27){const f=t>.74?(t-.74)/.53:(t+.26)/.53,mx=W*.15+f*W*.7,my=120-Math.sin(f*Math.PI)*95;ctx.globalAlpha=sky.night*(1-st.cloud*.6);
-    ctx.globalCompositeOperation='lighter';ctx.drawImage(GL.moon,mx-30,my-30,60,60);ctx.globalCompositeOperation='source-over';disc(ctx,mx,my,6,'#f3efe0');R(ctx,mx-2,my-2,2,2,'#d6d1c0');R(ctx,mx+2,my+1,2,1,'#d6d1c0');ctx.globalAlpha=1}
+  if(t>.74||t<.27){const f=t>.74?(t-.74)/.53:(t+.26)/.53,mx=W*.15+f*W*.7,my=120-Math.sin(f*Math.PI)*95+camY*.9;ctx.globalAlpha=sky.night*(1-st.cloud*.6);
+    const ph=moonPhase(),lit=(1-Math.cos(ph*Math.PI*2))/2,r=6.5,ga=ctx.globalAlpha;
+    ctx.globalCompositeOperation='lighter';ctx.globalAlpha=ga*(.25+lit*.75);ctx.drawImage(GL.moon,mx-34,my-34,68,68);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=ga;
+    disc(ctx,mx,my,r,css(mix(sky.top,[70,76,110],.5)));const xr=r*Math.cos(ph*Math.PI*2),wax=ph<.5;ctx.beginPath();
+    for(let k=0;k<=16;k++){const a=-Math.PI/2+k/16*Math.PI;ctx.lineTo(mx+(wax?1:-1)*r*Math.cos(a),my+r*Math.sin(a))}for(let k=16;k>=0;k--){const a=-Math.PI/2+k/16*Math.PI;ctx.lineTo(mx+(wax?1:-1)*xr*Math.cos(a)*(wax?1:-1)*(wax?1:-1),my+r*Math.sin(a))}
+    ctx.closePath();ctx.save();ctx.clip();disc(ctx,mx,my,r,'#f3efe0');R(ctx,mx-2,my-3,2,2,'#d6d1c0');R(ctx,mx+2,my+1,2,1,'#d6d1c0');R(ctx,mx-3,my+2,1,1,'#d6d1c0');ctx.restore();ctx.globalAlpha=1}
   if(st.bolt&&st.flash>.45){ctx.strokeStyle=`rgba(235,240,255,${st.flash})`;ctx.lineWidth=1;ctx.beginPath();st.bolt.forEach(([x,y],i)=>{const sx=x-camX;i?ctx.lineTo(sx,y):ctx.moveTo(sx,y)});ctx.stroke()}
   {const P=cloudPal(),key=P.map(c=>c.map(v=>v>>3).join()).join('|');ID(ctx);const vis=Math.round(clouds.length*(.35+st.cloud*.65));
     for(let i=0;i<Math.min(vis,clouds.length);i++){const c=clouds[i];const x=(((c.x+(c.off||0)-camX*(c.big?.06:.035))*Z)%1900+1900)%1900-300,y=Math.round((c.y-camY*.15)*Z);if(x>OW||x+c.w<0)continue;paintCloud(c,P,key);
@@ -1993,7 +2018,7 @@ function frame(now){if(paused)return;if(DIAG.on&&frame.prev){DIAG.add('cuadro re
   const hh=Math.floor(st.dayT*24),mm=Math.floor((st.dayT*24-hh)*60);const ts=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+(st.mode==='fast'?' ⏩':st.mode==='music'?' ♪':'');
   const ce=D_.c;if(ce.textContent!==ts)ce.textContent=ts;requestAnimationFrame(frame)}
 computeSky();camXf=clamp(player.x-W/2,0,OUT.LW-W);requestAnimationFrame(frame);
-window.__dbg={st,player,found,scenes:SCENES,set:(t,w,wet)=>{st.dayT=t;if(w!=null){st.weather=w;st.rain=[0,.6,1][w];st.cloud=[.15,.85,1][w]}if(wet!=null)st.wet=wet;st.wxTimer=1e9;computeSky()},
+window.__dbg={st,player,found,skyfx:SKY,scenes:SCENES,set:(t,w,wet)=>{st.dayT=t;if(w!=null){st.weather=w;st.rain=[0,.6,1][w];st.cloud=[.15,.85,1][w]}if(wet!=null)st.wet=wet;st.wxTimer=1e9;computeSky()},
   go:(x,sc)=>{if(sc)goScene(sc,x);else{player.x=x;player.y=scene.gmap[x|0]-16;player.vy=0}camXf=x-W/2},interact,cine,prologue,ending,xg:XG,sprites:()=>{const o={personajes:IMG.spr};for(const k in FAR)o['fondo_'+k]=FAR[k];for(const sc of [OUT,ALLEY,HOUSE]){o['mapa_'+sc.name]=sc.levelC;sc.treeSpr.forEach((t,i)=>o['arbol_'+sc.name+'_'+i]=t.c)}clouds.forEach((c,i)=>{if(i<4)o['nube_'+i]=c.c});const r={};for(const k in o)r[k]=o[k].toDataURL();return r},atlas:()=>IMG.spr.toDataURL(),giveAll:(n=5)=>{for(let i=0;i<n;i++)save.letter[i]=1;writeSave();$('#btnBook span').textContent=pzCount()+' / 5'},fox,save:()=>save,get near(){return nearI},get scene(){return scene.name},get trans(){return trans}};
 })();
 </script>

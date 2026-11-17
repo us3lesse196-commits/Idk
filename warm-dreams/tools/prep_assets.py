@@ -262,7 +262,7 @@ def main():
     A['far'] = far
 
     # ---- nubes: separar las 5 de la hoja
-    sheet = load('fase1/nubes.png'); sheet = sheet.resize((420, 420), Image.BOX)
+    sheet = load('cielo/nubes2.png') if os.path.exists(os.path.join(ROOT, 'cielo/nubes2.png')) else load('fase1/nubes.png').resize((420, 420), Image.BOX)
     a = np.asarray(sheet)[..., 3] > 40
     lab = np.zeros(a.shape, int); n = 0; comps = []
     for y in range(a.shape[0]):

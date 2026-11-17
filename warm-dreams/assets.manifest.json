@@ -249,5 +249,9 @@
       "curioso": "552abf96-76af-4a15-ad1d-3f4560bc6ba1"
     },
     "archivos": "assets.local/retratos/<quien>_<expresion>.png"
+  },
+  "cielo": {
+    "nubes2": "2e4bc079-5d86-43bc-8f83-cf40588fcfa8",
+    "archivo": "assets.local/cielo/nubes2.png"
   }
 }
