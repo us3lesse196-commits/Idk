@@ -151,6 +151,25 @@ body.cine .hud-top,body.cine .pad,body.cine #act,body.cine #sitbar,body.cine #zo
 .hud-top,.pad,#act,#zone{transition:opacity .8s ease}
 body.menu .hud-top,body.menu .pad,body.menu #act,body.menu #sitbar,body.menu #zone{opacity:0;pointer-events:none}
 @keyframes pulse{50%{opacity:.6}}
+/* menú nuevo: logo de Angel y Maju, botones estilo HUD, pétalos y luciérnagas */
+body.menu2 #start::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(18,10,34,.62),rgba(18,10,34,.25) 45%,transparent 62%,rgba(18,10,34,.35));pointer-events:none}
+body.menu2 #start .mtitle{left:calc(env(safe-area-inset-left,0px) + 3vw);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;width:min(48vw,400px)}
+body.menu2 #start .logo{display:block;height:min(66vh,300px);max-width:100%;object-fit:contain;image-rendering:pixelated;animation:mfloat 6s ease-in-out infinite;filter:drop-shadow(0 0 22px rgba(255,190,225,.35)) drop-shadow(0 4px 0 rgba(0,0,0,.35))}
+body.menu2 #start h1{margin-top:-4px;font-size:clamp(26px,5.4vw,46px);background:linear-gradient(#fff6ea 35%,#ffc3d6 70%,#e98fb5);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 3px 0 #5a2645) drop-shadow(0 0 12px rgba(255,170,200,.45))}
+body.menu2 #start .tag{margin-top:2px;color:#ffd79a;letter-spacing:.5em}
+body.menu2 #start .mbtns{right:calc(env(safe-area-inset-right,0px) + 5vw);gap:12px}
+body.menu2 #start .mbtns button{position:relative;min-width:210px;padding:12px 22px;font-size:17px;color:#fff4e6;background:linear-gradient(#2c2040,#1b1530);border:2px solid #c9a46a;border-radius:9px;box-shadow:inset 0 0 0 2px #4b3358,0 5px 0 rgba(0,0,0,.45);backdrop-filter:none;transition:transform .12s,box-shadow .12s}
+body.menu2 #start .mbtns button::before{content:'✿';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:#ff9fbf;opacity:.85}
+body.menu2 #start .mbtns button:active{transform:translateY(3px);box-shadow:inset 0 0 0 2px #4b3358,0 2px 0 rgba(0,0,0,.45)}
+body.menu2 #start .mbtns #mPlay{font-size:20px;border-color:#ffd38a;background:linear-gradient(#4a2a52,#2a1838);box-shadow:inset 0 0 0 2px #7a4a72,0 5px 0 rgba(0,0,0,.45),0 0 18px rgba(255,170,200,.35);animation:mglow 2.8s ease-in-out infinite}
+body.menu2 #start .wake{font-size:14px;letter-spacing:.2em}
+#start .mfx{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#start .mfx i{position:absolute;top:-6%;width:7px;height:5px;border-radius:60% 0 60% 0;background:#ffc8da;opacity:.85;animation:mpetal linear infinite}
+#start .mfx b{position:absolute;width:4px;height:4px;border-radius:50%;background:#e9ffb0;box-shadow:0 0 8px 3px rgba(200,255,140,.55);animation:mfly ease-in-out infinite}
+@keyframes mfloat{50%{transform:translateY(-6px)}}
+@keyframes mglow{50%{box-shadow:inset 0 0 0 2px #7a4a72,0 5px 0 rgba(0,0,0,.45),0 0 26px rgba(255,170,200,.6)}}
+@keyframes mpetal{to{transform:translate(-18vw,112vh) rotate(540deg)}}
+@keyframes mfly{0%,100%{transform:translate(0,0);opacity:.2}50%{transform:translate(14px,-18px);opacity:1}}
 @media (prefers-reduced-motion:reduce){#start .go,#act{animation:none}}
 #rotate{position:fixed;inset:0;z-index:30;display:none;place-items:center;text-align:center;background:var(--ground);padding:0 24px;font-size:18px;line-height:1.5}
 #rotate .ico{font-size:44px;display:block;margin-bottom:10px}
@@ -273,7 +292,7 @@ body.ui2 #zone{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 <div id="thanks" hidden><div><div class="fl">🕯</div><h2>Gracias por jugar la DEMO de Warm Dreams</h2><p>67XD67</p><small>Toca para seguir explorando</small></div></div>
 <div id="toast"></div>
 
-<div id="start"><div class="mtitle"><h1>Warm Dreams</h1><div class="tag">Demo</div></div>
+<div id="start"><div class="mfx" aria-hidden="true"></div><div class="mtitle"><img class="logo" alt="" hidden><h1>Warm Dreams</h1><div class="tag">Demo</div></div>
   <div class="wake">Toca para despertar</div>
   <div class="mbtns" hidden><button id="mPlay" type="button">Jugar</button><button id="mNew" type="button" hidden>Nueva partida</button><button id="mSet" type="button">⚙ Ajustes</button></div></div>
 <div id="rotate"><div><span class="ico">📱</span>Gira tu celular<br>Warm Dreams se juega en horizontal</div></div>
@@ -1885,6 +1904,10 @@ for(const pad of document.querySelectorAll('.pad')){const btns=[...pad.querySele
   const up=e=>{ptrs.delete(e.pointerId);refresh()};pad.addEventListener('pointerup',up);pad.addEventListener('pointercancel',up)}
 document.addEventListener('contextmenu',e=>e.preventDefault());
 let started=false,awake=false;const startEl=$('#start');
+// menú nuevo
+if(window.WD_ASSETS&&WD_ASSETS.menu&&WD_ASSETS.menu.logo){document.body.classList.add('menu2');const lg=$('#start .logo');lg.src=WD_ASSETS.menu.logo;lg.hidden=false;
+  const fx=$('#start .mfx');for(let i=0;i<16;i++){const e=document.createElement('i');e.style.left=(Math.random()*110)+'%';e.style.animationDuration=(9+Math.random()*9)+'s';e.style.animationDelay=(-Math.random()*18)+'s';e.style.transform='scale('+(.6+Math.random()*.8)+')';fx.appendChild(e)}
+  for(let i=0;i<9;i++){const e=document.createElement('b');e.style.left=(5+Math.random()*90)+'%';e.style.top=(30+Math.random()*60)+'%';e.style.animationDuration=(3+Math.random()*4)+'s';e.style.animationDelay=(-Math.random()*6)+'s';fx.appendChild(e)}}
 function wake(){if(awake)return;awake=true;initAudio();startEl.classList.add('awake');$('#start .mbtns').hidden=false;
   if(save.prologue){$('#mPlay').textContent='Continuar';$('#mNew').hidden=false}
   try{const d=document.documentElement;if(touch&&d.requestFullscreen)d.requestFullscreen().then(()=>screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})).catch(()=>{})}catch(e){}}

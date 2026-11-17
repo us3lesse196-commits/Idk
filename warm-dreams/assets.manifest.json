@@ -256,5 +256,9 @@
     "luna": "b31c5614-8d29-4506-ad7f-305310246aa4",
     "sol": "7991093a-9e32-44a0-a671-d9fcda722b5a (salió ovalado; se fuerza a círculo)",
     "sol_tarde": "102188c4-4ad6-4139-bdf4-f0f3b0c54f96"
+  },
+  "menu": {
+    "logo": "098ee553-4817-43d3-9243-e5a846cf661d",
+    "archivo": "assets.local/menu/logo.png"
   }
 }

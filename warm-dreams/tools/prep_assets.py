@@ -503,6 +503,8 @@ def main():
             im = load(f); im = im.crop(bbox(im, 60)); im = harden(fit_h(im, round(hu * K)), 110)
             CT[nm] = {'src': b64(im), 'w': im.width / K, 'h': im.height / K}
     A['cats'] = CT
+    if os.path.exists(os.path.join(ROOT, 'menu/logo.png')):
+        im = load('menu/logo.png'); A['menu'] = {'logo': b64(im.crop(bbox(im, 20)))}
     # sol y luna (discos; el sol de día salió ovalado: se recorta y se fuerza a círculo)
     SK = {}
     for nm, f, d in [('luna', 'cielo/luna.png', 16), ('sol', 'cielo/sol.png', 20), ('solT', 'cielo/sol_tarde.png', 22)]:
