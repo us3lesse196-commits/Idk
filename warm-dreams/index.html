@@ -740,8 +740,8 @@ const found={koi:0,fox:0,cat:0};
   // conserje de la prepa y gato de la cafetería (pedazos 2 y 5)
   OUT.npcs.push({kind:'janitor',x:1616,y:150,dir:1,sp:0,fixed:1,a:0,var:.5});
   OUT.npcs.push({kind:'cat',x:60,y:150,dir:1,sp:0,fixed:1,a:0,street:1});
-  {const g=OUT.levelC.getContext('2d');g.setTransform(Z,0,0,Z,0,0);const R2=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};
-    R2(1656,137,11,13,'#4f6f5e');R2(1655,135,13,2,'#3c5a4a');R2(1658,140,1,8,'#3c5a4a');R2(1661,140,1,8,'#3c5a4a');R2(1664,140,1,8,'#3c5a4a');R2(1656,148,11,2,'#2f4a3c');g.setTransform(1,0,0,1,0,0)}
+  {const g=OUT.levelC.getContext('2d');g.save();g.setTransform(Z,0,0,Z,0,0);const R2=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};
+    R2(1656,137,11,13,'#4f6f5e');R2(1655,135,13,2,'#3c5a4a');R2(1658,140,1,8,'#3c5a4a');R2(1661,140,1,8,'#3c5a4a');R2(1664,140,1,8,'#3c5a4a');R2(1656,148,11,2,'#2f4a3c');g.restore()}
 })();
 
 // ============================================================ cielo
@@ -1422,6 +1422,7 @@ out.addEventListener('pointerdown',()=>{if(st.mode==='fast')finishFast()});
 const LETTER=(()=>{const P=3,LW=118,LH=160,BAY4=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
   const hs=n=>{n=(n^61)^(n>>>16);n=n+(n<<3);n=n^(n>>>4);n=Math.imul(n,0x27d4eb2d);return (n^(n>>>15))>>>0},rnd=(x,y)=>(hs(x*73856093^y*19349663)%1000)/1000;
   const NOTES=['Cayó del árbol junto al templo, después de la tormenta.','Estaba en el basurero de la prepa; el conserje lo tiró en la tarde.','El zorro de la aurora lo traía en la espalda.','Arriba de todo, en lo alto del callejón.','Un gato jugaba con él frente a la cafetería.'];
+  const CLUES=['Cuando la tormenta por fin se calma, algo cae de un árbol cerca del templo.','En la tarde, alguien de la prepa saca la basura... y no todo lo que tira es basura.','Bajo la aurora, el guardián blanco del templo carga algo en la espalda.','Lo más alto del callejón guarda un secreto. Hay que saber trepar.','Por las mañanas, alguien pequeño juega con un papel frente a la cafetería.'];
   const STUCK=[{r:-.02,tape:[[.2,.15,-.5],[.82,.2,.4]]},{r:.015,tape:[[.25,.45,.3]]},{r:-.012,tape:[[.85,.5,-.4]]},{r:.022,tape:[[.15,.85,.5]]},{r:-.016,tape:[[.8,.9,-.3],[.55,.62,.2]]}];
   let PIECES=null,t=0,doneT=0,raf=0;
   function build(){const lo=mk(LW,LH),f=lo.getContext('2d'),d=f.createImageData(LW,LH),q=d.data,blobs=[],ins=9;
@@ -1465,7 +1466,7 @@ const LETTER=(()=>{const P=3,LW=118,LH=160,BAY4=[0,8,2,10,12,4,14,6,3,11,1,9,15,
     const gr=g.createLinearGradient(mid-40,0,mid+40,0);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(.5,'rgba(60,30,20,.28)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(mid-40,y0,80,y1-y0);
     for(let y=y0+20;y<y1;y+=34){g.fillStyle='#b8a888';g.fillRect(mid-3,y,6,12);g.fillStyle='#8a7a5a';g.fillRect(mid-1,y+2,2,8)}
     g.textAlign='left';g.fillStyle='#4a3a5a';g.font='italic 600 26px Georgia,serif';g.fillText('La carta',x0+70,y0+42);g.font='italic 15px Georgia,serif';g.fillStyle='#7a6a8a';g.fillText('Pedazos: '+n+' / 5',x0+70,y0+66);
-    let ly=y0+102;for(let k=0;k<5;k++){g.fillStyle=have[k]?'#3a3058':'rgba(90,80,110,.45)';g.font=(have[k]?'italic 16px ':'16px ')+'Georgia,serif';const words=(have[k]?NOTES[k]:'· · ·').split(' ');let line='',yy=ly;const maxW=mid-x0-110;
+    let ly=y0+102;for(let k=0;k<5;k++){g.fillStyle=have[k]?'#3a3058':'rgba(110,90,130,.75)';g.font=(have[k]?'italic 16px ':'15px ')+'Georgia,serif';const words=(have[k]?'✓ '+NOTES[k]:'¿? '+CLUES[k]).split(' ');let line='',yy=ly;const maxW=mid-x0-110;
       g.fillText((k+1)+'.',x0+70,yy);for(const w of words){const ts=line?line+' '+w:w;if(g.measureText(ts).width>maxW){g.fillText(line,x0+92,yy);line=w;yy+=22}else line=ts}g.fillText(line,x0+92,yy);ly=yy+40}
     const sc=Math.min((y1-y0-40)/(LH*P),(x1-mid-60)/(LW*P)),lw=LW*P*sc,lh=LH*P*sc,lx=mid+(x1-mid)/2-lw/2-(n===5?30:0),ly0=y0+(y1-y0-lh)/2;
     for(let k=0;k<5;k++){if(!have[k])continue;const p=PIECES[k],s=STUCK[k];g.save();g.translate(lx+p.cx*sc+s.dx,ly0+p.cy*sc+s.dy);g.rotate(s.r);g.scale(sc,sc);g.drawImage(p.sh,-p.cx+5,-p.cy+6);g.drawImage(p.c,-p.cx,-p.cy);
