@@ -185,8 +185,16 @@ def main():
         A['buildings'][name] = e
 
     # ---- fase 3: prepa y entrada del callejón (luces calculadas por código)
-    for name, f, hu, mode in [('alaA', 'fase3/alaA.png', 75, 'school'), ('alaAm', 'fase3/alaA.png', 75, 'school'),
-                              ('centro', 'fase3/centroB.png', 75, 'school'), ('porton', 'fase3/porton.png', 47, None),
+    for name, f, lf, hu in [('alaA', 'fase3/alaA_up.png', 'fase3/alaA_luces.png', 75), ('alaAm', 'fase3/alaA_up.png', 'fase3/alaA_luces.png', 75),
+                            ('centro', 'fase3/centro_up.png', 'fase3/centro_luces.png', 75)]:
+        src = load(f); box = bbox(src); im = harden(fit_h(src.crop(box), hu * K), 100)
+        L = Image.open(os.path.join(ROOT, lf)).convert('RGB').resize(src.size, Image.BOX)
+        lit = light_layer(L, box, im.size)
+        la = np.asarray(lit).copy(); la[..., 3] = np.where(np.asarray(im)[..., 3] > 0, la[..., 3], 0); lit = Image.fromarray(la, 'RGBA')
+        if name.endswith('m'): im = im.transpose(Image.FLIP_LEFT_RIGHT); lit = lit.transpose(Image.FLIP_LEFT_RIGHT)
+        A['buildings'][name] = {'src': b64(im), 'glow': b64(lit), 'w': round(im.width / K * 2), 'h': hu * 2, 'lights': blobs(lit, 2 / K)}
+    for k in ('alaB', 'torre', 'shop', 'house', 'cafe'): A['buildings'].pop(k, None)
+    for name, f, hu, mode in [('porton', 'fase3/porton.png', 47, None),
                               ('callejonEntrada', 'fase3/callejonEntrada.png', 60, 'warm')]:
         src = load(f); im = harden(fit_h(src.crop(bbox(src)), hu * K), 100)
         if name.endswith('m'): im = im.transpose(Image.FLIP_LEFT_RIGHT)

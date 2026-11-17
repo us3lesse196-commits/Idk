@@ -609,7 +609,7 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
     if(WA.buildings.porton){zone(1095,1238);Bs.solids=Bs.solids.filter(o=>!(o.x>=1095&&o.x<1238));bld('porton',1100)}
     if(WA.buildings.alaA&&WA.buildings.centro&&WA.buildings.alaAm){zone(1265,1971);
       const redrawBench=()=>{const oL=L,oB=B;L=Ls;B={inter:[]};bench(1430,150,'cerezo');L=oL;B=oB;B_._dirty={l:true,e:true}};
-      const wA=WA.buildings.alaA.w/Z,wC=WA.buildings.centro.w/Z,x0=1617.5-wC/2;bld('alaA',x0-wA+.5,redrawBench);bld('centro',x0);bld('alaAm',x0+wC-.5)}
+      const wA=WA.buildings.alaA.w/Z,wC=WA.buildings.centro.w/Z,x0=1617.5-wC/2;let done=0;const fin=()=>{if(++done===2)bld('centro',x0)};bld('alaA',x0-wA+4,()=>{redrawBench();fin()});bld('alaAm',x0+wC-4,fin)}
     if(WA.buildings.deptos){zone(706,826);bld('deptos',714);for(const f of [.305,.485,.666,.846]){const y=Math.round(46+104*f);O(716,y,78);Bs.drips.push({x:717,y:y+2},{x:792,y:y+2})}}
     const sh=WA.buildings.shrine;if(sh){const w=sh.w/Z,x=2935-w/2,top=126-sh.h/Z;Ls.clearRect(2870,0,130,126);Es.clearRect(2870,0,130,126);
       for(const k of ['lights','oneways','drips'])Bs[k]=Bs[k].filter(o=>o.x<2870||o.x>3000);place(sh.src,x,sh.w,sh.h,1,true,126,(im,y0)=>roof(im,x,sh.w,sh.h,y0,x+4,x+w-4));
