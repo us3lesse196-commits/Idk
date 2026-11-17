@@ -121,5 +121,9 @@
     "cabina_noche": "b932eb59-e3bd-44ac-8623-400c76e44f19",
     "cruce": "60a983e1-e1bb-4cd2-bc03-a199e5b84aab",
     "nota": "Logo real borrado en *_ok.png; barreras pintadas borradas del cruce (se dibujan por código)."
+  },
+  "suelos": {
+    "calle": "732d820e-1d2a-4770-b218-cb21e8dd3304",
+    "campo": "8e0aa267-3777-47c7-aeac-6b600cafb2d4"
   }
 }

@@ -597,6 +597,8 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
       for(const [lx,ly,n] of pick){const yy=top+ly/Z,low=yy>122;Bs.lights.push(low?{x:x+lx/Z,y:yy,r:clamp(16+n*.06,18,32),kind:'warm',s:.85,pool:1}:{x:x+lx/Z,y:yy,r:clamp(9+n*.03,10,15),kind:'warm',s:.4})}Bs.drips.push({x:x+2,y:top+6},{x:x+b.w/Z-2,y:top+6})};
     const prop=(name,x,sc=1)=>{const p=WA.props[name];if(p)place(p.src,x,p.w,p.h,sc,name==='vending')};
     const tS=WA.buildings.tramoS1&&WA.buildings.tramoS2&&WA.buildings.tramoS3;if(tS){bld('tramoS1',4);bld('tramoS2',166)}else{if(WA.buildings.tiendaCafe)bld('tiendaCafe',16);else bld('cafe',6);prop('vending',82);if(WA.buildings.dagashiya)bld('dagashiya',98);else bld('shop',96);prop('mailbox',173,.75);if(WA.buildings.casaN)bld('casaN',182);else bld('house',182);prop('bike',250);prop('trash',273);prop('plant',283,.85);prop('flower',295);prop('stop',305);prop('mirror',418);}
+    if(WA.ground){const gr=(k,x0,x1)=>{const d=WA.ground[k],im=new Image();im.onload=()=>{Ls.save();Ls.beginPath();Ls.rect(x0,150,x1-x0,30);Ls.clip();Ls.imageSmoothingEnabled=true;for(let x=x0;x<x1;x+=d.w)Ls.drawImage(im,Math.floor(x),150,d.w+.5,d.h);Ls.restore();B_._dirty={l:true,e:true}};im.src=d.src};
+      gr('calle',0,2120);gr('campo',2120,OUT.LW)}
     Bs.lights.push({x:tS?71:88,y:tS?135:132,r:22,kind:'cool',s:.9});
     // ---- fase 2: resto de la calle (se borra el dibujo viejo de cada tramo)
     const zone=(x0,x1,y1=150)=>{Ls.clearRect(x0,0,x1-x0,y1);Es.clearRect(x0,0,x1-x0,y1);for(const k of ['lights','oneways','drips','lamps','flags'])Bs[k]=Bs[k].filter(o=>o.x<x0||o.x>=x1)};
@@ -611,6 +613,7 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
     if(WA.buildings.casaC&&!tramoC){zone(576,680);bld('casaC',580)}
     if(WA.buildings.callejonEntrada&&!tramoC){zone(676,714);bld('callejonEntrada',678);const ai=Bs.inter.find(i=>i.type==='alley');if(ai)ai.x=696}
     // ---- fase 3: prepa
+    zone(2000,2119);
     if(window.WD_ASSETS.xing){zone(834,998);Bs.crossing={x:858,ly:117};Bs.crossing2={x:969,ly:117}}
     if(WA.buildings.porton){zone(1002,1264);Bs.solids=Bs.solids.filter(o=>!(o.x>=1095&&o.x<1238));streetLamp(1240,70);R(L,1243,70,2,80,'#9a9ca6')}
     if(WA.buildings.alaA&&WA.buildings.centro&&WA.buildings.alaAm){zone(1265,1971);

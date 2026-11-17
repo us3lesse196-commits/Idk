@@ -321,6 +321,14 @@ def main():
         nim = Image.open(os.path.join(ROOT, 'tren/%s_noche_ok.png' % name)).convert('RGBA').crop(box).resize(im.size, Image.BOX)
         X[name] = {'src': b64(im), 'glow': b64(lit_from_night(im, nim)), 'w': im.width / K, 'h': 34}
     A['xing'] = X
+    # ---- suelos (texturas repetibles)
+    G = {}
+    im = load('suelo/calle.png').convert('RGB'); hh = 40 * K; im = im.resize((round(im.width * hh / im.height), hh), Image.BOX).crop((0, 0, round(im.width * hh / im.height), 30 * K))
+    G['calle'] = {'src': b64(im), 'w': im.width / K, 'h': 30}
+    im = load('suelo/campo.png').convert('RGB'); im = im.crop((0, 150, im.width, im.height)); hh = 34 * K
+    im = im.resize((round(im.width * hh / im.height), hh), Image.BOX).crop((0, 0, round(im.width * hh / im.height), 30 * K))
+    G['campo'] = {'src': b64(im), 'w': im.width / K, 'h': 30}
+    A['ground'] = G
     print('  cruce', X['cruce']['w'], 'vagon', X['vagon']['w'], 'cabina', X['cabina']['w'])
 
     open(path, 'w').write('window.WD_ASSETS=' + json.dumps(A) + ';')
