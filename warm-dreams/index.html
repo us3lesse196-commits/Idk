@@ -408,6 +408,7 @@ function polJ(x,top){R(L,x,top,4,150-top,'#9a9ca6');R(L,x+1,top,1,150-top,'#b3b5
 function wires(x0,x1,ys){(B.wireList||(B.wireList=[])).push({x0,x1,ys})}
 function deco(key,x,sw,base=150){const WA=window.WD_ASSETS;if(!WA||!WA.deco||!WA.deco[key])return null;const d=WA.deco[key],w=d.w,h=d.h,ent={c:mk(1,1),ox:x-w/2,oy:base-h,GW:w,GH:h,ph:x*.37,k:ZL,stiff:sw||0};B.treeSpr.push(ent);
   const im=new Image();im.onload=()=>{const c2=mk(Math.round(w*ZL),Math.round(h*ZL)),g=c2.getContext('2d');g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(im,0,0,c2.width,c2.height);ent.c=c2;ent.sil=null};im.src=d.src;return ent}
+function litLantern(x,b){const t=b-13;(B.lanterns||(B.lanterns=[])).push({x,y:t+4.9});LT(x,t+5,30,'warm',1,{lamp:1})}
 function streetLamp(x,top){R(L,x+3,top,8,2,'#55585f');R(L,x+8,top+2,5,2,'#3a3d44');R(L,x+9,top+4,3,1,'#f4ecd0');R(E,x+9,top+4,3,2,'#fff1c8');
   B.lamps.push({x:x+10,y:top+5});LT(x+10,top+16,50,'warm',1,{lamp:1})}
 const PALS={sakura:[['#c7637f','#e58aa8','#f4aec3','#fcd3df','#fff0f4'],['#c25a86','#df7fa6','#f0a3c2','#f9cadb','#ffeaf2'],['#b9537a','#d9779b','#ec9bb8','#f7c3d4','#fde4ec'],['#cf8a9e','#ecb5c4','#f7d2dc','#fde8ee','#ffffff']],
@@ -648,7 +649,7 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
         bgT.forEach((t,i)=>{const d=WA.trees[t[0]];Ls.globalAlpha=.92;Ls.drawImage(ims[i],t[1]-d.w/2,126-d.h,d.w,d.h);Ls.globalAlpha=1;Es.save();Es.globalCompositeOperation='destination-out';Es.drawImage(ims[i],t[1]-d.w/2,126-d.h,d.w,d.h);Es.restore()});
         const H_=SN.haiden,hx=2935-H_.w/2,hy=126-H_.h;Ls.drawImage(ims[3],hx,hy,H_.w,H_.h);Es.drawImage(ims[4],hx,hy,H_.w,H_.h);roof(ims[3],hx,Math.round(H_.w*Z),Math.round(H_.h*Z),hy,hx+3,hx+H_.w-3);B_._dirty={l:true,e:true}});
       {const H_=SN.haiden,hx=2935-H_.w/2,hy=126-H_.h;LT(hx+H_.w*.22,hy+H_.h*.47,24,'warm',.9,{lamp:1});LT(hx+H_.w*.78,hy+H_.h*.47,24,'warm',.9,{lamp:1});LT(2935,hy+H_.h*.65,30,'warm',.6)}
-      for(const lx of [2800,3062]){deco('linterna',lx,0,126);LT(lx,126-9,28,'warm',1,{lamp:1})}
+      for(const lx of [2800,3062]){deco('linterna',lx,0,126);litLantern(lx,126)}
       for(const [tx,tb] of [[2582,152],[2756,128]]){const T=SN.toriiP,d=deco('torii',0,0,0);if(d)Bs.treeSpr.pop();
         const im=new Image(),fi=new Image();const ent={c:mk(1,1),ox:tx-T.w/2,oy:tb-T.h,GW:T.w,GH:T.h,ph:0,k:ZL,stiff:0};Bs.treeSpr.push(ent);im.onload=()=>{const c2=mk(Math.round(T.w*ZL),Math.round(T.h*ZL));c2.getContext('2d').drawImage(im,0,0,c2.width,c2.height);ent.c=c2};im.src=T.src;
         fi.onload=()=>{const c2=mk(Math.round(T.w*ZL),Math.round(T.h*ZL));c2.getContext('2d').drawImage(fi,0,0,c2.width,c2.height);(Bs.fronts||(Bs.fronts=[])).push({c:c2,x:tx-T.w/2,y:tb-T.h,w:T.w,h:T.h})};fi.src=T.front}deco('temizuya',2826,0,126);deco('kitsuneR',2890,0,126);deco('kitsuneL',2980,0,126);deco('ema',3014,0,126);deco('omikuji',3036,0,126);
@@ -658,7 +659,7 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
         T('cedro',2646);T('pino',2660);T('cedro',2672);T('arce',2684);T('cedro',2694);T('pino',2706);T('cedro',2718);T('arceRojo',2734);T('cedro',2744);
         for(const [k,x] of [['boj',2652],['azalea',2668],['hierba',2680],['boj',2700],['azalea',2712],['pampas',2726]])deco(k,x,.3,sy(x)+1);
         for(const [k,x] of [['hierba',2604],['juncos',2611],['hierba',2622],['pampas',2630],['hierba',2638],['hortensia',2644],['hierba',2656],['juncos',2676],['hierba',2690],['hierba',2560],['pampas',2546],['hierba',2572]])deco(k,x,k==='pampas'||k==='juncos'?.8:.6,sy(x)+1);
-        for(const x of [2552,2626,2690]){deco('linterna',x,0,sy(x)+1);LT(x,sy(x)-8,32,'warm',1,{lamp:1})}
+        for(const x of [2552,2626,2690]){deco('linterna',x,0,sy(x)+1);litLantern(x,sy(x)+1)}
         // orilla del lago (tapa el cambio de terreno)
         T('arce',2478);T('bambu',2492);T('arce',2510);T('pino',2526);for(const [k,x] of [['boj',2470],['azalea',2486],['pampas',2500],['boj',2518],['hierba',2532],['azalea',2540]])deco(k,x,.3,151)}tree(3172,126,60,10,0,'leaf','#4a3a30','pino');
       deco('juncos',2336,.6,176);deco('boj',2342,.2,172);deco('juncos',2499,.6,176);deco('boj',2492,.2,172);
@@ -1302,7 +1303,7 @@ function drawFlags_(c,sc){const aw=Math.abs(WE);drawLake(c,sc);
     if(f.type==='cloth'){const sway=WE*.45+Math.sin(st.time*.07+ph)*.12*(.3+aw);for(let y=0;y<f.h;y+=.5){const u=y/f.h,dx=sway*y+Math.sin(st.time*.21+y*.8+ph)*aw*.35*u;c.fillStyle=y<.5?'rgba(0,0,0,.25)':f.col;c.fillRect(f.x+dx,f.y+y,f.w,.5);c.fillStyle='rgba(0,0,0,.12)';c.fillRect(f.x+dx+f.w-1,f.y+y,1,.5)}}
     else if(f.type==='lantern'){f.ang=Math.sin(st.time*.05+ph)*.12*(.3+aw)-WE*.22;c.save();c.translate(f.x+.5,f.y-3);c.rotate(f.ang);c.fillStyle='#2a2a33';c.fillRect(-.25,0,.5,3);c.fillStyle='#d9473a';c.fillRect(-2.5,3,5,7);c.fillStyle='#f07a5a';c.fillRect(-1.5,4,1,5);c.fillStyle='#2a2a33';c.fillRect(-2.5,3,5,1);c.fillRect(-2.5,9,5,1);c.restore()}}}
 function drawFlagGlow(c,sc,lo){c.save();c.translate(-camX,0);drawFlagGlow_(c,sc,lo);c.restore()}
-function drawFlagGlow_(c,sc,lo){for(const f of sc.flags){if(f.type!=='lantern'||f.x<camX-20||f.x>camX+W+20)continue;c.save();c.translate(f.x+.5,f.y-3);c.rotate(f.ang||0);c.globalAlpha=Math.max(lo,sc.alleySky?.7:0)*.9;c.fillStyle='#ff9a6a';c.fillRect(-2.5,4,5,5);c.restore()}c.globalAlpha=1}
+function drawFlagGlow_(c,sc,lo){if(sc.lanterns&&lo>.05)for(const l of sc.lanterns){if(l.x<camX-10||l.x>camX+W+10)continue;const f=.85+.15*Math.sin(st.time*.21+l.x);c.globalAlpha=lo*f;c.fillStyle='#ffd08a';c.fillRect(l.x-1.7,l.y-.9,3.4,1.9);c.fillStyle='#fff2c8';c.fillRect(l.x-.8,l.y-.5,1.6,1.1);c.globalAlpha=lo*.5*f;c.drawImage(GL.warm,l.x-6,l.y-6,12,12)}c.globalAlpha=1;for(const f of sc.flags){if(f.type!=='lantern'||f.x<camX-20||f.x>camX+W+20)continue;c.save();c.translate(f.x+.5,f.y-3);c.rotate(f.ang||0);c.globalAlpha=Math.max(lo,sc.alleySky?.7:0)*.9;c.fillStyle='#ff9a6a';c.fillRect(-2.5,4,5,5);c.restore()}c.globalAlpha=1}
 function drawDoors(c){for(const d of scene.doors){if(d.open<=0)continue;const sx=Math.round(d.x-camX);c.fillStyle='#1a1424';c.fillRect(sx,d.y,d.w,d.h);c.fillStyle='rgba(255,210,150,.25)';c.fillRect(sx,d.y+d.h-6,d.w,6);
   const off=Math.round(d.open*d.w*.9);c.fillStyle=d.col;c.fillRect(sx+off,d.y,Math.max(0,d.w-off),d.h);c.fillStyle='rgba(0,0,0,.15)';for(let y=d.y+4;y<d.y+d.h;y+=6)c.fillRect(sx+off,y,Math.max(0,d.w-off),1)}}
 
