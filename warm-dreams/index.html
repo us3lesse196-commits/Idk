@@ -600,7 +600,7 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
     const prop=(name,x,sc=1)=>{const p=WA.props[name];if(p)place(p.src,x,p.w,p.h,sc,name==='vending')};
     const tS=WA.buildings.tramoS1&&WA.buildings.tramoS2&&WA.buildings.tramoS3;if(tS){bld('tramoS1',4);bld('tramoS2',166)}else{if(WA.buildings.tiendaCafe)bld('tiendaCafe',16);else bld('cafe',6);prop('vending',82);if(WA.buildings.dagashiya)bld('dagashiya',98);else bld('shop',96);prop('mailbox',173,.75);if(WA.buildings.casaN)bld('casaN',182);else bld('house',182);prop('bike',250);prop('trash',273);prop('plant',283,.85);prop('flower',295);prop('stop',305);prop('mirror',418);}
     if(WA.ground){const gr=(k,x0,x1)=>{const d=WA.ground[k],im=new Image();im.onload=()=>{Ls.save();Ls.beginPath();Ls.rect(x0,150,x1-x0,30);Ls.clip();Ls.imageSmoothingEnabled=true;for(let x=x0;x<x1;x+=d.w)Ls.drawImage(im,Math.floor(x),150,d.w+.5,d.h);Ls.restore();B_._dirty={l:true,e:true}};im.src=d.src};
-      gr('calle',0,2120);if(WA.lago){gr('campo',2120,2330);gr('campo',2500,OUT.LW)}else gr('campo',2120,OUT.LW)}
+      gr('calle',0,2120);if(WA.lago){gr('campo',2120,2330);if(!WA.santuario)gr('campo',2500,OUT.LW)}else gr('campo',2120,OUT.LW)}
     Bs.lights.push({x:tS?71:88,y:tS?135:132,r:22,kind:'cool',s:.9});
     // ---- fase 2: resto de la calle (se borra el dibujo viejo de cada tramo)
     const zone=(x0,x1,y1=150)=>{Ls.clearRect(x0,0,x1-x0,y1);Es.clearRect(x0,0,x1-x0,y1);for(const k of ['lights','oneways','drips','lamps','flags'])Bs[k]=Bs[k].filter(o=>o.x<x0||o.x>=x1)};
@@ -638,14 +638,14 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
         if(mu){const mim=new Image();mim.onload=()=>stp(mim);mim.src=mu.src}else stp(null)};if(lim.complete)go();else lim.addEventListener('load',()=>setTimeout(go,0))};lad.src=ld.src;
     }
     if(WA.santuario){const SN=WA.santuario;zone(2700,3198,126);zone(3228,3300,126);
-      {const d=SN.muro,im=new Image();im.onload=()=>{Ls.save();Ls.beginPath();Ls.rect(2696,126,604,54);Ls.clip();Ls.imageSmoothingEnabled=true;for(let x=2696;x<3300;x+=d.w)Ls.drawImage(im,Math.floor(x),126,d.w+.5,d.h);Ls.restore();B_._dirty={l:true,e:true}};im.src=d.src}
+      {const d=SN.muro,im=new Image();im.onload=()=>{Ls.save();Ls.beginPath();Ls.rect(2496,150,200,30);Ls.clip();Ls.clearRect(2496,150,200,30);Ls.imageSmoothingEnabled=true;for(let x=2496;x<2696;x+=d.w)Ls.drawImage(im,Math.floor(x),148,d.w+.5,d.h);Ls.restore();Ls.save();Ls.beginPath();Ls.rect(2696,126,604,54);Ls.clip();Ls.imageSmoothingEnabled=true;for(let x=2696;x<3300;x+=d.w)Ls.drawImage(im,Math.floor(x),126,d.w+.5,d.h);Ls.restore();B_._dirty={l:true,e:true}};im.src=d.src}
       const ld_=s=>new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.src=s});const bgT=[['cedro',2846],['cedro',3128],['pino',3000],['cedro',2690],['cedro',2714]];
       Promise.all([...bgT.map(t=>ld_(WA.trees[t[0]].src)),ld_(SN.haiden.src),ld_(SN.haiden.glow)]).then(ims=>{Ls.imageSmoothingEnabled=true;Es.imageSmoothingEnabled=true;
         bgT.forEach((t,i)=>{const d=WA.trees[t[0]];Ls.globalAlpha=.92;Ls.drawImage(ims[i],t[1]-d.w/2,126-d.h,d.w,d.h);Ls.globalAlpha=1;Es.save();Es.globalCompositeOperation='destination-out';Es.drawImage(ims[i],t[1]-d.w/2,126-d.h,d.w,d.h);Es.restore()});
         const H_=SN.haiden,hx=2935-H_.w/2,hy=126-H_.h;Ls.drawImage(ims[3],hx,hy,H_.w,H_.h);Es.drawImage(ims[4],hx,hy,H_.w,H_.h);roof(ims[3],hx,Math.round(H_.w*Z),Math.round(H_.h*Z),hy,hx+3,hx+H_.w-3);B_._dirty={l:true,e:true}});
       {const H_=SN.haiden,hx=2935-H_.w/2,hy=126-H_.h;LT(hx+H_.w*.22,hy+H_.h*.47,24,'warm',.9,{lamp:1});LT(hx+H_.w*.78,hy+H_.h*.47,24,'warm',.9,{lamp:1});LT(2935,hy+H_.h*.65,30,'warm',.6)}
       for(const lx of [2800,3062]){deco('linterna',lx,0,126);LT(lx,126-9,28,'warm',1,{lamp:1})}
-      for(const [tx,tb] of [[2582,153],[2756,129]]){const T=SN.toriiP,d=deco('torii',0,0,0);if(d)Bs.treeSpr.pop();
+      for(const [tx,tb] of [[2582,152],[2756,128]]){const T=SN.toriiP,d=deco('torii',0,0,0);if(d)Bs.treeSpr.pop();
         const im=new Image(),fi=new Image();const ent={c:mk(1,1),ox:tx-T.w/2,oy:tb-T.h,GW:T.w,GH:T.h,ph:0,k:ZL,stiff:0};Bs.treeSpr.push(ent);im.onload=()=>{const c2=mk(Math.round(T.w*ZL),Math.round(T.h*ZL));c2.getContext('2d').drawImage(im,0,0,c2.width,c2.height);ent.c=c2};im.src=T.src;
         fi.onload=()=>{const c2=mk(Math.round(T.w*ZL),Math.round(T.h*ZL));c2.getContext('2d').drawImage(fi,0,0,c2.width,c2.height);(Bs.fronts||(Bs.fronts=[])).push({c:c2,x:tx-T.w/2,y:tb-T.h,w:T.w,h:T.h})};fi.src=T.front}deco('temizuya',2826,0,126);deco('kitsuneR',2890,0,126);deco('kitsuneL',2980,0,126);deco('ema',3014,0,126);deco('omikuji',3036,0,126);
       for(const bx of [3238,3262,3286])deco('barandal',bx,0,126);

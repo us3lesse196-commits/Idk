@@ -409,11 +409,11 @@ def main():
         im = harden(fit_h(part, hu * K), 100); A['deco'][nm] = {'src': b64(im), 'w': im.width / K, 'h': hu}
     for (nm, hu), part in zip([('cedro', 104), ('pino', 70), ('arceRojo', 46)], split_sheet(os.path.join(ROOT, 'santuario/arboles.png'))):
         im = harden(fit_h(part, hu * K), 100); A['trees'][nm] = {'src': b64(im), 'w': im.width / K, 'h': hu}
-    src = load('santuario/toriiP_a.png'); im = harden(fit_h(src.crop(bbox(src, 30)), 50 * K), 100)
+    src = load('santuario/toriiL_b.png'); im = harden(fit_h(src.crop(bbox(src, 30)), 48 * K), 100)
     a_ = np.asarray(im).copy(); h_, w_ = a_.shape[:2]; fr = a_.copy()
-    yy, xx = np.mgrid[0:h_, 0:w_]; front = (xx < w_ * .40) | (yy < h_ * .40)
+    yy, xx = np.mgrid[0:h_, 0:w_]; front = (xx < w_ * .58) | (yy < h_ * .16)
     fr[..., 3] = np.where(front, fr[..., 3], 0)
-    S_['toriiP'] = {'src': b64(im), 'front': b64(Image.fromarray(fr, 'RGBA')), 'w': w_ / K, 'h': 50}
+    S_['toriiP'] = {'src': b64(im), 'front': b64(Image.fromarray(fr, 'RGBA')), 'w': w_ / K, 'h': 48}
     A['santuario'] = S_
     src = load('lago/ladera.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
     _l = np.asarray(im).copy(); _w = _l.shape[1]; _f = np.clip((_w - np.arange(_w)) / (_w * .14), 0, 1); _l[..., 3] = (_l[..., 3] * _f[None, :]).astype(np.uint8); im = Image.fromarray(_l, 'RGBA')
