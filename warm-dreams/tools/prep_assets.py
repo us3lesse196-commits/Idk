@@ -396,6 +396,15 @@ def main():
     redrows = np.where(red[:, x0:x0 + 6 * K].any(axis=1))[0]
     deckEnd = round(float(redrows.max()) / K, 1)
     A['lago'] = {'src': b64(im), 'w': W_ / K, 'h': 95, 'rail': prof, 'x0': round(x0 / K, 1), 'x1': round(x1 / K, 1), 'deckEnd': deckEnd}
+    # barandilla delantera: franja desde arriba del pasamanos hasta el tablero (DECK unidades), sin vegetación
+    DECK = 13; fr = np.zeros_like(np.asarray(im)); src_a = np.asarray(im)
+    g_ = (a_[..., 1] > a_[..., 0] + 8) & (a_[..., 1] > a_[..., 2])
+    for x in range(x0, x1 + 1):
+        if top[x] < 0: continue
+        y0 = max(0, top[x] - 5 * K); y1 = min(_h, top[x] + DECK * K)
+        col = (src_a[y0:y1, x, 3] > 100) & ~g_[y0:y1, x]
+        fr[y0:y1, x][col] = src_a[y0:y1, x][col]
+    A['lago']['front'] = b64(Image.fromarray(fr, 'RGBA')); A['lago']['deck'] = DECK
     A.pop('tunel', None)
     # ---- santuario y colina
     A['buildings'].pop('shrine', None)
