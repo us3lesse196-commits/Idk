@@ -1294,7 +1294,7 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   // emisivo
   const eA=sc.interior||sc.alleySky?Math.max(lo,.6):lo;
   if(eA>.02&&!OFF.emis){const wA=sc.interior||sc.alleySky?eA:eA*(.45+.55*N);ID(ctx);ctx.globalAlpha=wA*.92;blitCh(ctx,sc,'e',camX*ZL,camY*ZL,OW*ZL/Z,OH*ZL/Z,0,0,OW,OH);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=wA*.18;blitCh(ctx,sc,'e',camX*ZL,camY*ZL,OW*ZL/Z,OH*ZL/Z,0,0,OW,OH);
-    if(Q>=2){const bw=bloomB.width,bh=bloomB.height;bctx.globalCompositeOperation='copy';bctx.imageSmoothingEnabled=true;blitCh(bctx,sc,'e',camX*ZL,camY*ZL,OW*ZL/Z,OH*ZL/Z,0,0,bw,bh);ctx.imageSmoothingEnabled=true;ctx.globalAlpha=wA*.34;ctx.drawImage(bloomB,0,0,bw,bh,0,0,OW,OH);ctx.globalAlpha=wA*.18;ctx.drawImage(bloomB,0,0,bw,bh,-6,-4,OW+12,OH+8)}
+    if(true){const bw=bloomB.width,bh=bloomB.height;bctx.globalCompositeOperation='copy';bctx.imageSmoothingEnabled=true;blitCh(bctx,sc,'e',camX*ZL,camY*ZL,OW*ZL/Z,OH*ZL/Z,0,0,bw,bh);ctx.imageSmoothingEnabled=true;ctx.globalAlpha=wA*.34;ctx.drawImage(bloomB,0,0,bw,bh,0,0,OW,OH);ctx.globalAlpha=wA*.18;ctx.drawImage(bloomB,0,0,bw,bh,-6,-4,OW+12,OH+8)}
     XF(ctx);
     drawFlagGlow(ctx,sc,lo);drawXing(ctx,sc,2);
     for(const lp of sc.lamps){if(Q<1)break;const sx=lp.x-camX;if(sx<-40||sx>W+40)continue;const gy=sc.gmap[clamp(lp.x|0,0,sc.LW-1)],a=lo*(.07+st.rain*.1);if(!lp.cg){lp.cg=ctx.createLinearGradient(0,lp.y,0,gy);lp.cg.addColorStop(0,'rgba(255,214,150,1)');lp.cg.addColorStop(1,'rgba(255,214,150,.16)')}const cg=lp.cg;ctx.globalAlpha=clamp(a*1.6,0,1);
