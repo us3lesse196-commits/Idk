@@ -445,7 +445,7 @@ def main():
     src = load('lago/ladera.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
     A['ladera'] = {'src': b64(im), 'w': im.width / K, 'h': 95}
     # ---- Haru (hojas de animación de SpriteCook, cuadros de 202 px con los pies abajo)
-    HU = 22 / 185  # unidades por px de origen (Haru mide ~22 unidades)
+    HU = 18 / 185  # unidades por px de origen (Haru mide ~18 unidades, como los NPC)
     FW = round(202 * HU * K); H_ = {'fw': FW, 'u': FW / K}
     i0 = load('chars/haru_idle.png').crop((0, 0, 202, 202)); b0 = bbox(i0)
     H_['ax'] = round((b0[0] + b0[2]) / 2 * HU * K)  # ancla x (centro del cuerpo) en px del cuadro

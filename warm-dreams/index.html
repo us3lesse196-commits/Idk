@@ -1521,7 +1521,7 @@ function drawHiActors(c,sc,cur){if(!A)return;ID(c);c.imageSmoothingEnabled=false
     if(n.umbOpen){c.globalAlpha=n.a;c.fillStyle=n.ucol;const uy=oy-40,ut=clamp(WE,-2.2,2.2);for(let r=0;r<6;r++){const w=10+r*3;c.fillRect(ox-w+Math.round(ut*(6-r)*.7),uy+r,w*2,1)}c.fillStyle='rgba(0,0,0,.22)';c.fillRect(ox-25,uy+5,50,1);c.fillStyle='#2a2a33';c.fillRect(ox,uy+6,1,14);c.globalAlpha=1}
     if(n.kind==='aoi'&&n.a>.6&&!n.walking&&!cine.on&&!menu){const b=Math.round(Math.sin(st.time*.08)*2),by=oy-48+b;c.fillStyle='#fff4e2';c.fillRect(ox-8,by,17,9);c.fillRect(ox-1,by+9,3,2);c.fillStyle='#3b2f3f';for(const k of [-4,0,4])c.fillRect(ox+k,by+4,2,2)}}
   if(cur){const p=player;if(p.alpha>0){const ox=X(p.x+p.w/2),oy=Y(p.y+p.h-(p.lift||0)),fi=playerFrame(p),hd=A.meta.heads[fi],f=p.facing,hx=ox+hd[0]*f,hy=oy-hd[1];
-      const nw=haruSpr(c,p,ox,oy,f);const hx2=nw?ox+2*f:hx,hy2=nw?oy-41:hy;
+      const nw=haruSpr(c,p,ox,oy,f);const hx2=nw?ox+2*f:hx,hy2=nw?oy-34:hy;
       if(!p.back&&!nw){const back=Math.abs(p.vx)>.3?-Math.sign(p.vx)*f:-1,sp=Math.min(1,Math.abs(p.vx)/1.7+Math.abs(p.vy)/4);c.globalAlpha=p.alpha;
         for(let i=1;i<=5;i++){const dx=(-4+back*i*1.6+WE*i*.4*f)*f,dy=6+i*(1-sp*.6)+Math.sin(st.time*.22+i*.9)*(.3+sp*.8)*i*.35;c.fillStyle='#241c2e';c.fillRect(Math.round(hx+dx)-1,Math.round(hy+dy)-1,5,4);}
         for(let i=1;i<=5;i++){const dx=(-4+back*i*1.6+WE*i*.4*f)*f,dy=6+i*(1-sp*.6)+Math.sin(st.time*.22+i*.9)*(.3+sp*.8)*i*.35;c.fillStyle=i>3?'#a8303a':'#d8414c';c.fillRect(Math.round(hx+dx),Math.round(hy+dy),3,2)}c.globalAlpha=1}
