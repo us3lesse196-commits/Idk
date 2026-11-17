@@ -160,5 +160,9 @@
     "final_noche": "aeaf2294-7d24-4d29-a7a9-3d6b821fd807",
     "base": "3498cd42-8f35-447c-b61c-522087581afb",
     "hueco_escalera": "f1d2ba75-1281-4136-a545-0d208f29b555"
+  },
+  "ui": {
+    "iconos": "3a2672aa-ecc1-4abe-9d95-56e246af60cd",
+    "boton": "9cbd8426-8fab-4939-bb61-b3d4cb8d2eb1"
   }
 }

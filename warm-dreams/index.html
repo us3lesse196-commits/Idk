@@ -144,6 +144,28 @@ body.menu .hud-top,body.menu .pad,body.menu #act,body.menu #sitbar,body.menu #zo
 #rotate{position:fixed;inset:0;z-index:30;display:none;place-items:center;text-align:center;background:var(--ground);padding:0 24px;font-size:18px;line-height:1.5}
 #rotate .ico{font-size:44px;display:block;margin-bottom:10px}
 @media (orientation:portrait){#rotate{display:grid}}
+
+body.ui2 .hud-top{gap:6px;top:calc(env(safe-area-inset-top,0px) + 8px);right:calc(env(safe-area-inset-right,0px) + 10px);transition:opacity .6s}
+body.ui2 .hud-top .chip{background:rgba(26,20,40,.5);border:1px solid rgba(232,190,140,.45);border-radius:10px;padding:4px 8px;backdrop-filter:blur(3px);box-shadow:none}
+body.ui2 .hud-top .chip small{display:none}
+body.ui2 #clock{display:flex;align-items:center;gap:6px;min-width:0;font-size:14px}
+body.ui2 #clock::before{content:'';width:20px;height:20px;background:var(--i-hora) center/contain no-repeat;image-rendering:pixelated}
+body.ui2 #clock #fps{display:none}
+body.ui2 .hud-top button.chip{width:38px;height:34px;padding:0;display:grid;place-items:center;position:relative}
+body.ui2 .hud-top button.chip>span{font-size:0;width:22px;height:22px;background:center/contain no-repeat;image-rendering:pixelated}
+body.ui2 #btnFS>span{background-image:var(--i-pantalla)}body.ui2 #btnSet>span{background-image:var(--i-ajustes)}
+body.ui2 #btnBook{width:auto;padding:0 8px 0 4px;display:flex;gap:4px;align-items:center}
+body.ui2 #btnBook::before{content:'';width:24px;height:24px;background:var(--i-cuaderno) center/contain no-repeat;image-rendering:pixelated}
+body.ui2 #btnBook>span{font-size:12px;width:auto;height:auto;background:none;color:#ffe6c8}
+body.ui2 .pad .btn{width:62px;height:62px;border:none;border-radius:50%;background:var(--i-boton) center/contain no-repeat;box-shadow:none;font-size:0;position:relative;opacity:.72;transition:opacity .25s,transform .08s}
+body.ui2 .pad .btn::after{content:'';position:absolute;inset:30%;background:center/contain no-repeat;image-rendering:pixelated}
+body.ui2 .pad .btn[data-k=left]::after{background-image:var(--i-izq)}body.ui2 .pad .btn[data-k=right]::after{background-image:var(--i-der)}
+body.ui2 .pad .btn[data-k=jump]::after{background-image:var(--i-salto)}body.ui2 .pad .btn[data-k=down]::after{background-image:var(--i-abajo)}
+body.ui2 .pad .btn.on{opacity:1;transform:scale(.93);filter:brightness(1.25)}
+body.ui2 #bJump{width:72px;height:72px}
+body.ui2.idle .pad .btn{opacity:.32}body.ui2.idle .hud-top{opacity:.55}
+body.ui2 #act{background:rgba(26,20,40,.62);border:1px solid rgba(232,190,140,.55);border-radius:14px;backdrop-filter:blur(3px)}
+body.ui2 #zone{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 </style>
 
 <canvas id="game" aria-label="Warm Dreams"></canvas>
@@ -1800,6 +1822,10 @@ menuScene();
 function drawNotes(){if(!(menu&&player.phones)&&!mNotes.length)return;if(menu&&player.phones&&st.time%70<3&&(!drawNotes.last||st.time-drawNotes.last>60)){drawNotes.last=st.time;mNotes.push({x:player.x+6,y:player.y+2,t:0,s:Math.random()<.5?'♪':'♫',d:Math.random()<.5?-1:1})}
   octx.save();octx.font='bold 11px serif';octx.textAlign='center';for(let i=mNotes.length-1;i>=0;i--){const n=mNotes[i];n.t++;if(n.t>150){mNotes.splice(i,1);continue}
     const a=Math.min(1,n.t/20)*Math.min(1,(150-n.t)/40),x=(n.x-camX)*Z+Math.sin(n.t*.05)*6*n.d+n.t*.12*n.d,y=(n.y-camY)*Z-n.t*.35;octx.fillStyle=`rgba(255,240,220,${a*.9})`;octx.fillText(n.s,x,y)}octx.restore()}
+// HUD nuevo
+if(window.WD_ASSETS&&WD_ASSETS.ui){const U=WD_ASSETS.ui,r=document.documentElement.style;for(const k in U)r.setProperty('--i-'+k,`url(${U[k]})`);document.body.classList.add('ui2');
+  let idleT=0;const wake_=()=>{idleT=0;document.body.classList.remove('idle')};addEventListener('pointerdown',wake_,{passive:true});addEventListener('keydown',wake_);
+  setInterval(()=>{if(++idleT>=4)document.body.classList.add('idle')},1000)}
 // pantalla completa
 const fsEl=document.documentElement,fsReq=fsEl.requestFullscreen||fsEl.webkitRequestFullscreen,fsOn=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
 function goFS(){if(!fsReq)return;try{const r=fsReq.call(fsEl);const lock=()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}};if(r&&r.then)r.then(lock).catch(()=>{});else lock()}catch(e){}}

@@ -423,6 +423,21 @@ def main():
         nim = load(nf).crop(box).resize(im.size, Image.BOX)
         AL.append({'src': b64(im), 'glow': b64(lit_from_night(im, nim)), 'w': im.width / K, 'h': 128})
     A['alley'] = AL
+    U = {}
+    ic = load('ui/iconos.png'); al = np.asarray(ic)[..., 3] > 60; cols = al.any(axis=0); segs = []; x = 0
+    while x < len(cols):
+        if cols[x]:
+            x0 = x
+            while x < len(cols) and cols[x]: x += 1
+            if segs and x0 - segs[-1][1] < 60: segs[-1] = (segs[-1][0], x)
+            else: segs.append((x0, x))
+        x += 1
+    segs = [sg for sg in segs if sg[1] - sg[0] > 15]
+    assert len(segs) == 8, segs
+    for nm, (x0, x1) in zip(['hora', 'pantalla', 'cuaderno', 'ajustes', 'izq', 'der', 'salto', 'abajo'], segs):
+        rows = np.where(al[:, x0:x1].any(axis=1))[0]; part = ic.crop((x0, int(rows.min()), x1, int(rows.max()) + 1)); part.thumbnail((64, 64), Image.LANCZOS); U[nm] = b64(part)
+    bt = load('ui/boton.png'); bt = bt.crop(bbox(bt, 30)); bt.thumbnail((160, 160), Image.LANCZOS); U['boton'] = b64(bt)
+    A['ui'] = U
     src = load('casa/diag_b.png').convert('RGBA'); K2 = 3; s_ = 0.13 * K2
     im = src.resize((round(src.width * s_), round(src.height * s_)), Image.BOX)
     nim = load('casa/diag_noche.png').convert('RGBA').resize(im.size, Image.BOX)
