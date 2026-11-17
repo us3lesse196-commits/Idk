@@ -376,6 +376,28 @@ def main():
         for (nm, hu), part in zip(lst, parts):
             im = harden(fit_h(part, hu * K), 100); D[nm] = {'src': b64(im), 'w': im.width / K, 'h': hu}
     A['deco'] = D
+    # ---- lago con puente y túnel
+    src = load('lago/lago_b.png'); im = fit_h(src.crop(bbox(src)), 95 * K)
+    a_ = np.asarray(im).astype(int); red = (a_[..., 0] > 140) & (a_[..., 1] < 95) & (a_[..., 2] < 90) & (a_[..., 3] > 200)
+    W_ = im.width; top = np.full(W_, -1)
+    for x in range(W_):
+        ys = np.where(red[:, x])[0]
+        if len(ys): top[x] = ys.min()
+    cols = np.where(top >= 0)[0]; x0, x1 = cols.min(), cols.max()
+    t = top.astype(float); 
+    for x in range(W_):
+        if t[x] < 0: t[x] = np.nan
+    prof = []
+    for u in range(int(W_ / K)):
+        seg = t[u * K:(u + 1) * K + 12]; seg = seg[~np.isnan(seg)]
+        prof.append(round(float(np.median(seg)) / K, 1) if len(seg) else None)
+    # extremos: fila donde termina el puente (cubierta) = parte baja de lo rojo en las orillas
+    redrows = np.where(red[:, x0:x0 + 6 * K].any(axis=1))[0]
+    deckEnd = round(float(redrows.max()) / K, 1)
+    A['lago'] = {'src': b64(im), 'w': W_ / K, 'h': 95, 'rail': prof, 'x0': round(x0 / K, 1), 'x1': round(x1 / K, 1), 'deckEnd': deckEnd}
+    src = load('lago/tunel.png'); im = fit_h(src.crop(bbox(src)), 96 * K)
+    A['tunel'] = {'src': b64(im), 'w': im.width / K, 'h': 96}
+    print('  lago w', W_ / K, 'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'tunel w', A['tunel']['w'])
     print('  cruce', X['cruce']['w'], 'vagon', X['vagon']['w'], 'cabina', X['cabina']['w'])
 
     open(path, 'w').write('window.WD_ASSETS=' + json.dumps(A) + ';')

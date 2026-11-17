@@ -131,5 +131,10 @@
     "calle": "51653b09-d605-4c70-b4be-2f5bea5b6455",
     "campo": "c9d5eb56-0380-47cc-bad8-d919c7734896",
     "nota": "Hojas separadas con split_sheet en tools/prep_assets.py"
+  },
+  "lago": {
+    "lago_b_elegido": "555ee287-113b-4498-bdbc-ca79b1a28cc1",
+    "lago_a": "208c9067-7d64-402d-8518-d9906324210f",
+    "tunel": "e4a4763e-7b6f-4ab6-9b58-035fe1f011ac"
   }
 }
