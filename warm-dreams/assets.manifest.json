@@ -85,5 +85,15 @@
     "ala_noche_encendida": "7f37bffe-6d32-425c-845d-a9df4942356e",
     "centro_noche_encendida": "abe2eb15-f8f3-40f3-9bfb-7c66d81003cb",
     "metodo_luz": "Versión de noche con luces encendidas (edit sobre la subida), alineada por bordes (align_night) y usada solo donde brilla (lit_from_night)."
+  },
+  "noche_encendida": {
+    "tiendaCafe": "56141e6e-b1aa-4560-99a3-5c77ed0dfb75",
+    "dagashiya": "3ff8d3a9-c8a5-4f33-8f25-39675a846ba4",
+    "casaN": "5b9b898c-8f53-431c-baf2-56bc9260fdb8",
+    "casaMori": "22ad9c9d-9030-419e-bec0-c10f2c580fa9",
+    "casaC": "996f309e-667f-4ef7-8504-c681e726b41a",
+    "deptos": "27564fbf-ea13-4a4f-a0f2-3e86c9a9e5d3",
+    "callejonEntrada": "f0d6b416-7de9-4e36-80c3-ed2321c008aa",
+    "archivos": "assets.local/noche/<nombre>.png"
   }
 }

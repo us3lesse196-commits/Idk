@@ -48,3 +48,8 @@ Las imágenes generadas traen **la iluminación del atardecer pintada** (cielo c
 - **Fondos:** capas anchas (16:9) que el juego repite en espejo para que no se note la unión; el juego las tiñe según la hora (`tintCache`). La ciudad tiene su imagen de luces para la noche.
 - **Árboles:** un sprite por árbol; el juego los corta en franjas para mecerlos con el viento (`drawTrees_`). El Cerezo Sagrado se mece menos (`stiff`).
 - **Convertir:** `python3 -I warm-dreams/tools/prep_assets.py` lee `assets.local/fase*/` y actualiza `assets.local/assets.js`.
+
+## Luz de noche (desde la versión 3.9)
+- Por cada edificio se genera una **versión de noche con las luces encendidas** (`edit_asset_id` sobre el edificio, sin fondo). Se guarda en `assets.local/noche/<nombre>.png`.
+- `tools/prep_assets.py` la alinea con la de día por bordes (`align_night`) y toma solo lo que brilla (`lit_from_night`): interiores reales, faroles, letreros.
+- El juego añade con código: resplandor (bloom), halos (grandes en planta baja, pequeños arriba) y charcos de luz en la banqueta (`pool`).

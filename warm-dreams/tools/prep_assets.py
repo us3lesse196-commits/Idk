@@ -88,7 +88,7 @@ def align_night(day_rgba, night_rgba):
     D = edges(day_rgba, sw, sh)
     night_full = night_rgba.convert('RGBA').resize((W, H), Image.BOX)
     best = (-1e9, 1.0, 0, 0)
-    for sc in np.linspace(0.9, 1.1, 41):
+    for sc in np.linspace(0.9, 1.1, 21):
         lw, lh = round(sw * sc), round(sh * sc); N = edges(night_full, lw, lh)
         for dx in range(-16, 17):
             for dy in range(-16, 17):
@@ -278,6 +278,19 @@ def main():
             lit = proc_glow(im, mode, seed=len(name))
             e['glow'] = b64(lit); e['lights'] = blobs(lit, 2 / K)
         A['buildings'][name] = e
+
+    # ---- versiones de noche con luces encendidas (interiores reales)
+    NIGHT = {'tiendaCafe': ('fase0/edificio.png', 72), 'dagashiya': ('fase2/dagashiya_sq.png', 70), 'casaN': ('fase2/casaN_sq.png', 76),
+             'casaMori': ('fase2/casaMori.png', 64), 'casaC': ('fase2/casaC.png', 38), 'deptos': ('fase2/deptos.png', 104),
+             'callejonEntrada': ('fase3/callejonEntrada.png', 60)}
+    for name, (f, hu) in NIGHT.items():
+        nf = os.path.join(ROOT, 'noche', name + '.png')
+        if not os.path.exists(nf) or name not in A['buildings']: continue
+        src = load(f); srcC = src.crop(bbox(src)); im = harden(fit_h(srcC, hu * K), 100)
+        nim = Image.open(nf).convert('RGBA'); nim = nim.crop(bbox(nim, 30))
+        night = align_night(srcC, nim)
+        lit = lit_from_night(im, night.resize(im.size, Image.BOX))
+        A['buildings'][name].update({'glow': b64(lit), 'lights': blobs(lit, 2 / K)})
 
     open(path, 'w').write('window.WD_ASSETS=' + json.dumps(A) + ';')
     print('ok', {k: (list(v.keys()) if isinstance(v, dict) else len(v)) for k, v in A.items()},
