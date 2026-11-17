@@ -173,6 +173,20 @@ body.menu .hud-top,body.menu .pad,body.menu #act,body.menu #sitbar,body.menu #zo
 #draw .dgrid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 #draw .dgrid2 button{padding:10px;font-size:15px}
 @keyframes pulse{50%{opacity:.6}}
+/* leer la carta completa */
+#readLetter{position:absolute;z-index:3;transform:translate(-50%,-100%);font:inherit;font-size:13px;padding:6px 12px;color:#fff1dc;background:linear-gradient(#5a3a62,#3a2448);border:2px solid #ffd38a;border-radius:8px;box-shadow:0 3px 0 rgba(0,0,0,.4),0 0 14px rgba(255,190,120,.5);animation:mglow2 2.4s ease-in-out infinite;cursor:pointer}
+#readLetter[hidden]{display:none}
+@keyframes mglow2{50%{box-shadow:0 3px 0 rgba(0,0,0,.4),0 0 24px rgba(255,190,120,.85)}}
+#lread{position:fixed;inset:0;z-index:16;display:grid;place-items:center;background:#07050f;animation:fadeIn 1.2s ease}
+#lread[hidden]{display:none}
+#lreadC{position:absolute;inset:0;width:100%;height:100%}
+#lread .lbox{position:relative;max-width:min(560px,86vw);max-height:86vh;overflow:auto;text-align:center;padding:18px 26px;color:#fff3e6;font-family:Georgia,serif;font-style:italic;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+#lread h2{margin:0 0 12px;font-size:clamp(22px,4.6vw,34px);color:#ffc8da;text-shadow:0 0 18px rgba(255,150,190,.6),0 2px 8px rgba(0,0,0,.8);font-weight:600}
+#lread .ltx p{margin:0 0 12px;font-size:clamp(15px,2.9vw,19px);line-height:1.5;opacity:0;transform:translateY(6px);transition:opacity 1.4s ease,transform 1.4s ease}
+#lread .ltx p.on{opacity:1;transform:none}
+#lread .lsig{margin-top:6px;font-size:16px;color:#d7a8ff;opacity:0;transition:opacity 2s ease}
+#lread .lsig.on{opacity:1}
+#lread>.x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:calc(env(safe-area-inset-right,0px) + 14px);z-index:2}
 /* menú nuevo: logo de Angel y Maju, botones estilo HUD, pétalos y luciérnagas */
 body.menu2 #start::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(18,10,34,.62),rgba(18,10,34,.25) 45%,transparent 62%,rgba(18,10,34,.35));pointer-events:none}
 body.menu2 #start .mtitle{left:calc(env(safe-area-inset-left,0px) + 3vw);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;width:min(48vw,400px)}
@@ -340,7 +354,8 @@ body.ui2 #zone{text-shadow:0 1px 3px rgba(0,0,0,.6)}
     <small>Se descarga como PNG con fondo transparente.</small><button type="button" id="dSaveNo">Cancelar</button></div></div>
 </div>
 
-<div id="book" hidden><canvas id="bookC"></canvas><button class="x" id="bookClose" type="button">Cerrar</button></div>
+<div id="book" hidden><canvas id="bookC"></canvas><button class="x" id="bookClose" type="button">Cerrar</button><button id="readLetter" type="button" hidden>✉ Leer carta</button></div>
+<div id="lread" hidden><canvas id="lreadC"></canvas><div class="lbox"><h2>Para ti</h2><div class="ltx"></div><div class="lsig">♡</div></div><button class="x" id="lreadClose" type="button">Cerrar</button></div>
 <div id="thanks" hidden><div><div class="fl">🕯</div><h2>Gracias por jugar la DEMO de Warm Dreams</h2><p>67XD67</p><small>Toca para seguir explorando</small></div></div>
 <div id="toast"></div>
 
@@ -1743,7 +1758,7 @@ const LETTER=(()=>{const P=3,LW=window.WD_ASSETS&&WD_ASSETS.cuaderno?104:118,LH=
     const star=(x,y,r)=>{f.fillStyle='#f2d45a';f.strokeStyle='#8a6a2a';f.beginPath();for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,rr=k%2?r*.45:r;k?f.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr):f.moveTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr)}f.closePath();f.fill();f.stroke()};
     for(const [x,y,r] of [[12,12,4.5],[24,7,3],[LW-13,11,4.5],[LW-26,16,3],[11,LH-14,4.5],[23,LH-8,3],[LW-12,LH-12,4]])star(x,y,r);
     if(CUI.papel){f.clearRect(0,0,LW,LH);f.imageSmoothingEnabled=false;f.drawImage(CUI.papel,0,0,LW,LH)}
-    const LINES=[['Para ti',.1,1]];{const G=[['Ya sé que lo digo mucho,','que me cuesta expresarme, pero...'],['Créeme que yo siento mucho,','siento demasiado,','pero no sé por qué no sale nada.'],['Mi amor es como una llamita','que nunca piensa apagarse.'],['Esa llama ha pasado de todo','y no se ha apagado,','y nunca lo hará.'],['Pase lo que pase,','seguirá encendida.','Siempre, por ti.']];
+    const LINES=[['Para ti',.1,1]];{const G=[['Ya sé que lo digo mucho,','que me cuesta expresarme, pero...'],['Créeme que yo siento mucho,','siento demasiado,','pero no sé por qué no sale nada.'],['Mi amor es como una llamita','que nunca piensa apagarse.'],['Esa llama ha pasado de todo','y no se ha apagado,','y nunca lo hará.'],['Pase lo que pase,','seguirá encendida.','Siempre, por ti.']];window.LETTER_TXT=G;
       let v=.185;for(const gr of G){for(const l of gr){LINES.push([l,v]);v+=.045}v+=.03}}
     const hi=mk(LW*P,LH*P),hg=hi.getContext('2d');hg.imageSmoothingEnabled=false;hg.drawImage(lo,0,0,LW*P,LH*P);hg.textAlign='center';
     for(const [tx,v,title] of LINES){hg.fillStyle=title?'#6a5a8a':'#3a3058';hg.font=(title?'italic 600 17px ':'italic 14px ')+'Georgia,serif';hg.fillText(tx,LW*P/2,v*LH*P+5)}
@@ -1779,10 +1794,34 @@ const LETTER=(()=>{const P=3,LW=window.WD_ASSETS&&WD_ASSETS.cuaderno?104:118,LH=
       dS('washiR',x0+40,y0+8,74,-.25);dS('washiL',mid-46,y0+10,70,.2);dS('angel',x0+120,y1-56,62,-.08);dS('maju',x0+190,y1-52,62,.07);dS('sakura',x0+250,y1-40,34,.3);dS('luna',mid-60,y1-60,38,-.2);dS('sakura',mid-36,y0+60,24,-.4)
       if(n===5)dS('sello',lx+lw/2,ly0+lh-6,58,-.08)}
     if(n===0){g.textAlign='center';g.fillStyle='rgba(90,80,110,.5)';g.font='italic 18px Georgia,serif';g.fillText('(aquí pegaré los pedazos que encuentre)',lx+lw/2,ly0+lh/2)}
-    if(n===5){doneT++;g.globalAlpha=Math.min(1,doneT/50);flame(g,lx+lw+52,ly0+lh-30,t,3);g.globalAlpha=1}
+    if(n===5){doneT++;g.globalAlpha=Math.min(1,doneT/50);flame(g,lx+lw+52,ly0+lh-30,t,3);g.globalAlpha=1;const rb=$('#readLetter');rb.hidden=false;rb.style.left=((lx+lw+52)/CW*100)+'%';rb.style.top=((ly0+lh-30-58)/CH*100)+'%'}else $('#readLetter').hidden=true;
     raf=requestAnimationFrame(draw)}
   return {open(){if(!PIECES)build();doneT=pzCount()===5?50:0;cancelAnimationFrame(raf);draw()},close(){cancelAnimationFrame(raf)},fresh(){doneT=0}}})();
 let bookAuto=false;
+// leer la carta: pantalla oscura decorada con lo que llevó a cada pedazo (cerezo, conserje, zorro/aurora, escalones de luz, gato)
+const LREAD=(()=>{let raf=0,t=0,P=[];const el=$('#lread'),cv=$('#lreadC'),g=cv.getContext('2d');
+  function init(){P=[];const W=innerWidth,H=innerHeight;for(let i=0;i<34;i++)P.push({k:'petal',x:Math.random()*W,y:Math.random()*H,v:.3+Math.random()*.5,ph:Math.random()*6,s:3+Math.random()*3});
+    for(let i=0;i<26;i++)P.push({k:'spark',x:Math.random()*W,y:Math.random()*H,v:.1+Math.random()*.25,ph:Math.random()*6});for(let i=0;i<5;i++)P.push({k:'paw',x:W*(.08+i*.035),y:H*(.86-i*.06),ph:i})}
+  function draw(){const W=innerWidth,H=innerHeight,dpr=Math.min(2,devicePixelRatio||1);if(cv.width!==Math.round(W*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}g.setTransform(dpr,0,0,dpr,0,0);t++;
+    const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#0b0820');bg.addColorStop(1,'#1a0f24');g.fillStyle=bg;g.fillRect(0,0,W,H);
+    g.globalCompositeOperation='lighter';for(const [ph,c,yy] of [[0,'80,255,170',.12],[2,'90,200,255',.18],[4,'190,120,255',.08]]){for(let x=0;x<W;x+=6){const y=H*yy+Math.sin(x*.01+t*.01+ph)*18,h=60+Math.sin(x*.02+t*.015+ph)*30;const gr=g.createLinearGradient(0,y,0,y+h);gr.addColorStop(0,`rgba(${c},0)`);gr.addColorStop(.5,`rgba(${c},.10)`);gr.addColorStop(1,`rgba(${c},0)`);g.fillStyle=gr;g.fillRect(x,y,6,h)}}
+    g.globalCompositeOperation='source-over';
+    // farolillos del callejón colgando arriba
+    g.strokeStyle='rgba(60,40,50,.9)';g.lineWidth=1;g.beginPath();for(let x=0;x<=W;x+=8){const y=18+Math.sin(x/W*Math.PI)*22;x?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();
+    for(let i=1;i<8;i++){const x=W*i/8,y=18+Math.sin(i/8*Math.PI)*22+4,f=.8+.2*Math.sin(t*.08+i);g.fillStyle=`rgba(255,170,90,${.22*f})`;g.beginPath();g.arc(x,y+8,18,0,7);g.fill();g.fillStyle='#c0392b';g.fillRect(x-5,y,10,14);g.fillStyle=`rgba(255,220,150,${.6*f})`;g.fillRect(x-3,y+3,6,8)}
+    // escalones de luz a los lados
+    for(let k=0;k<5;k++){const a=.25+.2*Math.sin(t*.04+k);g.fillStyle=`rgba(127,255,212,${a})`;g.fillRect(W*.86-k*16,H*.82-k*28,34,3);g.fillRect(W*.06+k*16,H*.3+k*26,34,3)}
+    for(const p of P){if(p.k==='petal'){p.y+=p.v;p.x+=Math.sin(t*.02+p.ph)*.6-.2;if(p.y>H+10){p.y=-10;p.x=Math.random()*W}g.save();g.translate(p.x,p.y);g.rotate(t*.02+p.ph);g.fillStyle='rgba(255,190,210,.8)';g.fillRect(-p.s/2,-p.s/3,p.s,p.s*.66);g.restore()}
+      else if(p.k==='spark'){p.y-=p.v;if(p.y<-5){p.y=H+5;p.x=Math.random()*W}const a=.4+.6*Math.abs(Math.sin(t*.05+p.ph));g.fillStyle=`rgba(180,255,250,${a})`;g.fillRect(p.x,p.y,2,2);g.fillStyle=`rgba(180,255,250,${a*.3})`;g.fillRect(p.x-2,p.y+.5,6,1);g.fillRect(p.x+.5,p.y-2,1,6)}
+      else{const a=.18+.12*Math.sin(t*.03-p.ph);g.fillStyle=`rgba(255,220,200,${a})`;g.beginPath();g.ellipse(p.x,p.y,5,4,0,0,7);g.fill();for(const [dx,dy] of [[-5,-6],[0,-8],[5,-6]]){g.beginPath();g.arc(p.x+dx,p.y+dy,2,0,7);g.fill()}}}
+    // zorro espíritu dormido abajo a la derecha (si hay sprite)
+    const D=window.WD_ASSETS&&WD_ASSETS.fox;if(D){g.save();g.translate(W*.9,H-10);g.scale(2.4,2.4);chrDraw(g,D,'idle',Math.floor(t*D.idle.fps/60),0,0,true,.85);g.restore()}
+    raf=requestAnimationFrame(draw)}
+  function open(){const tx=el.querySelector('.ltx');tx.innerHTML='';for(const gr of (window.LETTER_TXT||[])){const p=document.createElement('p');p.textContent=gr.join(' ');tx.appendChild(p)}
+    el.querySelector('.lsig').classList.remove('on');el.hidden=false;init();cancelAnimationFrame(raf);draw();chime();
+    [...tx.children].forEach((p,i)=>setTimeout(()=>p.classList.add('on'),900+i*1600));setTimeout(()=>el.querySelector('.lsig').classList.add('on'),900+tx.children.length*1600)}
+  function close(){el.hidden=true;cancelAnimationFrame(raf)}
+  $('#readLetter').addEventListener('click',e=>{e.stopPropagation();open()});$('#lreadClose').addEventListener('click',close);return {open,close}})();
 function openBook(auto){if(cine.on&&!auto)return;bookAuto=!!auto&&pzCount()===5&&!save.thanks;$('#book').hidden=false;LETTER.open();if(bookAuto)LETTER.fresh()}
 function closeBook(){$('#book').hidden=true;LETTER.close();if(bookAuto){bookAuto=false;save.thanks=1;writeSave();$('#thanks').hidden=false}}
 $('#btnBook').addEventListener('click',()=>openBook(false));$('#bookClose').addEventListener('click',closeBook);
