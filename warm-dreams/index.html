@@ -634,7 +634,7 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
       LT(LX+9,top+50,26,'warm',.7);OUT.lake={x0:LX,x1:LX+lg.w,wy:top+73};
       const ld=WA.ladera,HX=LX+lg.w-16;if(WA.trees&&WA.trees.lloron)tree(LX+lg.w-6,150,90,20,0,'sakura',0,'lloron');OUT.tunnelX=2598;const lad=new Image();lad.onload=()=>{const go=()=>{Ls.imageSmoothingEnabled=true;Ls.drawImage(lad,HX,150-ld.h,ld.w,ld.h);
         const dirt=()=>{const cd=WA.ground&&WA.ground.campo;if(!cd||!dirt.ok)return;const ci=dirt.ci,sur=x=>x>=2696?126:x<2600?150:146-Math.floor((x-2600)/16)*4,gs=ci.height/cd.h;
-          for(let x=2496;x<3300;x+=8){const y=sur(x)+3;Ls.save();Ls.beginPath();Ls.rect(x,y,8,180-y);Ls.clip();const tx=((x-2496)%cd.w);
+          for(let x=2496;x<3300;x+=8){const y=sur(x)+3;Ls.save();Ls.beginPath();Ls.rect(x,y,8,180-y);Ls.clip();const tx=((x-2496)%(Math.floor(cd.w)-9));
             Ls.drawImage(ci,tx*gs,10*gs,8*gs,20*gs,x,y,8,Math.max(20,180-y));Ls.fillStyle='rgba(40,28,20,.25)';Ls.fillRect(x,y,8,1.2);Ls.restore()}B_._dirty={l:true,e:true}};
         if(WA.ground&&WA.ground.campo){const ci=new Image();ci.onload=()=>{dirt.ci=ci;dirt.ok=1;setTimeout(dirt,60)};ci.src=WA.ground.campo.src}
         const mu=WA.santuario&&WA.santuario.muro,stp=mim=>{for(let i=0;i<6;i++){const x=2600+i*16,y=146-i*4;if(mim){Ls.save();Ls.beginPath();Ls.rect(x,y,16,150-y);Ls.clip();Ls.drawImage(mim,x-i*9,y-2,mu.w,mu.h);Ls.restore()}else{Ls.fillStyle='#8c887e';Ls.fillRect(x,y,16,150-y)}
