@@ -259,6 +259,8 @@
   },
   "menu": {
     "logo": "098ee553-4817-43d3-9243-e5a846cf661d",
-    "archivo": "assets.local/menu/logo.png"
+    "archivo": "assets.local/menu/logo.png",
+    "titulo": "8d22403e-20ba-49fd-bffa-6c6c29d0b974",
+    "boton": "fbf126d6-9b44-40ca-a0a3-00658195760d"
   }
 }

@@ -156,6 +156,14 @@ body.menu2 #start::before{content:'';position:absolute;inset:0;background:linear
 body.menu2 #start .mtitle{left:calc(env(safe-area-inset-left,0px) + 3vw);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;width:min(48vw,400px)}
 body.menu2 #start .logo{display:block;height:min(66vh,300px);max-width:100%;object-fit:contain;image-rendering:pixelated;animation:mfloat 6s ease-in-out infinite;filter:drop-shadow(0 0 22px rgba(255,190,225,.35)) drop-shadow(0 4px 0 rgba(0,0,0,.35))}
 body.menu2 #start h1{margin-top:-4px;font-size:clamp(26px,5.4vw,46px);background:linear-gradient(#fff6ea 35%,#ffc3d6 70%,#e98fb5);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 3px 0 #5a2645) drop-shadow(0 0 12px rgba(255,170,200,.45))}
+body.menu2 #start .tlogo{display:block;width:min(44vw,360px);margin-top:-14px;image-rendering:pixelated;filter:drop-shadow(0 3px 0 rgba(0,0,0,.35));animation:mfloat 6s ease-in-out infinite;animation-delay:-.4s}
+body.menu2.tlogo #start h1{display:none}
+body.menu2.btnpx #start .mbtns button{background:none;border-style:solid;border-width:15px 22px;border-image:var(--m-btn) 15 22 fill stretch;border-radius:0;box-shadow:none;image-rendering:pixelated;padding:3px 18px 5px;min-width:230px;
+  color:#fff1dc;text-shadow:2px 0 0 #3a1e3a,-2px 0 0 #3a1e3a,0 2px 0 #3a1e3a,0 -2px 0 #3a1e3a,0 3px 0 #2a1428;filter:drop-shadow(0 4px 0 rgba(0,0,0,.4))}
+body.menu2.btnpx #start .mbtns button::before{display:none}
+body.menu2.btnpx #start .mbtns #mPlay{color:#ffe3a8;animation:mpix 2.8s ease-in-out infinite}
+body.menu2.btnpx #start .mbtns button:active{transform:translateY(3px);filter:drop-shadow(0 1px 0 rgba(0,0,0,.4)) brightness(1.15)}
+@keyframes mpix{50%{filter:drop-shadow(0 4px 0 rgba(0,0,0,.4)) drop-shadow(0 0 10px rgba(255,200,150,.55))}}
 body.menu2 #start .tag{margin-top:2px;color:#ffd79a;letter-spacing:.5em}
 body.menu2 #start .mbtns{right:calc(env(safe-area-inset-right,0px) + 5vw);gap:12px}
 body.menu2 #start .mbtns button{position:relative;min-width:210px;padding:12px 22px;font-size:17px;color:#fff4e6;background:linear-gradient(#2c2040,#1b1530);border:2px solid #c9a46a;border-radius:9px;box-shadow:inset 0 0 0 2px #4b3358,0 5px 0 rgba(0,0,0,.45);backdrop-filter:none;transition:transform .12s,box-shadow .12s}
@@ -292,7 +300,7 @@ body.ui2 #zone{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 <div id="thanks" hidden><div><div class="fl">🕯</div><h2>Gracias por jugar la DEMO de Warm Dreams</h2><p>67XD67</p><small>Toca para seguir explorando</small></div></div>
 <div id="toast"></div>
 
-<div id="start"><div class="mfx" aria-hidden="true"></div><div class="mtitle"><img class="logo" alt="" hidden><h1>Warm Dreams</h1><div class="tag">Demo</div></div>
+<div id="start"><div class="mfx" aria-hidden="true"></div><div class="mtitle"><img class="logo" alt="" hidden><img class="tlogo" alt="Warm Dreams" hidden><h1>Warm Dreams</h1><div class="tag">Demo</div></div>
   <div class="wake">Toca para despertar</div>
   <div class="mbtns" hidden><button id="mPlay" type="button">Jugar</button><button id="mNew" type="button" hidden>Nueva partida</button><button id="mSet" type="button">⚙ Ajustes</button></div></div>
 <div id="rotate"><div><span class="ico">📱</span>Gira tu celular<br>Warm Dreams se juega en horizontal</div></div>
@@ -1905,7 +1913,7 @@ for(const pad of document.querySelectorAll('.pad')){const btns=[...pad.querySele
 document.addEventListener('contextmenu',e=>e.preventDefault());
 let started=false,awake=false;const startEl=$('#start');
 // menú nuevo
-if(window.WD_ASSETS&&WD_ASSETS.menu&&WD_ASSETS.menu.logo){document.body.classList.add('menu2');const lg=$('#start .logo');lg.src=WD_ASSETS.menu.logo;lg.hidden=false;
+if(window.WD_ASSETS&&WD_ASSETS.menu&&WD_ASSETS.menu.logo){document.body.classList.add('menu2');const lg=$('#start .logo');lg.src=WD_ASSETS.menu.logo;lg.hidden=false;const MN=WD_ASSETS.menu;if(MN.titulo){const t=$('#start .tlogo');t.src=MN.titulo;t.hidden=false;document.body.classList.add('tlogo')}if(MN.boton){document.documentElement.style.setProperty('--m-btn',`url(${MN.boton})`);document.body.classList.add('btnpx')}
   const fx=$('#start .mfx');for(let i=0;i<16;i++){const e=document.createElement('i');e.style.left=(Math.random()*110)+'%';e.style.animationDuration=(9+Math.random()*9)+'s';e.style.animationDelay=(-Math.random()*18)+'s';e.style.transform='scale('+(.6+Math.random()*.8)+')';fx.appendChild(e)}
   for(let i=0;i<9;i++){const e=document.createElement('b');e.style.left=(5+Math.random()*90)+'%';e.style.top=(30+Math.random()*60)+'%';e.style.animationDuration=(3+Math.random()*4)+'s';e.style.animationDelay=(-Math.random()*6)+'s';fx.appendChild(e)}}
 function wake(){if(awake)return;awake=true;initAudio();startEl.classList.add('awake');$('#start .mbtns').hidden=false;
