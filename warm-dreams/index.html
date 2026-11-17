@@ -603,14 +603,17 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
     if(WA.buildings.parada){zone(336,426);bld('parada',342)}
     if(WA.buildings.casaMori){zone(428,552);bld('casaMori',437);const d=Bs.doors.find(d=>d.x===465),it=Bs.inter.find(i=>i.type==='door'&&i.target&&i.target.scene==='house');
       if(d){d.x=460;d.y=130;d.w=14;d.h=20}if(it){it.x=467;it.dx=467}}
-    if(WA.buildings.casaC){zone(576,680);bld('casaC',580)}
-    if(WA.buildings.callejonEntrada){zone(676,714);bld('callejonEntrada',678);const ai=Bs.inter.find(i=>i.type==='alley');if(ai)ai.x=696}
+    const tramoC=WA.buildings.tramoCallejon;
+    if(tramoC){zone(574,832);bld('tramoCallejon',580);const ai=Bs.inter.find(i=>i.type==='alley');if(ai)ai.x=693;
+      for(const y of [59,82,104,126]){O(714,y,88);Bs.drips.push({x:715,y:y+2},{x:800,y:y+2})}}
+    if(WA.buildings.casaC&&!tramoC){zone(576,680);bld('casaC',580)}
+    if(WA.buildings.callejonEntrada&&!tramoC){zone(676,714);bld('callejonEntrada',678);const ai=Bs.inter.find(i=>i.type==='alley');if(ai)ai.x=696}
     // ---- fase 3: prepa
     if(WA.buildings.porton){zone(1095,1238);Bs.solids=Bs.solids.filter(o=>!(o.x>=1095&&o.x<1238));bld('porton',1100)}
     if(WA.buildings.alaA&&WA.buildings.centro&&WA.buildings.alaAm){zone(1265,1971);
       const redrawBench=()=>{const oL=L,oB=B;L=Ls;B={inter:[]};bench(1430,150,'cerezo');L=oL;B=oB;B_._dirty={l:true,e:true}};
       const wA=WA.buildings.alaA.w/Z,wC=WA.buildings.centro.w/Z,x0=1617.5-wC/2;let done=0;const fin=()=>{if(++done===2)bld('centro',x0)};bld('alaA',x0-wA+4,()=>{redrawBench();fin()});bld('alaAm',x0+wC-4,fin)}
-    if(WA.buildings.deptos){zone(706,826);bld('deptos',714);for(const f of [.305,.485,.666,.846]){const y=Math.round(46+104*f);O(716,y,78);Bs.drips.push({x:717,y:y+2},{x:792,y:y+2})}}
+    if(WA.buildings.deptos&&!tramoC){zone(706,826);bld('deptos',714);for(const f of [.305,.485,.666,.846]){const y=Math.round(46+104*f);O(716,y,78);Bs.drips.push({x:717,y:y+2},{x:792,y:y+2})}}
     const sh=WA.buildings.shrine;if(sh){const w=sh.w/Z,x=2935-w/2,top=126-sh.h/Z;Ls.clearRect(2870,0,130,126);Es.clearRect(2870,0,130,126);
       for(const k of ['lights','oneways','drips'])Bs[k]=Bs[k].filter(o=>o.x<2870||o.x>3000);place(sh.src,x,sh.w,sh.h,1,true,126,(im,y0)=>roof(im,x,sh.w,sh.h,y0,x+4,x+w-4));
       for(const [lx,ly,r] of [[.3,.55,26],[.7,.55,26],[.5,.62,22]])Bs.lights.push({x:x+w*lx,y:top+sh.h/Z*ly,r,kind:'warm',s:.95});for(let k=0;k<5;k++)Bs.drips.push({x:x+6+k*(w-12)/4,y:top+sh.h/Z*.3})}}

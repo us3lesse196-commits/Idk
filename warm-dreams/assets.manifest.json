@@ -95,5 +95,11 @@
     "deptos": "27564fbf-ea13-4a4f-a0f2-3e86c9a9e5d3",
     "callejonEntrada": "f0d6b416-7de9-4e36-80c3-ed2321c008aa",
     "archivos": "assets.local/noche/<nombre>.png"
+  },
+  "tramos": {
+    "callejon_dia": "3053ccc6-46a4-4f47-9457-4825ca522d98",
+    "callejon_dia_alt": "3a42e5fa-6cdf-4f38-9f38-0e454687effd",
+    "callejon_noche": "7862a1a9-cfd7-416b-8407-100d07e2d31e",
+    "metodo": "Tramo completo 16:9 (edificios conectados) con style_asset_ids=deptos; noche por edit; archivos en assets.local/tramos y assets.local/noche/tramoCallejon.png"
   }
 }

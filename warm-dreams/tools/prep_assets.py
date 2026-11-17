@@ -279,8 +279,13 @@ def main():
             e['glow'] = b64(lit); e['lights'] = blobs(lit, 2 / K)
         A['buildings'][name] = e
 
+    # ---- tramos pintados de una vez (edificios conectados)
+    for name, f, hu in [('tramoCallejon', 'tramos/callejon_a.png', 128)]:
+        src = load(f); im = harden(fit_h(src.crop(bbox(src)), hu * K), 100)
+        A['buildings'][name] = {'src': b64(im), 'w': round(im.width / K * 2), 'h': hu * 2, 'lights': []}
+
     # ---- versiones de noche con luces encendidas (interiores reales)
-    NIGHT = {'tiendaCafe': ('fase0/edificio.png', 72), 'dagashiya': ('fase2/dagashiya_sq.png', 70), 'casaN': ('fase2/casaN_sq.png', 76),
+    NIGHT = {'tramoCallejon': ('tramos/callejon_a.png', 128), 'tiendaCafe': ('fase0/edificio.png', 72), 'dagashiya': ('fase2/dagashiya_sq.png', 70), 'casaN': ('fase2/casaN_sq.png', 76),
              'casaMori': ('fase2/casaMori.png', 64), 'casaC': ('fase2/casaC.png', 38), 'deptos': ('fase2/deptos.png', 104),
              'callejonEntrada': ('fase3/callejonEntrada.png', 60)}
     for name, (f, hu) in NIGHT.items():
