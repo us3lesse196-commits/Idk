@@ -277,8 +277,13 @@ def main():
                             if 0 <= ny < a.shape[0] and 0 <= nx < a.shape[1] and a[ny, nx] and not lab[ny, nx]:
                                 lab[ny, nx] = n; st.append((ny, nx))
                 if len(xs) > 300:
-                    comps.append((min(xs), min(ys), max(xs) + 1, max(ys) + 1))
-    A['clouds'] = [{'src': b64(sheet.crop(c)), 'lw': (c[2] - c[0]) / 1.5, 'lh': (c[3] - c[1]) / 1.5} for c in comps]
+                    comps.append((min(xs), min(ys), max(xs) + 1, max(ys) + 1, n))
+    # limpiar: solo los píxeles de esa nube y sin bruma casi transparente (se veía como barras al recolorear)
+    sa_ = np.asarray(sheet).copy(); CL = []
+    for x0_, y0_, x1_, y1_, n_ in comps:
+        sub = sa_[y0_:y1_, x0_:x1_].copy(); m_ = (lab[y0_:y1_, x0_:x1_] == n_) & (sub[..., 3] > 80); sub[..., 3] = np.where(m_, sub[..., 3], 0)
+        CL.append({'src': b64(Image.fromarray(sub, 'RGBA')), 'lw': (x1_ - x0_) / 1.5, 'lh': (y1_ - y0_) / 1.5})
+    A['clouds'] = CL
 
     # ---- edificio tienda-cafetería con su imagen de luces
     im = load('fase0/edificio.png'); box = bbox(im); im = im.crop(box)

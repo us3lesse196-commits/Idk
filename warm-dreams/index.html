@@ -615,8 +615,6 @@ const OUT=newScene('out',3300,{zones:[[0,1100,'Barrio de Hoshimachi','Barrio'],[
   R(L,1598,96,44,54,'#4b4a58');R(L,1600,100,19,50,'#a6c8dc');R(L,1621,100,19,50,'#a6c8dc');for(let y=104;y<146;y+=8)R(L,1601,y,38,4,'#7f8a99');R(E,1600,100,40,50,'rgba(255,240,200,.5)');LT(1620,124,34,'warm',.8);
   R(L,1588,92,64,3,'#5a6878');O(1588,92,64);for(let x=1590;x<1652;x+=10)B.drips.push({x,y:95});R(L,1590,146,60,4,'#d8d2c6');
   B.shelters=[[374,0],[1620,0]];
-  // escalera exterior a la azotea
-  for(const y of [132,114,96,78]){R(L,1972,y,24,2,'#4a5060');R(L,1972,y-6,24,1,'#4a5060');R(L,1995,y-6,1,6,'#4a5060');O(1972,y,24)}R(L,1973,72,1,78,'#4a5060');R(L,1994,72,1,78,'#4a5060');
   // cerezos y banca (asiento 2)
   tree(1320,150,102,22,0,'sakura');tree(1500,150,98,27,0,'sakura');tree(1712,150,110,17,0,'sakura');tree(1860,150,104,22,['#e7a4bc','#f4c4d4','#ffe2ea'],'sakura');
   bench(1430,150,'cerezo');
@@ -770,8 +768,14 @@ const ALLEY=newScene('alley',560,{zones:[[0,560,'Callejón de los farolillos','C
   if(window.WD_ASSETS&&WD_ASSETS.alley){const AL=WD_ASSETS.alley,La=L,Ea=E,Bs=B;
     const redraw=()=>{const oL=L;L=La;
       
-      for(const [x,y,w] of [[450,86,18],[476,66,18],[500,48,18]]){R(L,x,y,w,2,'#5a5866');R(L,x,y-6,1,6,'#5a5866');R(L,x+w-1,y-6,1,6,'#5a5866');R(L,x,y-6,w,1,'#6d6a78');for(let k=3;k<w-2;k+=4)R(L,x+k,y-5,1,5,'#4a4856')}
-      R(L,478,28,82,3,'#2a2533');R(L,478,28,82,1,'#5a5466');R(L,440,128,24,22,'#6a5440');R(L,440,128,24,1.5,'#8a7058');for(let k=0;k<3;k++)R(L,440,133+k*6,24,.8,'#4a3a2c');L=oL;ALLEY._dirty={l:true,e:true}};
+      // escalera de incendios sujeta a la pared: postes, ménsulas y escalones entre descansos
+      const FE=[[450,86,18],[476,66,18],[500,48,18]],MT='#3a3846',MH='#6d6a78';
+      for(let i=0;i<FE.length;i++){const [x,y,w]=FE[i];R(L,x+1,y+2,1,16,MT);R(L,x+w-2,y+2,1,16,MT);for(let k=0;k<6;k++)R(L,x+w-2-k,y+3+k,1,1,MT);
+        R(L,x,y,w,2,'#4a4856');for(let k=1;k<w;k+=2)R(L,x+k,y,1,2,'#2e2c38');R(L,x,y-6,1,6,MT);R(L,x+w-1,y-6,1,6,MT);R(L,x,y-6,w,1,MH);R(L,x,y-3,w,.6,MT);
+        const n=FE[i+1];if(n){const sx=x+w-3,sy=y,ex=n[0]+2,ey=n[1]+2,st=8;for(let k=0;k<=st;k++){const px=sx+(ex-sx)*k/st,py=sy+(ey-sy)*k/st;R(L,px,py,3,1,MH)}for(let k=0;k<12;k++){const px=sx+(ex-sx)*k/11,py=sy+(ey-sy)*k/11;R(L,px,py-1,1,1,MT)}}}
+      R(L,478,26,82,4,'#2a2533');R(L,478,26,82,1,'#5a5466');R(L,478,30,82,1,'rgba(0,0,0,.35)');
+      // cajas de plástico apiladas (escalón con el gato)
+      for(const [cy,c1,c2] of [[128,'#3f6a4c','#2a4a36'],[139,'#8a3a32','#5e2822']]){R(L,440,cy,24,11,c1);R(L,440,cy,24,1,'rgba(255,255,255,.25)');R(L,440,cy+10,24,1,c2);R(L,440,cy,1,11,c2);R(L,463,cy,1,11,c2);for(let k=0;k<5;k++)R(L,443+k*4.2,cy+3,2.4,5,c2)}L=oL;ALLEY._dirty={l:true,e:true}};
     Bs.oneways=Bs.oneways.filter(o=>!(o.x===288&&o.y===100));Bs.flags=Bs.flags.filter(f=>f.type!=='lantern');Bs.wireList=[];Bs.lights=Bs.lights.filter(l=>l.y<74);
     const pos=[[0,0,false],[1,0,false],[0,0,true]];let ld=0;const ims=[];
     AL.forEach((d,i)=>{const a=new Image(),g=new Image();ims[i]={a,g,d};let n=0;const ok=()=>{if(++n===2&&++ld===AL.length)paint()};a.onload=ok;g.onload=ok;a.src=d.src;g.src=d.glow});
@@ -1453,10 +1457,10 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   ctx=tgt;for(const c of [tgt,wctx,actx,lctx,tctx]){c.globalAlpha=1;c.globalCompositeOperation='source-over';XF(c)}tctx.imageSmoothingEnabled=false;
   if(sc.parallax||sc.alleySky){drawSky();if(sc.parallax)drawBirds()}else{ctx.fillStyle='#000';ctx.fillRect(0,0,W,H)}
   if(sc.parallax&&!OFF.far){drawFar(sc);drawParallax()}
-  if(sc===OUT&&FOREST.im&&camX+W>2690){const fw=FOREST.w,fh=FOREST.h,x0=2690-camX,sh=(camX-2400)*.15,N=sky.night,col=mix(mix(sky.hor,sky.dark,.55),[10,14,30],N*.5),a=clamp(.12+N*.62+st.rain*.2,0,.9),img=a>.03?tintCache(FOREST.c,col,a,'atop'):FOREST.c;
+  if(sc===OUT&&FOREST.im&&camX+W>2706){const fw=FOREST.w,fh=FOREST.h,x0=2706-camX,sh=(camX-2400)*.15,N=sky.night,col=mix(mix(sky.hor,sky.dark,.55),[10,14,30],N*.5),a=clamp(.12+N*.62+st.rain*.2,0,.9),img=a>.03?tintCache(FOREST.c,col,a,'atop'):FOREST.c;
     const cv=ctx.canvas;if(!FOREST.buf||FOREST.buf.width!==cv.width||FOREST.buf.height!==cv.height){FOREST.buf=mk(cv.width,cv.height)}const fb=FOREST.buf,fg=fb.getContext('2d');fg.setTransform(1,0,0,1,0,0);fg.clearRect(0,0,fb.width,fb.height);fg.setTransform(ctx.getTransform());fg.imageSmoothingEnabled=true;
     for(let x=x0+sh-fw*Math.ceil(sh/fw+1);x<W;x+=fw)if(x+fw>x0)fg.drawImage(img,x,128-fh,fw,fh);
-    fg.globalCompositeOperation='destination-in';const gr=fg.createLinearGradient(x0,0,x0+70,0);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,1)');fg.fillStyle=gr;fg.fillRect(x0-10,-60,W-x0+100,260);fg.globalCompositeOperation='source-over';
+    fg.globalCompositeOperation='destination-in';const gr=fg.createLinearGradient(x0+2,70,x0+44,-6);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,1)');fg.fillStyle=gr;fg.fillRect(x0-10,-60,W-x0+100,260);fg.globalCompositeOperation='source-over';
     const T0=ctx.getTransform();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(fb,0,0);ctx.setTransform(T0)}tick_('cielo y fondos');
   if(!sc.interior&&st.rain>.04&&!OFF.rain){const n=Math.round(90*st.rain*[.3,.6,1][Q]);ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.4),.32);ctx.lineWidth=.5;ctx.beginPath();for(let i=0;i<n;i++){const sp=2.6+(i%5)*.45,x=((i*61.7-camX*.5+st.time*st.wind*1.1)%(W+40)+W+40)%(W+40)-20,y=(i*37.3+st.time*sp)%190;ctx.moveTo(x,y);ctx.lineTo(x-st.wind*1.1,y-3.5)}ctx.stroke()}
   if(sc.interior&&rain.length){ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.55),.6);ctx.lineWidth=.5;ctx.beginPath();for(const d of rain){const x=d.x-camX+.5;ctx.moveTo(x,d.y);ctx.lineTo(x-st.wind*1.6*d.l/4,d.y-d.l)}ctx.stroke()}
