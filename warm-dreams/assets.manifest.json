@@ -74,6 +74,9 @@
     "torre": "d758b668-6241-46d4-b3c4-b3b9eadea2bd",
     "porton": "3d55a140-6496-4b88-8bda-76eaae3086aa",
     "callejonEntrada": "4684e655-5b35-454a-993c-629f2658a67e",
-    "nota": "Luces calculadas por código en tools/prep_assets.py (proc_glow), sin imagen de luces."
+    "nota": "Luces calculadas por código en tools/prep_assets.py (proc_glow), sin imagen de luces.",
+    "centro_entrada_elegido": "547aab42-08b1-4c10-a33d-d4a897dbeb47",
+    "centro_entrada_alt": "f54d8b6e-5c01-4ff2-ad60-9b3c6749b075",
+    "uso": "alaA + centro + alaA en espejo (un solo edificio); alaB y torre ya no se usan"
   }
 }

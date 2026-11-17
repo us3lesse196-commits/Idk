@@ -185,10 +185,11 @@ def main():
         A['buildings'][name] = e
 
     # ---- fase 3: prepa y entrada del callejón (luces calculadas por código)
-    for name, f, hu, mode in [('alaA', 'fase3/alaA.png', 90, 'school'), ('alaB', 'fase3/alaB.png', 88, 'school'),
-                              ('torre', 'fase3/torre.png', 130, 'tower'), ('porton', 'fase3/porton.png', 47, None),
+    for name, f, hu, mode in [('alaA', 'fase3/alaA.png', 75, 'school'), ('alaAm', 'fase3/alaA.png', 75, 'school'),
+                              ('centro', 'fase3/centroB.png', 75, 'school'), ('porton', 'fase3/porton.png', 47, None),
                               ('callejonEntrada', 'fase3/callejonEntrada.png', 60, 'warm')]:
         src = load(f); im = harden(fit_h(src.crop(bbox(src)), hu * K), 100)
+        if name.endswith('m'): im = im.transpose(Image.FLIP_LEFT_RIGHT)
         e = {'src': b64(im), 'w': round(im.width / K * 2), 'h': hu * 2, 'lights': []}
         if mode:
             lit = proc_glow(im, mode, seed=len(name))
