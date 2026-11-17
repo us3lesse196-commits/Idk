@@ -463,7 +463,23 @@ def main():
         return d
 
     # Angel (protagonista; la clave 'haru' se conserva en el código)
-    A['haru'] = char('angel', [('idle', 6), ('walk', 10), ('run', 14), ('jump', 10)], 17)
+    A['haru'] = char('angel', [('idle', 6), ('walk', 10), ('run', 14), ('jump', 10), ('back', 8)], 17)
+
+    def hair_w(im):  # ancho del pelo rosa: sirve para igualar la escala de poses sueltas
+        a = np.asarray(im.convert('RGBA')).astype(int); r, g, b_, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
+        xs = np.where(((al > 128) & (r > 185) & (b_ > 140) & (g < r - 25)).any(axis=0))[0]; return xs.max() - xs.min() + 1
+
+    def pose(path, ref_hair_w, ref_scale):
+        """pose fija: se escala para que el pelo mida lo mismo que en el reposo; cuadro cuadrado con pies abajo."""
+        im = load(path); im = im.crop(bbox(im, 60)); s_ = ref_hair_w * ref_scale / hair_w(im)
+        w, h = round(im.width * s_), round(im.height * s_); FW = max(w, h) + 2
+        fr = Image.new('RGBA', (FW, FW)); fr.paste(harden(im.resize((w, h), Image.LANCZOS), 110), ((FW - w) // 2, FW - h))
+        return {'src': b64(fr), 'n': 1, 'fw': FW, 'u': FW / K, 'fps': 1, 'ax': FW / 2, 'by': 0}
+
+    ish = load('chars/angel_idle.png'); fh = ish.height; f0 = ish.crop((0, 0, fh, fh)); b0 = bbox(f0); sc0 = 17 * K / (b0[3] - b0[1])
+    hw0 = hair_w(f0)
+    for nm, f in [('sit', 'chars/angel_sitpose.png'), ('slide', 'chars/slide_raw.png')]:
+        if os.path.exists(os.path.join(ROOT, f)): A['haru'][nm] = pose(f, hw0, sc0)
     # NPC: estudiante, oficinista, abuelita, conserje (solo caminar) y Maju (reposo + caminar)
     NP = {}
     for nm, hu in [('student', 17), ('office', 18.5), ('granny', 15), ('janitor', 18)]:

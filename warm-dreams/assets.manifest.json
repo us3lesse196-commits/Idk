@@ -197,7 +197,14 @@
       "idle": "d9a74b87-a9bc-464a-a980-02c90db458ed",
       "walk": "b7fa722d-0963-4b1b-aa8d-c6eb51d2ef24",
       "run": "5e1e580a-adba-4556-8f4a-c266ccec75ab",
-      "jump": "71d037c3-078c-4bac-b316-8b947e49c650"
+      "jump": "71d037c3-078c-4bac-b316-8b947e49c650",
+      "back": "9ddd2dba-44bd-41b1-8eca-88f43a199934",
+      "sit_pose": "3f8a56f6-96ad-4558-8e71-666d953a1fc5",
+      "slide_pose": "7b817060-704d-42b4-bec7-29ec65d3a71e (usar raw_url; el pixel salió de 32 px)",
+      "fallidos": [
+        "0b8fc1cd-653c-435f-923f-2d78fb98b0a8 sit (salió de pie)",
+        "185d2fa6-a379-4976-8c5f-da11315fa778 slide (salió corriendo)"
+      ]
     },
     "maju": {
       "base": "9b475282-9bf8-48d1-9608-069aacef8dc3",
