@@ -1318,9 +1318,10 @@ function drawSky(){skyBands();ID(ctx);const pat=ctx.createPattern(skyC,'repeat-x
     for(let k=0;k<=16;k++){const a=-Math.PI/2+k/16*Math.PI;ctx.lineTo(mx+(wax?1:-1)*r*Math.cos(a),my+r*Math.sin(a))}for(let k=16;k>=0;k--){const a=-Math.PI/2+k/16*Math.PI;ctx.lineTo(mx+(wax?1:-1)*xr*Math.cos(a)*(wax?1:-1)*(wax?1:-1),my+r*Math.sin(a))}
     ctx.closePath();ctx.save();ctx.clip();if(mi)ctx.drawImage(mi,mx-r,my-r,r*2,r*2);else{disc(ctx,mx,my,r,'#f3efe0');R(ctx,mx-2,my-3,2,2,'#d6d1c0');R(ctx,mx+2,my+1,2,1,'#d6d1c0');R(ctx,mx-3,my+2,1,1,'#d6d1c0')}ctx.restore();ctx.globalAlpha=1}
   if(st.bolt&&st.flash>.45){ctx.strokeStyle=`rgba(235,240,255,${st.flash})`;ctx.lineWidth=1;ctx.beginPath();st.bolt.forEach(([x,y],i)=>{const sx=x-camX;i?ctx.lineTo(sx,y):ctx.moveTo(sx,y)});ctx.stroke()}
-  {const P=cloudPal(),key=P.map(c=>c.map(v=>v>>3).join()).join('|');ID(ctx);const vis=Math.round(clouds.length*(.35+st.cloud*.65));
-    for(let i=0;i<Math.min(vis,clouds.length);i++){const c=clouds[i];const x=(((c.x+(c.off||0)-camX*(c.big?.06:.035))*Z)%1900+1900)%1900-300,y=Math.round((c.y-camY*.15)*Z);if(x>OW||x+c.w<0)continue;paintCloud(c,P,key);
-      ctx.globalAlpha=c.big?(st.weather?1:.92):.75;if(c.spr)ctx.drawImage(c.c,Math.round(x),y,c.w,c.h);else ctx.drawImage(c.c,Math.round(x),y)}ctx.globalAlpha=1;XF(ctx)}}
+  drawClouds(0)}
+function drawClouds(front){{const P=cloudPal(),key=P.map(c=>c.map(v=>v>>3).join()).join('|');ID(ctx);const vis=Math.round(clouds.length*(.35+st.cloud*.65));
+    for(let i=0;i<Math.min(vis,clouds.length);i++){const c=clouds[i];if((i%3===1)!==!!front)continue;const x=(((c.x+(c.off||0)-camX*(c.big?.06:.035))*Z)%1900+1900)%1900-300,y=Math.round((c.y+(front?34:0)-camY*.15)*Z);if(x>OW||x+c.w<0)continue;paintCloud(c,P,key);
+      ctx.globalAlpha=(c.big?(st.weather?1:.92):.75)*(front?.88:1);if(c.spr)ctx.drawImage(c.c,Math.round(x),y,c.w,c.h);else ctx.drawImage(c.c,Math.round(x),y)}ctx.globalAlpha=1;XF(ctx)}}
 const birds=[];
 function updateBirds(){const t=st.dayT;if(scene.interior)return;if(birds.length<12&&t>.24&&t<.8&&st.rain<.3&&Math.random()<.004){const dir=Math.random()<.5?1:-1,n=3+Math.floor(Math.random()*4),y=26+Math.random()*44,x=dir>0?-20:W+20,sp=.45+Math.random()*.3;
   for(let i=0;i<n;i++)birds.push({x:x-dir*i*7,y:y+(i%2?4:0)+i*1.5,dir,sp,ph:Math.random()*6})}
@@ -1589,7 +1590,7 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   const N=sky.night,lo=lampsOn();let _t=performance.now();const tick_=n=>{const q=performance.now();DIAG.add(n,q-_t);_t=q};
   ctx=tgt;for(const c of [tgt,wctx,actx,lctx,tctx]){c.globalAlpha=1;c.globalCompositeOperation='source-over';XF(c)}tctx.imageSmoothingEnabled=false;
   if(sc.parallax||sc.alleySky){drawSky();if(sc.parallax)drawBirds()}else{ctx.fillStyle='#000';ctx.fillRect(0,0,W,H)}
-  if(sc.parallax&&!OFF.far){drawFar(sc);drawParallax()}
+  if(sc.parallax&&!OFF.far){drawFar(sc);drawClouds(1);drawParallax()}
   if(sc===OUT&&FOREST.im&&camX+W>2706){const fw=FOREST.w,fh=FOREST.h,x0=2706-camX,sh=(camX-2400)*.15,N=sky.night,col=mix(mix(sky.hor,sky.dark,.55),[10,14,30],N*.5),a=clamp(.12+N*.62+st.rain*.2,0,.9),img=a>.03?tintCache(FOREST.c,col,a,'atop'):FOREST.c;
     const cv=ctx.canvas;if(!FOREST.buf||FOREST.buf.width!==cv.width||FOREST.buf.height!==cv.height){FOREST.buf=mk(cv.width,cv.height)}const fb=FOREST.buf,fg=fb.getContext('2d');fg.setTransform(1,0,0,1,0,0);fg.clearRect(0,0,fb.width,fb.height);fg.setTransform(ctx.getTransform());fg.imageSmoothingEnabled=true;
     for(let x=x0+sh-fw*Math.ceil(sh/fw+1);x<W;x+=fw)if(x+fw>x0)fg.drawImage(img,x,128-fh,fw,fh);
