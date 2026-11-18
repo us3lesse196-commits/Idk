@@ -35,6 +35,9 @@ def fit_h(im, h):
     return im.resize((w, h), Image.BOX)
 
 
+def clamp_(v, a, b): return max(a, min(b, v))
+
+
 def b64(im):
     buf = io.BytesIO()
     im.save(buf, 'PNG', optimize=True)
@@ -551,8 +554,10 @@ def main():
             if not os.path.exists(os.path.join(ROOT, f)): continue
             im = load(f); im = im.crop(bbox(im, 60))
             a_ = np.asarray(im)[..., 3] > 60; hh = int(im.height * .42); xs = np.where(a_[:hh].any(axis=0))[0]; head = xs.max() - xs.min() + 1
-            if ex == exprs[0]: ref_s = 200 / im.height; ref_head = head * ref_s  # el primero (base) fija la escala
-            s_ = ref_head / head; im = harden(im.resize((round(im.width * s_), round(im.height * s_)), Image.LANCZOS), 100)
+            rows = np.where(a_.any(axis=1))[0]; hy = hh - rows.min()  # alto de la zona de la cabeza
+            if ex == exprs[0]: ref_s = 200 / im.height; ref_head = head * ref_s; ref_ar = head / hy  # la base fija escala y proporción
+            sx_ = clamp_(ref_ar / (head / hy), .8, 1.35)  # corrige expresiones aplastadas por la IA
+            s_ = ref_head / (head * sx_); im = harden(im.resize((round(im.width * s_ * sx_), round(im.height * s_)), Image.LANCZOS), 100)
             RT.setdefault(who, {})[ex] = b64(im)
     A['ret'] = RT
     if os.path.exists(os.path.join(ROOT, 'animals/koi.png')):
