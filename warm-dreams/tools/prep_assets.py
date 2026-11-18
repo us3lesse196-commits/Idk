@@ -565,6 +565,12 @@ def main():
     print('  lago w', W_ / K,'puente', A['lago']['x0'], A['lago']['x1'], 'deckEnd', deckEnd, 'ladera w', A['ladera']['w'])
     print('  cruce', X['cruce']['w'], 'vagon', X['vagon']['w'], 'cabina', X['cabina']['w'])
 
+    # ---- poda: assets que el juego ya no dibuja (reemplazados por los tramos nuevos o descartados)
+    for k in ['tiendaCafe', 'dagashiya', 'casaN', 'casaMori', 'casaC', 'deptos', 'porton', 'callejonEntrada']:
+        A.get('buildings', {}).pop(k, None)
+    A.pop('props', None)
+    for k in ['bambuMaceta', 'bonsai', 'banca', 'jizo', 'cerca', 'caseta']:
+        A.get('deco', {}).pop(k, None)
     open(path, 'w').write('window.WD_ASSETS=' + json.dumps(A) + ';')
     print('ok', {k: (list(v.keys()) if isinstance(v, dict) else len(v)) for k, v in A.items()},
           round(os.path.getsize(path) / 1024), 'KB')
