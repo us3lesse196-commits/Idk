@@ -853,7 +853,7 @@ if(CI)(()=>{const LW=262,B_=B,Ls=L,Es=E;const top=150-(980*.13);
   gl.onload=()=>{Es.imageSmoothingEnabled=true;Es.drawImage(gl,-2,top,CI.w,CI.h);B_._dirty={l:true,e:true}};gl.src=CI.glow;
   S(0,150,LW,30,1);S(-10,0,12,H);S(LW-4,0,14,H);
   for(let x=22;x<112;x+=2){const y=89.9+(x-22)*(60/90);B.oneways.push({x,y,w:2.5,h:3})}
-  O(2,89.9,72);S(74,89.9,LW-78,6);
+  O(2,89.9,72);B.oneways[B.oneways.length-1].stair=1;S(74,89.9,LW-78,6);
   door(213,113,24,37,'#d8cfb8',{scene:'out'},'Salir');
   B.windows.push({x:65,y:107,w:38,h:25,fy:150},{x:50,y:46,w:38,h:20,fy:90});
   LT(140,60,60,'warm',.9,{alwaysOn:1});LT(140,103,60,'warm',.9,{alwaysOn:1});LT(36,58,40,'warm',.7,{alwaysOn:1});LT(225,103,40,'warm',.7,{alwaysOn:1});LT(40,128,26,'tv',.6,{alwaysOn:1});
@@ -1101,7 +1101,7 @@ function updatePlayer(){const p=player;const jp=input.jump&&!prevJump;prevJump=i
   const maxV=p.crouch?.6:1.7;
   if(p.slideT<=0){if(dir&&p.wallLock<=0){p.vx+=dir*(p.grounded?.28:.2);p.facing=dir}else if(p.grounded)p.vx*=.72;else p.vx*=.97;if(Math.abs(p.vx)>maxV)p.vx=p.grounded?Math.sign(p.vx)*maxV:p.vx*.96}
   if(p.grounded)p.coyote=6;else if(p.coyote>0)p.coyote--;
-  if(p.jumpBuf>0&&input.down&&p.grounded){const on=scene.oneways.find(r=>(!r.magic||st.aurora>.35)&&p.x+p.w>r.x&&p.x<r.x+r.w&&Math.abs(p.y+p.h-r.y)<1);if(on){p.drop=12;p.y+=2;p.jumpBuf=0;p.grounded=false}}
+  if(input.down&&p.grounded){const on=scene.oneways.find(r=>(!r.magic||st.aurora>.35)&&p.x+p.w>r.x&&p.x<r.x+r.w&&Math.abs(p.y+p.h-r.y)<1&&(p.jumpBuf>0||r.stair));if(on){p.drop=12;p.y+=2;p.jumpBuf=0;p.grounded=false}}
   if(p.jumpBuf>0&&p.coyote>0){if(p.crouch||p.slideT>0){if(setHeight(p,16)){p.crouch=false;if(p.slideT>0){p.vx*=1.12;p.slideT=0}}}if(!p.crouch){p.vy=-4.3;p.jumpBuf=0;p.coyote=0;p.grounded=false;puff(p.x+4,p.y+p.h,4,1)}}
   else if(p.jumpBuf>0&&!p.grounded&&p.wallDir){p.vy=-4;p.vx=-p.wallDir*2.1;p.wallLock=11;p.facing=-p.wallDir;p.jumpBuf=0;puff(p.x+(p.wallDir>0?p.w:0),p.y+10,5,.6)}
   p.vy+=.2;if(p.vy<0&&!input.jump)p.vy+=.24;let maxFall=4.5;if(!p.grounded&&p.wallDir&&dir===p.wallDir&&p.vy>0)maxFall=.85;if(p.vy>maxFall)p.vy=maxFall;
@@ -1136,7 +1136,7 @@ let trans=null;
 function startTrans(kind,it){const p=player;p.state='trans';p.vx=0;closePhones();showSit(false);trans={kind,t:0,it,x0:p.x,from:scene};
   if(kind==='door'){trans.door=scene.doors.find(d=>Math.abs(d.x+d.w/2-it.x)<2)}}
 function goScene(name,x,facing){scene=SCENES[name];const p=player;p.x=x;p.y=150-16;p.h=16;camYf=camY=52;p.vy=0;p.vx=0;p.facing=facing||1;p.grounded=true;
-  camXf=clamp(p.x-W/2,0,scene.LW-W);camX=Math.round(camXf);rain.length=0;splash.length=0;drops.length=0;leaves.length=0;lastZone=-1}
+  camXf=scene.LW<=W?(scene.LW-W)/2:clamp(p.x-W/2,0,scene.LW-W);camX=Math.round(camXf);rain.length=0;splash.length=0;drops.length=0;leaves.length=0;lastZone=-1}
 function updateTrans(){const T=trans,p=player;T.t++;const t=T.t;
   if(T.kind==='door'){const d=T.door;
     if(t<16){p.x+=(T.it.dx-4-p.x)*.2;p.anim='run';p.animT+=.6}else if(t<18){p.back=1;p.anim='idle'}
@@ -1207,7 +1207,7 @@ function update(){st.time++;const p=player;
   if(st.train){st.train.x+=st.train.dir*3.2;if(st.train.x>1500||st.train.x<-500)st.train=null}
   if(trans)updateTrans();else updatePlayer();
   // cámara
-  const target=p.x+p.w/2-W/2+(p.state==='play'?p.facing*22:0)+(menu?Math.sin(st.time*.0015)*10:0);if(cine.pan){const c=cine.pan;c.t++;camXf=c.from+(c.to-c.from)*sstep(clamp(c.t/c.dur,0,1))}else if(cine.camX!=null)camXf+=(cine.camX-camXf)*.04;else camXf+=(target-camXf)*.075;camXf=clamp(camXf,0,scene.LW-W);camX=Math.round(camXf);{let ty=scene.fixY!=null?scene.fixY:clamp(p.y+p.h-104,0,H-VH);if(scene.lake&&p.x>scene.lake.x0-40&&p.x<scene.lake.x1+20)ty=Math.max(ty,56);camYf+=(ty-camYf)*.08;camY=Math.round(camYf)}
+  const target=p.x+p.w/2-W/2+(p.state==='play'?p.facing*22:0)+(menu?Math.sin(st.time*.0015)*10:0);if(cine.pan){const c=cine.pan;c.t++;camXf=c.from+(c.to-c.from)*sstep(clamp(c.t/c.dur,0,1))}else if(cine.camX!=null)camXf+=(cine.camX-camXf)*.04;else camXf+=(target-camXf)*.075;camXf=scene.LW<=W?(scene.LW-W)/2:clamp(camXf,0,scene.LW-W);camX=Math.round(camXf);{let ty=scene.fixY!=null?scene.fixY:clamp(p.y+p.h-104,0,H-VH);if(scene.lake&&p.x>scene.lake.x0-40&&p.x<scene.lake.x1+20)ty=Math.max(ty,56);camYf+=(ty-camYf)*.08;camY=Math.round(camYf)}
   const cx=p.x+4;const zi=scene.zones.findIndex(z=>cx>=z[0]&&cx<z[1]);if(zi!==lastZone&&zi>=0&&!trans&&!cine.on){lastZone=zi;showZone(scene.zones[zi])}
   nearI=findInteract();updateActBtn();
   // lluvia
@@ -1414,10 +1414,10 @@ function drawParallax(){const far=mix(mix(sky.hor,sky.mid,.45),sky.dark,.18),cit
 // Personajes de SpriteCook: d={ax,by,fw,u,<anim>:{src,n,fw,u,fps}} (ax/fw en px a K por unidad)
 const SPI=new Map();function sprImg(src){let im=SPI.get(src);if(!im){im=new Image();im.onload=()=>im.ok=1;im.src=src;SPI.set(src,im)}return im.ok?im:null}
 // ---- luz estilo "shaders": sol, hora dorada, bordes de luz y sombras de personajes
-const LUZ={sun:0,gh:0,dir:1,el:1,rim:0,col:'255,200,140'};
+const LUZ={sun:0,gh:0,dir:1,el:1,rim:0,col:'255,200,140',lo:0,lights:[]};
 function luzUpdate(sc){const N=sky.night,t=st.dayT,f=clamp((t-.2)/.62,0,1),el=Math.sin(f*Math.PI);LUZ.el=el;LUZ.dir=f<.5?-1:1;// dirección hacia el sol
   LUZ.sun=sc.interior?0:(1-N)*(1-st.cloud*.8)*(1-st.rain)*clamp(el*4,0,1);LUZ.gh=clamp(1-Math.abs(t-.68)/.07,0,1)+clamp(1-Math.abs(t-.27)/.05,0,1)*.8;
-  LUZ.rim=luzOn&&Q>=1?LUZ.sun*(.35+LUZ.gh*.65):0;const c=mix([255,236,200],[255,170,90],clamp(LUZ.gh,0,1));LUZ.col=c.map(v=>v|0).join(',')}
+  LUZ.rim=luzOn&&Q>=1?LUZ.sun*(.35+LUZ.gh*.65):0;LUZ.lo=sc.interior?.8:lampsOn();LUZ.lights=luzOn&&LUZ.lo>.08?sc.lights.filter(l=>(l.lamp||l.r>=24)&&l.x>camX-60&&l.x<camX+W+60):[];const c=mix([255,236,200],[255,170,90],clamp(LUZ.gh,0,1));LUZ.col=c.map(v=>v|0).join(',')}
 const RIMC=document.createElement('canvas'),RIMG=RIMC.getContext('2d');const SILC=new Map();
 function silOf(src){let c=SILC.get(src);if(c)return c.ok?c:null;const im=sprImg(src);if(!im)return null;c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);g.globalCompositeOperation='source-in';g.fillStyle='#0c0a18';g.fillRect(0,0,c.width,c.height);c.ok=1;SILC.set(src,c);return c}
 function luzGrade(sc){const OW=ctx.canvas.width,OH=ctx.canvas.height,k_=OW/(W*Z),N=sky.night,t=st.dayT,f=clamp((t-.2)/.62,0,1),el=Math.sin(f*Math.PI),sv=LUZ.sun,gh=clamp(LUZ.gh,0,1),sx=(W*.1+f*W*.8)*Z*k_,sy=(112-el*94)*Z*k_;
@@ -1437,8 +1437,9 @@ function luzGrade(sc){const OW=ctx.canvas.width,OH=ctx.canvas.height,k_=OW/(W*Z)
   ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1}
 function chrDraw(c,d,k,fr,ox,oy,flip,alpha){const s=d[k],im=s&&sprImg(s.src);if(!im)return false;fr=((fr%s.n)+s.n)%s.n;const U=s.u*Z,dx=(s.ax!=null?s.ax:s.fw/2+d.ax-d.fw/2)/s.fw*U,bo=s.by!=null?s.by:d.by;
   c.save();c.globalAlpha=alpha;c.imageSmoothingEnabled=false;c.translate(ox,0);if(flip)c.scale(-1,1);c.drawImage(im,fr*s.fw,0,s.fw,s.fw,-dx,oy-U+bo*Z+1,U,U);
-  if(LUZ.rim>.03&&c!==RIMG){const fw=s.fw;if(RIMC.width!==fw){RIMC.width=fw;RIMC.height=fw}const g=RIMG,dl=(flip?-1:1)*LUZ.dir,o=1.5;g.globalCompositeOperation='copy';g.drawImage(im,fr*fw,0,fw,fw,0,0,fw,fw);g.globalCompositeOperation='source-in';g.fillStyle=`rgb(${LUZ.col})`;g.fillRect(0,0,fw,fw);
-    g.globalCompositeOperation='destination-out';g.drawImage(im,fr*fw,0,fw,fw,-dl*o,o*.5,fw,fw);g.globalCompositeOperation='source-over';c.globalAlpha=alpha*Math.min(.8,LUZ.rim*.85);c.globalCompositeOperation='screen';c.drawImage(RIMC,0,0,fw,fw,-dx,oy-U+bo*Z+1,U,U)}
+  let rA=LUZ.rim,rD=LUZ.dir,rC=LUZ.col,rL=0;if(LUZ.lights.length){const wx=ox/Z+camX,wy=oy/Z+camY-8;for(const l of LUZ.lights){const dx=l.x-wx,dy=l.y-wy,d=Math.hypot(dx,dy*.7),R_=l.r*1.25;if(d>R_)continue;const a=Math.min(1,LUZ.lo*l.s*(1-d/R_)*1.7);if(a>rA){rL=1;rA=a;rD=Math.abs(dx)<1.5?rD:Math.sign(dx);rC=l.kind==='cool'?'170,215,255':l.kind==='tv'?'160,170,255':l.kind==='red'?'255,140,110':'255,205,140'}}}
+  if(rA>.03&&c!==RIMG){const fw=s.fw;if(RIMC.width!==fw){RIMC.width=fw;RIMC.height=fw}const g=RIMG,dl=(flip?-1:1)*rD,o=1.5;g.globalCompositeOperation='copy';g.drawImage(im,fr*fw,0,fw,fw,0,0,fw,fw);g.globalCompositeOperation='source-in';g.fillStyle=`rgb(${rC})`;g.fillRect(0,0,fw,fw);
+    g.globalCompositeOperation='destination-out';g.drawImage(im,fr*fw,0,fw,fw,-dl*o,o*.5,fw,fw);g.globalCompositeOperation='source-over';c.globalAlpha=alpha*Math.min(.9,rA*.95);c.globalCompositeOperation='screen';c.drawImage(RIMC,0,0,fw,fw,-dx,oy-U+bo*Z+1,U,U);if(rL){g.globalCompositeOperation='copy';g.drawImage(im,fr*fw,0,fw,fw,0,0,fw,fw);g.globalCompositeOperation='source-in';g.fillStyle=`rgb(${rC})`;g.fillRect(0,0,fw,fw);g.globalCompositeOperation='source-over';c.globalAlpha=alpha*rA*.22;c.drawImage(RIMC,0,0,fw,fw,-dx,oy-U+bo*Z+1,U,U)}}
   c.restore();return true}
 function haruKF(p){const d=window.WD_ASSETS&&WD_ASSETS.haru,a=p.anim;if(!d||p.back)return null;const sp=p.auto?p.auto.sp:Math.abs(p.vx);
   if(a==='sit')return[p.phones&&d.sleep?'sleep':'sit',0];if(a==='slide'&&d.slide)return['slide',0];if(a==='run'){const k=sp<1.25||!d.run?'walk':'run';return[k,Math.floor(p.animT*d[k].fps/60)]}
@@ -1578,7 +1579,8 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
     ctx.beginPath();const x=w.x-camX;ctx.moveTo(x,w.y);ctx.lineTo(x+w.w,w.y);ctx.lineTo(x+w.w-50*((w.fy||150)-w.y)/92,w.fy||150);ctx.lineTo(x-70*((w.fy||150)-w.y)/92,w.fy||150);ctx.closePath();ctx.fill();for(let i=0;i<(Q>=1?26:0);i++){const h=hash(i*97+3),u=((h%1000)/1000+st.time*.0006*(1+(h%3)))%1,v=((h>>10)%1000)/1000;const mx=x+v*w.w-u*60+Math.sin(st.time*.01+i)*3,my=w.y+u*((w.fy||150)-w.y);ctx.fillStyle=`rgba(255,244,214,${a*3.2*(.4+.6*Math.sin(st.time*.03+i))})`;ctx.fillRect(mx,my,.5,.5)}ctx.globalCompositeOperation='source-over'}
   // gotas en el vidrio
   if(sc.interior&&st.wet>.2)for(const w of sc.windows){ctx.fillStyle='rgba(220,235,255,.55)';for(let i=0;i<14;i++){const h=hash(i*31+7),x=w.x-camX+(h%w.w),y=w.y+((h>>8)%w.h+st.time*(.2+(h%5)*.08))%w.h;ctx.fillRect(Math.round(x),Math.round(y),1,2)}}
-  luzUpdate(sc);if(luzOn&&LUZ.sun>.05){ctx.globalCompositeOperation='lighter';ctx.fillStyle=`rgba(${LUZ.col},${LUZ.sun*(.07+LUZ.gh*.16)})`;for(const r of sc.surf){const sx=r.x-camX;if(sx>W||sx+r.w<0)continue;ctx.fillRect(Math.round(sx),r.y,Math.round(r.w),1)}ctx.globalCompositeOperation='source-over'}
+  luzUpdate(sc);if(LUZ.lights.length){ctx.globalCompositeOperation='lighter';for(const l of LUZ.lights){const R_=l.r*1.3,a=LUZ.lo*l.s*.35,cc=l.kind==='cool'?'170,215,255':l.kind==='tv'?'160,170,255':'255,205,140';for(const r of sc.surf){if(r.x>l.x+R_||r.x+r.w<l.x-R_||Math.abs(r.y-l.y)>R_)continue;const gr=ctx.createLinearGradient(l.x-R_-camX,0,l.x+R_-camX,0);gr.addColorStop(0,`rgba(${cc},0)`);gr.addColorStop(.5,`rgba(${cc},${a})`);gr.addColorStop(1,`rgba(${cc},0)`);ctx.fillStyle=gr;ctx.fillRect(Math.round(Math.max(r.x,l.x-R_)-camX),r.y,Math.round(Math.min(r.w,R_*2)),1.5)}}ctx.globalCompositeOperation='source-over'}
+  if(luzOn&&LUZ.sun>.05){ctx.globalCompositeOperation='lighter';ctx.fillStyle=`rgba(${LUZ.col},${LUZ.sun*(.07+LUZ.gh*.16)})`;for(const r of sc.surf){const sx=r.x-camX;if(sx>W||sx+r.w<0)continue;ctx.fillRect(Math.round(sx),r.y,Math.round(r.w),1)}ctx.globalCompositeOperation='source-over'}
   if(st.wet>.05&&!sc.interior){ctx.fillStyle=css(mix(sky.hor,[255,255,255],.3),st.wet*.35);for(const r of sc.surf){const sx=r.x-camX;if(sx>W||sx+r.w<0)continue;ctx.fillRect(Math.round(sx),r.y,Math.round(r.w),1)}}
   // charcos
   for(const pd of sc.puddles){const w=puddleW(pd);if(w<2)continue;const sx=pd.x-camX;if(sx+w<0||sx-w>W)continue;const l=Math.round(sx-w/2),ww=Math.round(w),refl=mix(sky.mid,sky.top,.35);
@@ -1662,8 +1664,8 @@ function drawShadows(sc,cur,lo){if(!A)return;const g=shctx,M=A.meta;if((st.time&
   const lamps=sc.lights.filter(l=>(l.lamp||l.r>=30)&&l.x>camX-80&&l.x<camX+W+80);const la=sc.interior?.8:lo;
   if(la>.05)for(const c of casters){if(c.x<camX-40||c.x>camX+W+40)continue;let k=0;for(const l of lamps){const dx=c.x-l.x,d=Math.abs(dx);if(d>l.r*1.4||k>=2)continue;k++;
       const fall=clamp(1-d/(l.r*1.4),0,1),hgt=Math.max(6,c.y-l.y),sh=clamp(dx/hgt,-3,3);
-      one(c.x,c.y,c.row,c.fi,c.flip,c.flip?-sh:sh,.2,la*l.s*fall*.5);
-      if(!sc.interior||true){g.globalAlpha=la*l.s*fall*.18;const sx=c.x+dx*.35;one(sx,c.y-1,c.row,c.fi,c.flip,0,1.12,la*l.s*fall*.16)}}}
+      one(c.x,c.y,c.row,c.fi,c.flip,c.flip?-sh:sh,.2,la*l.s*fall*.5,c);
+      if(!sc.interior||true){g.globalAlpha=la*l.s*fall*.18;const sx=c.x+dx*.35;one(sx,c.y-1,c.row,c.fi,c.flip,0,1.12,la*l.s*fall*.16,c)}}}
   g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;
   wctx.setTransform(1,0,0,1,0,0);wctx.globalCompositeOperation='source-atop';wctx.drawImage(shadB,0,0);wctx.globalCompositeOperation='source-over';XF(wctx)}
 function sprFrame(row,fi,ox,oy,flip,c,alpha){const M=A.meta,im=IMG.spr;const r=M.rows[row];if(r==null)return;c.globalAlpha=alpha;
