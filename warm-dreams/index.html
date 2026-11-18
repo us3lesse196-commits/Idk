@@ -1039,7 +1039,7 @@ function updatePieces(){const h=save.letter;
     if(pzFall.y!=null){pzFall.t++;pzFall.y+=.2;pzFall.x=3075+Math.sin(pzFall.t*.045)*9;if(pzFall.y>=125){save.p1landed=1;save.p1x=Math.round(pzFall.x);pzFall.y=null;writeSave()}}}}
 function drawPieces(c,sc){const items=pzList().filter(q=>SCENES[q.sc]===sc);if(sc===OUT&&pzFall.y!=null)items.push({x:pzFall.x,y:pzFall.y+2.5,fall:1});
   const gl=.5+.5*Math.sin(st.time*.08);
-  for(const q of items){const x=q.x-camX;if(x<-10||x>W+10)continue;c.globalCompositeOperation='lighter';c.globalAlpha=.3+.3*gl;c.drawImage(GL.warm,x-7,q.y-10,14,14);
+  for(const q of items){const x=q.x-camX;if(x<-10||x>W+10)continue;c.globalCompositeOperation='lighter';c.globalAlpha=.45+.35*gl;c.drawImage(GL.warm,x-14,q.y-18,28,28);c.globalAlpha=.25+.2*gl;const bm=c.createLinearGradient(0,q.y-40,0,q.y);bm.addColorStop(0,'rgba(255,220,150,0)');bm.addColorStop(1,'rgba(255,220,150,.9)');c.fillStyle=bm;c.fillRect(x-1.5,q.y-40,3,40);if(st.time%9===0)sparks.push({x:q.x+(Math.random()-.5)*6,y:q.y-2,vx:(Math.random()-.5)*.3,vy:-.4-Math.random()*.4,life:40,col:'gold'});
     c.globalCompositeOperation='source-over';c.globalAlpha=1;const X=Math.round(x*2)/2,ty=q.fall?Math.sin(st.time*.12)*.5:0;
     c.fillStyle='#f4ecd8';c.fillRect(X-2,q.y-2.5+ty,4,2.5);c.fillStyle='#8aa0cc';c.fillRect(X-2,q.y-2.5+ty,1,2.5);c.fillStyle='#5a5070';c.fillRect(X-.5,q.y-1.5+ty,2,.5)}}
 const foxOn=()=>sky.night>.6&&st.cloud<.45&&st.rain<.1;
@@ -1124,6 +1124,7 @@ function updateNPCs(){const t=st.dayT,ts0=Math.min(st.ts,6);let ni=0;
       else{n.a+=((on?1:0)-n.a)*.03;if(on&&n.a>.6&&scene===OUT&&Math.abs(player.x+4-n.x-6)<22&&player.state==='play'){n.fled=1;n.dir=player.x<n.x?1:-1;save.drop5=1;save.p5x=Math.round(n.x+10);writeSave();toast('El gato soltó el papel...')}}continue}
     if(n.kind==='cat'){n.ph=(n.ph||0)+1;if(n.outdoor)n.a+=((st.rain<.25&&sky.night<.8?1:0)-n.a)*.03;continue}
     if(n.kind==='aoi'&&cine.aoi){const d=cine.aoi.x-n.x;n.walking=Math.abs(d)>1;if(n.walking){n.dir=Math.sign(d);n.x+=n.dir*.7}else if(cine.aoi.face)n.dir=cine.aoi.face;n.a+=(cine.aoi.a-n.a)*.08;n.ph=(n.ph||0)+1;continue}
+    if(n.kind==='aoi'&&save.follow&&!cine.on){if(scene!==OUT){n.a=0;n.x=player.x;continue}const tx=player.x-player.facing*14,d=tx-n.x;if(Math.abs(d)>140){n.x=tx-Math.sign(d)*60}n.walking=Math.abs(d)>6;if(n.walking){n.dir=Math.sign(d);n.x+=n.dir*Math.min(Math.abs(d)>40?1.6:.9,Math.abs(d))*ts}else n.dir=player.x>n.x?1:-1;n.y=scene.gmap[clamp(n.x|0,0,scene.LW-1)];n.a+=(1-n.a)*.1;n.ph=(n.ph||0)+ts*(Math.abs(d)>40?1.6:1);continue}
     if(n.kind==='aoi'){const sched=t>.33&&t<.82;const shelter=st.rain>.35;n.x+=((shelter?1612:1462)-n.x)*.02*ts;n.a+=((sched?1:0)-n.a)*.03;n.walking=Math.abs((shelter?1612:1462)-n.x)>2;if(n.walking)n.dir=(shelter?1612:1462)>n.x?1:-1;n.ph=(n.ph||0)+ts;continue}
     if(n.kind==='janitor'){const tt=st.dayT;n.ph=(n.ph||0)+ts;if(tt<.5)n.done=0;const go=tx=>{const d=tx-n.x;n.walking=Math.abs(d)>1;if(n.walking){n.dir=Math.sign(d);n.x+=n.dir*Math.min(.35*ts,Math.abs(d))}return !n.walking};
       if(!n.st){n.a=Math.max(0,n.a-.05);if(!n.done&&tt>.64&&tt<.7){n.st='out';n.x=1616;n.bag=1}}
@@ -1433,7 +1434,7 @@ function drawTrees_(c,sc,front){c.imageSmoothingEnabled=false;const TT=front&&dr
     if(Q<1){c.drawImage(SRC,t.ox,t.oy,t.GW,t.GH);continue}const sw=((Math.sin(st.time*.021+t.ph)*.5+Math.sin(st.time*.053+t.ph*1.7)*.25)*(.3+Math.abs(WE)*.8)+WE*1.3)*(t.stiff||1),kk=t.k||1;let pu=0;if(t.GH<30&&t.stiff&&sc===scene){const cx=t.ox+t.GW/2,d=player.x+4-cx,near=Math.abs(d)<t.GW*.55+3&&Math.abs(player.y+player.h-(t.oy+t.GH))<6;
       t.push=(t.push||0)+(((near?clamp(player.vx*1.6,-3,3)+Math.sign(d||1)*-1.2*(1-Math.abs(d)/(t.GW*.55+3)):0))-(t.push||0))*.15;pu=t.push}
     const LT_=LO>.05?litOf(t,sc):null;for(let y=0;y<t.GH;y+=2){const k=Math.pow(1-y/t.GH,1.6),dx=Math.round((sw+pu*1.6)*k*2)/2;c.drawImage(SRC,0,y*kk,t.GW*kk,Math.min(2*kk,t.c.height-y*kk),t.ox+dx,t.oy+y,t.GW,Math.min(2,t.GH-y))}
-    if(LT_){c.globalCompositeOperation='screen';c.globalAlpha=Math.min(1,LO*.85);for(let y=0;y<t.GH;y+=2){const k=Math.pow(1-y/t.GH,1.6),dx=Math.round((sw+pu*1.6)*k*2)/2;c.drawImage(LT_,0,y*kk,t.GW*kk,Math.min(2*kk,t.c.height-y*kk),t.ox+dx,t.oy+y,t.GW,Math.min(2,t.GH-y))}c.globalAlpha=1;c.globalCompositeOperation='source-over'}}c.imageSmoothingEnabled=true}
+    if(LT_&&sky.night>.45){c.globalCompositeOperation='screen';c.globalAlpha=Math.min(1,LO*.4*clamp((sky.night-.45)*2.5,0,1));for(let y=0;y<t.GH;y+=2){const k=Math.pow(1-y/t.GH,1.6),dx=Math.round((sw+pu*1.6)*k*2)/2;c.drawImage(LT_,0,y*kk,t.GW*kk,Math.min(2*kk,t.c.height-y*kk),t.ox+dx,t.oy+y,t.GW,Math.min(2,t.GH-y))}c.globalAlpha=1;c.globalCompositeOperation='source-over'}}c.imageSmoothingEnabled=true}
 function drawFlags(c,sc){c.save();c.translate(-camX,0);drawFlags_(c,sc);c.restore()}
 function drawLake(c,sc){const lk=sc.lake;if(!lk||lk.x1<camX||lk.x0>camX+W)return;const N=sky.night;c.save();
   for(let k=0;k<14;k++){const h=hash(k*91+7),x=lk.x0+12+(h%Math.round(lk.x1-lk.x0-24))+Math.sin(st.time*.012+k)*4,y=lk.wy+2+(k%5)*3.2;const a=(.12+.1*Math.sin(st.time*.05+k*1.7))*(1-N*.4);c.fillStyle=`rgba(255,255,255,${Math.max(0,a)})`;c.fillRect(Math.round(x*2)/2,y,6+(h%5)*2,.5)}
@@ -1750,7 +1751,7 @@ function aoiLines(){const L=[],n=pzCount();
   else{L.push(['¿Ya... están todos?','sorprendida']);L.push(['Entonces... ya sabes lo que quería decirte, amor. Es que... por escrito me sale mejor.','timida'])}
   L.push(st.rain>.3?['Me quedo hasta que pare. Me gusta su sonido... y que estés aquí, amor.','hablar']:['Me gusta esperar bajo los cerezos. Sobre todo si vas a venir tú.','feliz']);return L}
 let talkDone=null;
-function startTalk(n){talkOpen=true;player.state='talk';lines=aoiLines().map(([t,ex])=>({who:'Maju',text:t,ex}));li=0;talkDone=()=>{player.state='play'};talkEl.hidden=false;n.dir=player.x<n.x?-1:1;showLine()}
+function startTalk(n){talkOpen=true;player.state='talk';lines=aoiLines().map(([t,ex])=>({who:'Maju',text:t,ex}));lines.push(save.follow?{who:'Maju',text:'Te espero aquí, bajo el cerezo... no tardes, ¿sí?',ex:'timida'}:{who:'Maju',text:'¿...Puedo ir contigo, amor?',ex:'feliz'});li=0;talkDone=()=>{player.state='play';save.follow=!save.follow;writeSave();toast(save.follow?'♡ Maju te acompaña · háblale para que te espere':'Maju te espera bajo el cerezo')};talkEl.hidden=false;n.dir=player.x<n.x?-1:1;showLine()}
 // retratos de diálogo: Angel, Maju y el zorro con expresiones; los demás sin retrato
 const RET=window.WD_ASSETS&&WD_ASSETS.ret;if(RET)document.body.classList.add('ret');
 new MutationObserver(()=>document.body.classList.toggle('talking',!talkEl.hidden)).observe(talkEl,{attributes:true,attributeFilter:['hidden']});
