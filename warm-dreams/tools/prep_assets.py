@@ -571,6 +571,18 @@ def main():
     A.pop('props', None)
     for k in ['bambuMaceta', 'bonsai', 'banca', 'jizo', 'cerca', 'caseta']:
         A.get('deco', {}).pop(k, None)
+    # ---- WebP: fondos con pérdida leve (q90), personajes/interfaz sin pérdida; se queda el formato más chico
+    LOSSY = {'buildings', 'alley', 'casaInt', 'santuario', 'far', 'trees', 'ladera', 'lago', 'xing', 'ground', 'clouds'}
+    def webp(v, lossy):
+        if isinstance(v, str) and v.startswith('data:image/png;base64,'):
+            im = Image.open(io.BytesIO(base64.b64decode(v.split(',', 1)[1]))); b = io.BytesIO()
+            im.save(b, 'WEBP', **(dict(quality=90, method=6, alpha_quality=100) if lossy else dict(lossless=True, method=6)))
+            w = 'data:image/webp;base64,' + base64.b64encode(b.getvalue()).decode()
+            return w if len(w) < len(v) else v
+        if isinstance(v, dict): return {k: webp(x, lossy) for k, x in v.items()}
+        if isinstance(v, list): return [webp(x, lossy) for x in v]
+        return v
+    A = {k: webp(v, k in LOSSY) for k, v in A.items()}
     open(path, 'w').write('window.WD_ASSETS=' + json.dumps(A) + ';')
     print('ok', {k: (list(v.keys()) if isinstance(v, dict) else len(v)) for k, v in A.items()},
           round(os.path.getsize(path) / 1024), 'KB')
