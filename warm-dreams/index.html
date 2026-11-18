@@ -1445,6 +1445,21 @@ function ambDraw(sc){if(sc.interior||sc!==OUT)return;const N=sky.night,t=st.dayT
   // haces de luz en el bosque del santuario (de día)
   if(shr>.05&&LUZ.sun>.05){for(let k=0;k<5;k++){const bx=((2740+k*97)-camX*.9)%(W+120)-40,a=shr*LUZ.sun*(.05+.03*Math.sin(st.time*.004+k));const gr=ctx.createLinearGradient(0,0,0,150);gr.addColorStop(0,`rgba(200,255,235,${a})`);gr.addColorStop(1,'rgba(200,255,235,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(bx,0);ctx.lineTo(bx+10,0);ctx.lineTo(bx+40,150);ctx.lineTo(bx+18,150);ctx.closePath();ctx.fill()}}
   ctx.restore()}
+const GRB={};
+function godRays(sc,sx,sy,a,k_,OW_,OH_){const mw=200,mh=Math.round(mw*OH_/OW_);if(!GRB.m||GRB.m.width!==mw||GRB.m.height!==mh){for(const k of ['m','r','t']){GRB[k]=mk(mw,mh);GRB[k].width=mw;GRB[k].height=mh;GRB[k+'g']=GRB[k].getContext('2d')}}
+  const m=GRB.mg,r=GRB.rg,tt=GRB.tg,vh=OH_/k_/Z,ux=mw/W,uy=mh/vh,cx=sx/Z*ux,cy=sy/Z*uy;
+  // máscara: luz del cielo alrededor del sol, recortada por el nivel y los árboles
+  m.setTransform(1,0,0,1,0,0);m.globalCompositeOperation='source-over';m.clearRect(0,0,mw,mh);const g=m.createRadialGradient(cx,cy,0,cx,cy,mw*.9);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.25,'rgba(255,255,255,.55)');g.addColorStop(1,'rgba(255,255,255,0)');m.fillStyle=g;m.fillRect(0,0,mw,mh);
+  m.globalCompositeOperation='destination-out';blitCh(m,sc,'l',camX*ZL,camY*ZL,W*ZL,vh*ZL,0,0,mw,mh);
+  for(const t of sc.treeSpr){if(t.ox>camX+W||t.ox+t.GW<camX||!t.c)continue;m.drawImage(t.c,(t.ox-camX)*ux,(t.oy-camY)*uy,t.GW*ux,t.GH*uy)}
+  if(sc.fronts)for(const f of sc.fronts){if(f.x>camX+W||f.x+f.w<camX)continue;m.drawImage(f.c,(f.x-camX)*ux,(f.y-camY)*uy,f.w*ux,f.h*uy)}
+  if(sc===OUT&&FOREST.im&&camX+W>2706){const fx=(2706-camX)*ux,fg_=m.createLinearGradient(fx,0,fx+12*ux,0);fg_.addColorStop(0,'rgba(0,0,0,0)');fg_.addColorStop(1,'rgba(0,0,0,1)');m.fillStyle=fg_;m.fillRect(fx,0,mw-fx+2,mh)}// el bosque del fondo también bloquea
+  // desenfoque radial desde el sol (zoom blur por pasadas)
+  r.setTransform(1,0,0,1,0,0);r.globalCompositeOperation='copy';r.globalAlpha=1;r.drawImage(GRB.m,0,0);
+  for(let i=0;i<6;i++){const sc_=1+.05*Math.pow(1.85,i);tt.setTransform(1,0,0,1,0,0);tt.globalCompositeOperation='copy';tt.globalAlpha=1;tt.drawImage(GRB.r,0,0);tt.globalCompositeOperation='lighter';tt.globalAlpha=.62;
+    tt.setTransform(sc_,0,0,sc_,cx*(1-sc_),cy*(1-sc_));tt.drawImage(GRB.r,0,0);r.globalCompositeOperation='copy';r.drawImage(GRB.t,0,0)}
+  r.setTransform(1,0,0,1,0,0);r.globalCompositeOperation='source-in';r.fillStyle=`rgb(${LUZ.col})`;r.fillRect(0,0,mw,mh);r.globalCompositeOperation='source-over';
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=true;ctx.globalCompositeOperation='screen';ctx.globalAlpha=clamp(a,0,1)*.55;ctx.drawImage(GRB.r,0,0,OW_,OH_);ctx.restore()}
 function luzGrade(sc){const OW=ctx.canvas.width,OH=ctx.canvas.height,k_=OW/(W*Z),N=sky.night,t=st.dayT,f=clamp((t-.2)/.62,0,1),el=Math.sin(f*Math.PI),sv=LUZ.sun,gh=clamp(LUZ.gh,0,1),sx=(W*.1+f*W*.8)*Z*k_,sy=(112-el*94)*Z*k_;
   if(sv>.03){
     // tinte cálido general en hora dorada (multiply) + luz desde el sol (soft-light)
@@ -1453,11 +1468,8 @@ function luzGrade(sc){const OW=ctx.canvas.width,OH=ctx.canvas.height,k_=OW/(W*Z)
     ctx.globalCompositeOperation='soft-light';ctx.fillStyle=g1;ctx.fillRect(0,0,OW,OH);
     // sombras moradas abajo
     if(gh>.02){const g2=ctx.createLinearGradient(0,OH*.4,0,OH);g2.addColorStop(0,'rgba(120,90,170,0)');g2.addColorStop(1,`rgba(100,70,165,${sv*gh*.5})`);ctx.globalCompositeOperation='multiply';ctx.fillStyle=g2;ctx.fillRect(0,OH*.4,OW,OH*.6)}
-    // rayos de sol en abanico desde el sol
-    if(Q>=2&&el<.8){const a=sv*(.09+gh*.12)*(1-el*.6);ctx.globalCompositeOperation='screen';const base=Math.PI/2+(-LUZ.dir)*(.55-el*.4),len=OW*1.5;
-      for(let k=0;k<8;k++){const h=hash(k*53+11),an=base+((h%100)/100-.5)*.9+Math.sin(st.time*.0015+k)*.02,wd=.025+((h>>7)%30)/1000,pulse=.55+.45*Math.sin(st.time*.003+k*1.9);
-        const x1=sx+Math.cos(an-wd)*len,y1=sy+Math.sin(an-wd)*len,x2=sx+Math.cos(an+wd)*len,y2=sy+Math.sin(an+wd)*len,gr=ctx.createLinearGradient(sx,sy,(x1+x2)/2,(y1+y2)/2);
-        gr.addColorStop(0,`rgba(${LUZ.col},${a*pulse})`);gr.addColorStop(.6,`rgba(${LUZ.col},${a*pulse*.35})`);gr.addColorStop(1,`rgba(${LUZ.col},0)`);ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(x1,y1);ctx.lineTo(x2,y2);ctx.closePath();ctx.fill()}}}
+    // rayos de sol volumétricos: solo nacen del cielo visible; edificios y árboles los bloquean
+    if(Q>=2&&el<.85)godRays(sc,sx/k_,sy/k_,sv*(.55+gh*.75)*(1-el*.45),k_,OW,OH)}
   {const shr=sc===OUT?clamp((camX+W/2-2620)/160,0,1):0;if(shr>.02){const g4=ctx.createLinearGradient(0,0,OW,OH);g4.addColorStop(0,`rgba(110,240,225,${shr*.16})`);g4.addColorStop(1,`rgba(200,140,255,${shr*.18})`);ctx.globalCompositeOperation='soft-light';ctx.fillStyle=g4;ctx.fillRect(0,0,OW,OH)}}
   if(N>.4){const g3=ctx.createLinearGradient(0,0,0,OH);g3.addColorStop(0,`rgba(120,150,255,${(N-.4)*.3})`);g3.addColorStop(1,'rgba(60,70,140,0)');ctx.globalCompositeOperation='soft-light';ctx.fillStyle=g3;ctx.fillRect(0,0,OW,OH)}
   ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1}
@@ -1581,7 +1593,7 @@ function renderScene(sc,tgt){const saveScene=scene,saveCam=camX;scene=sc;if(sc!=
   if(sc===OUT&&FOREST.im&&camX+W>2706){const fw=FOREST.w,fh=FOREST.h,x0=2706-camX,sh=(camX-2400)*.15,N=sky.night,col=mix(mix(sky.hor,sky.dark,.55),[10,14,30],N*.5),a=clamp(.12+N*.62+st.rain*.2,0,.9),img=a>.03?tintCache(FOREST.c,col,a,'atop'):FOREST.c;
     const cv=ctx.canvas;if(!FOREST.buf||FOREST.buf.width!==cv.width||FOREST.buf.height!==cv.height){FOREST.buf=mk(cv.width,cv.height)}const fb=FOREST.buf,fg=fb.getContext('2d');fg.setTransform(1,0,0,1,0,0);fg.clearRect(0,0,fb.width,fb.height);fg.setTransform(ctx.getTransform());fg.imageSmoothingEnabled=true;
     for(let x=x0+sh-fw*Math.ceil(sh/fw+1);x<W;x+=fw)if(x+fw>x0)fg.drawImage(img,x,128-fh,fw,fh);
-    fg.globalCompositeOperation='destination-in';const gr=fg.createLinearGradient(x0+2,70,x0+44,-6);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,1)');fg.fillStyle=gr;fg.fillRect(x0-10,-60,W-x0+100,260);fg.globalCompositeOperation='source-over';
+    fg.globalCompositeOperation='destination-in';const gr=fg.createLinearGradient(x0,0,x0+24,0);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,1)');fg.fillStyle=gr;fg.fillRect(x0-10,-60,W-x0+100,260);fg.globalCompositeOperation='source-over';
     const T0=ctx.getTransform();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(fb,0,0);ctx.setTransform(T0)}tick_('cielo y fondos');
   if(!sc.interior&&st.rain>.04&&!OFF.rain){const n=Math.round(90*st.rain*[.3,.6,1][Q]);ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.4),.32);ctx.lineWidth=.5;ctx.beginPath();for(let i=0;i<n;i++){const sp=2.6+(i%5)*.45,x=((i*61.7-camX*.5+st.time*st.wind*1.1)%(W+40)+W+40)%(W+40)-20,y=(i*37.3+st.time*sp)%190;ctx.moveTo(x,y);ctx.lineTo(x-st.wind*1.1,y-3.5)}ctx.stroke()}
   if(sc.interior&&rain.length){ctx.strokeStyle=css(mix(sky.hor,[200,215,240],.55),.6);ctx.lineWidth=.5;ctx.beginPath();for(const d of rain){const x=d.x-camX+.5;ctx.moveTo(x,d.y);ctx.lineTo(x-st.wind*1.6*d.l/4,d.y-d.l)}ctx.stroke()}
