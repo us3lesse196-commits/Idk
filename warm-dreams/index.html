@@ -1746,9 +1746,9 @@ $('#thanks').addEventListener('click',()=>{$('#thanks').hidden=true});
 const talkEl=$('#talk');let talkOpen=false,lines=[],li=0,typed=0,typeTimer=null;
 function aoiLines(){const L=[],n=pzCount();
   if(n===0)L.push(['¿...Ya encontraste alguno? No tienes que apurarte.','timida']);
-  else if(n<5){L.push(['Ya llevas '+n+'... gracias, Angel.','feliz']);L.push(['No los leas todavía... ¿sí?','timida'])}
-  else{L.push(['¿Ya... están todos?','sorprendida']);L.push(['Entonces... ya sabes lo que quería decirte. Es que... por escrito me sale mejor.','timida'])}
-  L.push(st.rain>.3?['Me quedo hasta que pare. Me gusta su sonido... y que estés aquí.','hablar']:['Me gusta esperar bajo los cerezos. Sobre todo si vas a venir tú.','feliz']);return L}
+  else if(n<5){L.push(['Ya llevas '+n+'... gracias, amor.','feliz']);L.push(['No los leas todavía... ¿sí?','timida'])}
+  else{L.push(['¿Ya... están todos?','sorprendida']);L.push(['Entonces... ya sabes lo que quería decirte, amor. Es que... por escrito me sale mejor.','timida'])}
+  L.push(st.rain>.3?['Me quedo hasta que pare. Me gusta su sonido... y que estés aquí, amor.','hablar']:['Me gusta esperar bajo los cerezos. Sobre todo si vas a venir tú.','feliz']);return L}
 let talkDone=null;
 function startTalk(n){talkOpen=true;player.state='talk';lines=aoiLines().map(([t,ex])=>({who:'Maju',text:t,ex}));li=0;talkDone=()=>{player.state='play'};talkEl.hidden=false;n.dir=player.x<n.x?-1:1;showLine()}
 // retratos de diálogo: Angel, Maju y el zorro con expresiones; los demás sin retrato
@@ -1951,7 +1951,7 @@ async function prologueRest(){
     T('Maju','Había... algo que hice. Lo pegué ahí. Pero el viento... se lo llevó en pedazos.','timida'),
     T('Angel','¿Qué era?','hablar'),
     T('Maju','...No te lo puedo decir. Todavía no.','timida'),
-    T('Maju','¿Me ayudas a encontrar los pedazos? Son cinco. Yo... te espero aquí, bajo el cerezo.','hablar'),
+    T('Maju','¿Me ayudas a encontrar los pedazos, amor? Son cinco. Yo... te espero aquí, bajo el cerezo.','hablar'),
     T('Angel','Claro. Los encontraré todos.','feliz'),
     T('Angel','(Está más roja de lo normal... ¿qué será?)','pensar')]);
   cine.aoi={x:1462,a:1,face:1};await wait(60);
