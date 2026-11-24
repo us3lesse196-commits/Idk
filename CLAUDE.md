@@ -8,3 +8,8 @@
 - Armar el HTML final con `python3 -I warm-dreams/tools/build.py <versión>` → `warm-dreams/dist/` (carpeta ignorada por git) y enviarlo como archivo.
 - Ahorrar uso: máximo 1-2 capturas de pantalla por tarea y solo de lo que cambió; no repetir pruebas completas (prólogo/final) si el cambio no las toca; leer solo la parte del código que se va a editar; hacer cambios pequeños y concretos. El usuario prueba en su celular y reporta. Avisar antes de una tarea grande o costosa para que el usuario decida.
 - Antes de integrar sprites de SpriteCook, leer `docs/sprites-spritecook.md` (escalas, proceso, colocación, problema de luz pintada y cómo resolverlo).
+- Créditos de SpriteCook: antes de cada generación decir el costo y los créditos que quedan, y esperar el OK. Nunca gastar los últimos créditos sin permiso explícito. Ajustes pequeños (borrar, mover, recolorear, escalar) se hacen por código, no regenerando. Si una generación sale mal, no reintentar sola: preguntar.
+- Pedidos visuales ambiguos ("ese cuerno", "esa luz"): si no es obvio cuál es, preguntar con una frase antes de tocar nada, en vez de adivinar y rehacer varias veces.
+- Verificar antes de entregar: revisar con un zoom del área cambiada que quedó bien (sin restos, sin borrar de más) y mandar una sola entrega corregida, no varias seguidas.
+- Si un arreglo no sale en 2 intentos, parar, explicar qué pasa y proponer opciones en vez de seguir probando.
+- Agrupar arreglos pequeños en una sola versión. Respuestas cortas.
