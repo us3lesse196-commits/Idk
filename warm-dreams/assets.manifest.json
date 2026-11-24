@@ -1,0 +1,271 @@
+{
+  "nota": "Imágenes generadas con SpriteCook en la cuenta del usuario. Los PNG viven en assets.local/ (no se suben). Para recuperarlas, descargar el raw del asset y reducir con tools. Script de proceso: ver commit \"Calle Hoshimachi\" (paso en Python dentro de la sesión).",
+  "assets": {
+    "shop": {
+      "spritecook_asset_id": "376e603e-78d2-4767-b0ee-3ffa6d316665",
+      "uso": "fachada de tienda en el barrio",
+      "proceso": "raw -> BOX 160, recorte"
+    },
+    "cafe": {
+      "spritecook_asset_id": "087af4de-470a-4fb7-94b2-07c042c00a55",
+      "uso": "cafetería, Calle Hoshimachi",
+      "proceso": "raw -> BOX 160, recorte"
+    },
+    "house": {
+      "spritecook_asset_id": "ad810119-8d4e-4505-9326-5c747ea8054b",
+      "uso": "casa de dos pisos",
+      "proceso": "raw -> BOX 160, recorte"
+    },
+    "props": {
+      "spritecook_asset_id": "6d178bb0-3b58-4e3a-b48c-a35e3620aff4",
+      "uso": "objetos de calle",
+      "proceso": "raw -> BOX 102, separar por componentes"
+    },
+    "shrine": {
+      "spritecook_asset_id": "31a637eb-7b4e-4189-b82e-352813f64ac0",
+      "uso": "templo de la Colina del Santuario",
+      "proceso": "raw -> BOX 190, recorte"
+    }
+  },
+  "fase0_guia_estilo": {
+    "modelo": "gpt-image-2.5-flare medium 1K (usar raw_url, reducir con BOX)",
+    "edificio_tienda_cafe": "996e6f9f-2e17-4bba-a2bf-a9f210140b63",
+    "edificio_tienda_cafe_luces": "86dbdf7b-e895-429e-9127-482556e875ba",
+    "cerezo": "dd1eabe4-e0a7-4f3b-88bd-8cb6f9b26ab3",
+    "montanas": "f76266c5-dfa9-4e96-b131-6994ad9e934d",
+    "boton": "e9111570-162c-4a13-86f9-67248719ddcd",
+    "cerezo_v2_a": "50b1afda-a67a-4efc-8d35-01240e2bc5f9",
+    "cerezo_v2_b": "79fa26fc-b391-41c2-baca-465b3b036ad2",
+    "cerezo_sagrado_a": "a0ea0ad9-4973-4bd5-92aa-0ff82cee6cbf",
+    "cerezo_sagrado_b": "a01b011f-49f4-44c1-a76e-c880f55417f3"
+  },
+  "fase1_fondos": {
+    "cerezo_lloron": "5f9c26f1-1e95-44c1-b8f9-062c7f4ea033",
+    "cerezo_joven": "bccd819a-7fda-4fc3-a04d-7b0ff23ac36a",
+    "cordillera": "0cbfe018-c8a1-412c-8288-c2bd62f5fcb4",
+    "colinas_pinos": "b7a0b9b5-6851-4267-8d06-bf5f96adff15",
+    "ciudad": "b4d8e94b-e4bb-4135-bfff-742bbfee0849",
+    "ciudad_luces": "eb9483ec-916a-49cf-aa83-a0d62390527f",
+    "nubes": "fcdd8cfb-fc9e-4656-85cc-232ec594b0d3",
+    "elegidos": {
+      "cerezo_sagrado": "b",
+      "cerezos": "a, b, lloron, joven"
+    },
+    "barrio_fondo": "1ecf3bbd-174a-4481-bb75-324e8bd36906",
+    "barrio_fondo_noche": "c67cf19b-b4be-4479-abbf-6cb0d0417239"
+  },
+  "fase2_calle": {
+    "casaMori": "cf8e54d4-70a3-4340-9e78-18de2874a2a9",
+    "casaMori_luces": "adfaa5be-99d2-4dbb-951d-136112bcd2de",
+    "casaC": "8ff40b5c-4dcd-467e-8d63-20a3d96312ee",
+    "casaC_luces": "3d2631b4-afc6-48b6-ae9e-6ce070d1ff27",
+    "deptos": "e930377e-7667-4afc-986f-27c494bf26e9",
+    "deptos_luces": "b308cd9a-c7af-4181-9956-8131cd5a7bbb",
+    "parada": "bb0ed327-9e74-48e4-bf93-0ba767c6562a",
+    "dagashiya": "76b78ce4-a0d3-4202-8c9e-1483356aa1b2",
+    "dagashiya_subida": "1d2c8538-a9f3-4b20-a245-302acf91f1b9",
+    "dagashiya_luces": "b634d04d-2b3e-4a6b-b8c6-4451110b2c2d",
+    "casa_neutra": "e5c5fd92-b7a9-4aab-bdf9-3cbaf32bda77",
+    "casa_neutra_subida": "1c772859-4b1c-4221-8ea1-aa21e41454c1",
+    "casa_neutra_luces": "beda0e8d-8ef2-4929-8f26-6ed19a1d7c61",
+    "nota": "Las imágenes de luces de dagashiya y casa neutra se hicieron sobre la versión subida (raw recortado y cuadrado) porque el editor deformaba la versión pixel."
+  },
+  "fase3_prepa": {
+    "alaA": "96b0abc6-e874-4590-b272-e94f091f9b5c",
+    "alaB": "41072669-0f3a-43b3-9db5-cbe57a8de32f",
+    "torre": "d758b668-6241-46d4-b3c4-b3b9eadea2bd",
+    "porton": "3d55a140-6496-4b88-8bda-76eaae3086aa",
+    "callejonEntrada": "4684e655-5b35-454a-993c-629f2658a67e",
+    "nota": "Luces de la prepa hechas con SpriteCook sobre la imagen subida (las calculadas por código se veían mal).",
+    "centro_entrada_elegido": "547aab42-08b1-4c10-a33d-d4a897dbeb47",
+    "centro_entrada_alt": "f54d8b6e-5c01-4ff2-ad60-9b3c6749b075",
+    "uso": "alaA + centro + alaA en espejo (un solo edificio); alaB y torre ya no se usan",
+    "ala_subida": "64b600ac-54b9-4721-868e-2911e4e191b0",
+    "ala_luces": "38ee8788-e639-4be1-8611-0d6d38a544a0",
+    "centro_subida": "859329ed-824b-4ed6-bac1-b29741a4048b",
+    "centro_luces": "2fb87639-f9cd-4c2f-b63d-b56fc6127f6d",
+    "ala_noche_encendida": "7f37bffe-6d32-425c-845d-a9df4942356e",
+    "centro_noche_encendida": "abe2eb15-f8f3-40f3-9bfb-7c66d81003cb",
+    "metodo_luz": "Versión de noche con luces encendidas (edit sobre la subida), alineada por bordes (align_night) y usada solo donde brilla (lit_from_night)."
+  },
+  "noche_encendida": {
+    "tiendaCafe": "56141e6e-b1aa-4560-99a3-5c77ed0dfb75",
+    "dagashiya": "3ff8d3a9-c8a5-4f33-8f25-39675a846ba4",
+    "casaN": "5b9b898c-8f53-431c-baf2-56bc9260fdb8",
+    "casaMori": "22ad9c9d-9030-419e-bec0-c10f2c580fa9",
+    "casaC": "996f309e-667f-4ef7-8504-c681e726b41a",
+    "deptos": "27564fbf-ea13-4a4f-a0f2-3e86c9a9e5d3",
+    "callejonEntrada": "f0d6b416-7de9-4e36-80c3-ed2321c008aa",
+    "archivos": "assets.local/noche/<nombre>.png"
+  },
+  "tramos": {
+    "callejon_dia": "3053ccc6-46a4-4f47-9457-4825ca522d98",
+    "callejon_dia_alt": "3a42e5fa-6cdf-4f38-9f38-0e454687effd",
+    "callejon_noche": "7862a1a9-cfd7-416b-8407-100d07e2d31e",
+    "metodo": "Tramo completo 16:9 (edificios conectados) con style_asset_ids=deptos; noche por edit; archivos en assets.local/tramos y assets.local/noche/tramoCallejon.png",
+    "s1_cafe_dagashiya": "2b1f9b87-9a1e-4602-8f88-052a307d653f",
+    "s1_noche": "8565ddd9-60dd-458d-bdb6-aec7b50bf3eb",
+    "s2_casa_jardin": "ac25bc91-4f70-4c3b-89c8-0fcfe65c2792",
+    "s2_noche": "9d1029b6-b261-4354-a2c6-7d6dae854115",
+    "s3_casa_mori": "76c30a50-6ca9-42c0-b81d-5a40bf891f75",
+    "s3_noche": "0b3e36c2-cf0e-44b8-a8ee-3e18efdac4af"
+  },
+  "props_nuevos": {
+    "bambu": "6e495db7-4152-4c86-bff3-495ef1a1721a",
+    "arce": "5bfcd8c6-0618-4d21-9922-c24ef29af397"
+  },
+  "tren": {
+    "vagon": "5207b730-1f00-4154-b90f-16ded0677e2c",
+    "vagon_noche": "f6c59013-6b64-49f3-b61e-670cbf2a6590",
+    "cabina": "c6350f7d-9333-476c-bc6b-5caeee79b320",
+    "cabina_noche": "b932eb59-e3bd-44ac-8623-400c76e44f19",
+    "cruce": "60a983e1-e1bb-4cd2-bc03-a199e5b84aab",
+    "nota": "Logo real borrado en *_ok.png; barreras pintadas borradas del cruce (se dibujan por código)."
+  },
+  "suelos": {
+    "calle": "732d820e-1d2a-4770-b218-cb21e8dd3304",
+    "campo": "8e0aa267-3777-47c7-aeac-6b600cafb2d4"
+  },
+  "deco": {
+    "plantas": "cf525431-6c69-47d7-82af-dd041841504d",
+    "calle": "51653b09-d605-4c70-b4be-2f5bea5b6455",
+    "campo": "c9d5eb56-0380-47cc-bad8-d919c7734896",
+    "nota": "Hojas separadas con split_sheet en tools/prep_assets.py"
+  },
+  "lago": {
+    "lago_b_elegido": "555ee287-113b-4498-bdbc-ca79b1a28cc1",
+    "lago_a": "208c9067-7d64-402d-8518-d9906324210f",
+    "tunel": "e4a4763e-7b6f-4ab6-9b58-035fe1f011ac",
+    "ladera": "5a0e924e-7b0e-47b5-b6c0-7c07af6ab524",
+    "nota": "Túnel de frente descartado; el tren se mete detrás de la ladera."
+  },
+  "santuario": {
+    "haiden": "f8fe3353-f506-4cdb-9afd-6da117db303d",
+    "haiden_noche": "ddf3fc98-e4b2-4a7e-9031-cf3154d68f6b",
+    "objetos": "9cd54cfb-23db-4de0-ba9a-d187e6e69a68",
+    "muro": "b25d0731-780d-4e28-b1df-8e60a1863eca",
+    "arboles": "52954546-da2b-4c0d-ab57-24d08ef3752f",
+    "torii_perspectiva": "11ab60e2-c263-4d66-b6c0-e76644de1226",
+    "torii_perfil": "6b7186db-186a-4ed1-ac4e-fbad325cbbc3",
+    "bosque_fondo": "151a06ad-d8a4-451a-838d-926aa1386ac6"
+  },
+  "callejon": {
+    "a1": "9423b158-8410-4274-af5b-b7bb37b2770f",
+    "a1_noche": "54ee5a78-2d2a-4a8d-b532-3a53ba0636af",
+    "a2_izakaya": "90fb2e83-d595-458e-9276-523b18c4dc7b",
+    "a2_noche": "97364af5-256d-4282-ae73-9ed088e7d670"
+  },
+  "casa_interior": {
+    "final_diagonal": "1ed097bf-cf04-4a79-8d56-99191938decb",
+    "final_noche": "aeaf2294-7d24-4d29-a7a9-3d6b821fd807",
+    "base": "3498cd42-8f35-447c-b61c-522087581afb",
+    "hueco_escalera": "f1d2ba75-1281-4136-a545-0d208f29b555"
+  },
+  "ui": {
+    "iconos": "3a2672aa-ecc1-4abe-9d95-56e246af60cd",
+    "boton": "9cbd8426-8fab-4939-bb61-b3d4cb8d2eb1"
+  },
+  "personajes": {
+    "haru": {
+      "base": "a35c5922-c883-4637-9bd3-48e079b85d98",
+      "idle": "1aaba90b-83a1-4a85-837b-427c981121cc",
+      "walk": "52eccea7-02d1-42ad-86cd-36fb4489988d",
+      "run": "28284aa7-92e5-4b9b-99f8-8dbe4ac18aee",
+      "jump": "b7c84c8e-d395-40cf-b09e-b24f8e7885dc",
+      "archivos": "assets.local/chars/haru_*.png (hojas de 202 px por cuadro)",
+      "nota": "descartado: reemplazado por Angel"
+    },
+    "npc_student": {
+      "base": "58d2c418-c108-41eb-95b1-4975ae567a93",
+      "walk": "c5e9cdc0-19eb-4d3d-b1b4-2a00733495f5"
+    },
+    "npc_office": {
+      "base": "6feb16ee-49b1-4715-98bf-516f9a5790d7",
+      "walk": "3d6aebdb-a90b-4082-b5ce-e2c160b2b8f9"
+    },
+    "npc_granny": {
+      "base": "39a9cbe4-b678-4fa1-860e-12e2cb51c365",
+      "walk": "dc8cd9c5-cd3d-45b7-a4e4-2677e2ac5b8c"
+    },
+    "npc_janitor": {
+      "base": "9a3d65c7-3753-44b1-b9c7-108dd5125a51",
+      "walk": "bed6cf4d-540b-4c5b-ad28-69e91fdc5ddd"
+    },
+    "npc_archivos": "assets.local/chars/npc_<tipo>_walk.png",
+    "angel": {
+      "base": "2f1d47e1-8c26-41b7-ad5f-96541c0caf60",
+      "idle": "d9a74b87-a9bc-464a-a980-02c90db458ed",
+      "walk": "b7fa722d-0963-4b1b-aa8d-c6eb51d2ef24",
+      "run": "5e1e580a-adba-4556-8f4a-c266ccec75ab",
+      "jump": "71d037c3-078c-4bac-b316-8b947e49c650",
+      "back": "9ddd2dba-44bd-41b1-8eca-88f43a199934",
+      "sit_pose": "3f8a56f6-96ad-4558-8e71-666d953a1fc5",
+      "slide_pose": "7b817060-704d-42b4-bec7-29ec65d3a71e (usar raw_url; el pixel salió de 32 px)",
+      "fallidos": [
+        "0b8fc1cd-653c-435f-923f-2d78fb98b0a8 sit (salió de pie)",
+        "185d2fa6-a379-4976-8c5f-da11315fa778 slide (salió corriendo)"
+      ],
+      "sleep_pose": "bb0a12c4-541c-45db-9268-ac04c9b8417a"
+    },
+    "maju": {
+      "base": "9b475282-9bf8-48d1-9608-069aacef8dc3",
+      "idle": "575d5661-d765-4604-b21a-ce371ee501c6",
+      "walk": "829a0ea8-9e10-45b2-aa40-edc087948c08",
+      "descartada": "660a5964-f89e-4a2c-9583-d769800158d2"
+    }
+  },
+  "animales": {
+    "zorro": {
+      "referencia_usuario": "130fa7a6-da94-457f-8a6e-8d80bbaeabb7",
+      "generado": "4435a267-680d-4629-8118-a3401529cbbd (usar raw_url)",
+      "base_subida": "7a61acd3-c03d-4c47-8000-5f97d9b4f567",
+      "idle": "cf7502e9-bcae-4da1-8738-492d8cac9143",
+      "walk": "69d76a6a-c888-41ad-89b6-f56ab9a5b33f",
+      "vanish": "8f5aa069-1aa5-4217-b292-ed0bd67dcbff"
+    },
+    "gatos": {
+      "naranja": "ea0d15a4-9a92-4815-9d09-686288b14723",
+      "negro": "8dd918ac-6831-41b1-b314-da9d3fc65da1",
+      "tricolor": "641aafff-07aa-47cc-af19-c7f86019845d"
+    },
+    "koi": "144c0be0-f11a-4b32-9b5f-433b656ef74a",
+    "archivos": "assets.local/animals/"
+  },
+  "retratos": {
+    "angel": {
+      "hablar": "7be2da93-955d-4a28-89cf-3cc1278f55bc",
+      "pensar": "d0073e77-92c1-4432-9140-3f76e3649cb3",
+      "sorprendido": "741c0576-a5da-4ed1-9583-255cb8a6a9b0 (usar raw_url)",
+      "feliz": "4afabe16-4fdc-4338-989a-f29b50c6827c"
+    },
+    "maju": {
+      "hablar": "b66aa7c6-9b8c-4b0c-ba93-8de31b19f134",
+      "timida": "4b3fc9b7-4fad-49e5-9227-98ada4114f20",
+      "sorprendida": "ceeb3b57-64e8-41c0-bc16-d0917ee9343e",
+      "feliz": "df3cea6c-be88-41f3-a6b3-b0b88482af52"
+    },
+    "zorro": {
+      "tranquilo": "130a0fbe-27e9-411c-b1c1-820f4fd11892",
+      "curioso": "552abf96-76af-4a15-ad1d-3f4560bc6ba1"
+    },
+    "archivos": "assets.local/retratos/<quien>_<expresion>.png"
+  },
+  "cielo": {
+    "nubes2": "2e4bc079-5d86-43bc-8f83-cf40588fcfa8",
+    "archivo": "assets.local/cielo/nubes2.png",
+    "luna": "b31c5614-8d29-4506-ad7f-305310246aa4",
+    "sol": "7991093a-9e32-44a0-a671-d9fcda722b5a (salió ovalado; se fuerza a círculo)",
+    "sol_tarde": "102188c4-4ad6-4139-bdf4-f0f3b0c54f96"
+  },
+  "menu": {
+    "logo": "098ee553-4817-43d3-9243-e5a846cf661d",
+    "archivo": "assets.local/menu/logo.png",
+    "titulo": "8d22403e-20ba-49fd-bffa-6c6c29d0b974",
+    "boton": "fbf126d6-9b44-40ca-a0a3-00658195760d"
+  },
+  "cuaderno": {
+    "papel_carta": "5a5498ec-9824-4364-9a66-79355df9f2dc",
+    "stickers": "3830e287-8e6f-4dc8-8d20-c5748e73c5f4",
+    "archivos": "assets.local/cuaderno/"
+  }
+}
